@@ -108,6 +108,13 @@ class BootGuardTests(unittest.TestCase):
                     with self.guard():
                         self.fail('Aliased control must fail closed')
                 link.unlink()
+                # The qmp.in rejection acquires/creates this regular fixture
+                # lock first. Remove it before the runner.lock symlink case.
+                if name == 'qmp.in':
+                    lock = self.work / 'runner.lock'
+                    self.assertFalse(lock.is_symlink())
+                    self.assertTrue(lock.is_file())
+                    lock.unlink()
 
     def test_builder_directory_escape_refused_before_lock_write(self):
         self.work.rmdir()

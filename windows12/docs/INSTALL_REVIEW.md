@@ -1,0 +1,35 @@
+# Source review of disposable D-I installation harness
+
+Reviewed `scripts/install-test.py`, `docs/INSTALL_TEST.md` and `build/guest-build.sh` on 2026-10-24. This was a read-only implementation review while the source-build VM was active. No installer, emulator, test suite, ISO inspection tool or package installation was run for this review. This document records source evidence, not successful installation.
+
+## Finding
+
+No definite blocking error was established from the reviewed source. The harness remains unexecuted. Its next useful validation is against the real generated ISO; there is insufficient evidence to change preseed keys, media paths or disk guards speculatively.
+
+## Exact source checks
+
+| Area | Source evidence | Assessment |
+|---|---|---|
+| Installer inclusion | `guest-build.sh` invokes `lb config --debian-installer live` and `lb build`. | Expresses the intended D-I live-filesystem route. Does not prove that a usable installer or all offline dependencies are present in the resulting ISO. |
+| Kernel/initrd selection | `installer_files()` lists the actual ISO using authenticated xorriso, selects a co-located `vmlinuz` / `initrd.gz` pair outside `/live/`, and refuses equal-depth ambiguity. | No hard-coded presumed media directory. Actual ISO listing is required before declaring discovery successful. |
+| Launch isolation | `main()` holds `exclusive_runner()` through `execute()`; the latter waits for each `run_vm()` to return before starting the next. `common` exposes one new qcow2 with a run-specific virtio serial. `install` adds only the read-only ISO and user networking. | Source-build contention and legacy-QMP listeners are refused. Disk exposure, not a guest shell check alone, provides the primary boundary. |
+| Target selection | `guard` compares the complete matching `/sys/block` disk-name list to `vda`, then checks `/sys/block/vda/serial`. It is expanded both into `partman/early_command` and the late script. `partman-auto/disk` and `grub-installer/bootdev` are `/dev/vda`. | Missing serial or extra matching disk fails closed. Do not weaken this guard if a real run fails. |
+| Preseed formatting | The preseed is a multiline string with one owner/key/type/value entry per line; shell substitutions in the guard remain literal shell text. The late command fetches the exact run-specific script and invokes it with `sh`. | No source-visible Python interpolation or shell-quoting break was found. Debconf acceptance still needs installer logs. |
+| Offline intent | The preseed sets `choose-mirror/skip`, `apt-setup/use_mirror=false`, empty `apt-setup/services-select`, an invalid fallback mirror and `live-installer/enable=true`. `pkgsel/upgrade=none` avoids an upgrade request. | The intended payload source is the ISO. User networking remains enabled for DHCP/preseed/callback, so this is not a network-isolation test. No arbitrary network fallback should be enabled merely to make an offline-media failure pass. |
+| Late command target | The late script checks `/target/etc/debian_version`, queries `windows12-desktop` via `in-target`, writes the proof script and unit only under `/target`, then enables the unit with a relative symlink. | These paths refer to the installer guest's target disk, not the execution host. Package installation state is checked before callback. |
+| Completion callback | `Handler` accepts only the run's preseed, late script and exact completion path on a loopback-bound server. The callback happens after target checks and proof-unit creation. | Callback alone is insufficient; the harness also requires a clean installer exit and a second disk boot. It is evidence from the test guest, not an independent attestation. |
+| ISO-free boot | After the installer finishes, `execute()` shuts down the HTTP server and launches `common` with only `-boot order=c -nic none`; the installer-only kernel, initrd and ISO arguments are absent. | The second guest must boot from the newly installed disk. It cannot rely on the direct installer kernel or ISO. |
+| Root proof | The installed unit checks Debian identity, `/dev/vda` partition root, installed overlay and `testuser`. It emits the random-token markers to `/dev/ttyS0`, synchronizes, and requests poweroff. The host additionally requires marker regexes, clean exit and no timeout. | A root/package/account boot proof is implemented. No graphical login, credential authentication, privilege or application test is implemented. |
+| Configuration audit | The proof checks known build-CA filenames, active proxy lines containing `10.0.2.2`, `graphical.target`, and the SDDM service fragment/default-manager file. | Matches the known build infrastructure and required configuration. It is neither a complete trust-store audit nor proof that SDDM/Plasma displayed. |
+| Cleanup and retention | `run_vm()` has a `finally` stop path; `execute()` preserves the disk and writes a final `result.json` even after caught failures. | The lock remains held during normal cleanup. An externally killed controller still requires recorded PID/command reconciliation before another run. |
+
+## Runtime gates and minimal response to failures
+
+1. **Media discovery:** retain `iso-tree-files.txt` and `xorriso.log`. If there is no usable pair, inspect the generated live-build configuration and actual media layout before changing discovery. Do not silently substitute the live kernel.
+2. **Preseed delivery:** retain the first installer serial output and confirm DHCP/preseed retrieval. A failed HTTP fetch must be distinguished from a rejected debconf answer. If more evidence is needed, add exact-path HTTP request/status logging inside the existing contained output directory; no additional exposed endpoint is necessary.
+3. **Offline install:** confirm that live-installer copies the ISO filesystem and GRUB installation completes without a mirror. Missing components or media prompts are failures to diagnose. A genuine missing ISO component should be fixed in the build recipe and rebuilt; do not silently add a network mirror to this test.
+4. **Disk guard:** if `WRONG_DISK_GUARD` appears or the late script exits before callback, inspect observed disk names and serial from that guest. Change only a demonstrated incorrect attribute/path, retaining exact single-disk identity checks.
+5. **Installed boot:** if the callback succeeds but the proof does not, inspect captures and `installed-boot-serial.log` to distinguish bootloader failure, root discovery, proof-unit failure and configuration-audit failure. A zero emulator exit alone is never acceptance.
+6. **Desktop follow-up:** this proof unit powers off the installed test disk after every successful proof boot. A later interactive desktop test needs a new contained installation or deliberate removal of the test-only unit inside a contained guest. The docs already disclose this behavior.
+
+Do not report D-I installation support until those measured gates pass. Calamares remains a separate untested path even if this D-I harness eventually succeeds.
