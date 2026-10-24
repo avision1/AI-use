@@ -1,6 +1,6 @@
 # Live console observability without a guest restart
 
-Research and narrow tool implementation, 2026-10-24. **No console backend change, device hotplug or guest-agent command was executed for this work.** Actual runtime results must be recorded separately by the designated builder owner after review.
+Research and narrow tool implementation, 2026-10-24. **The designated builder owner subsequently reported a successful `serial0` switch to ringbuf and recovered live package-download output through Get 420.** The implementing agent did not issue that change. Device hotplug and QGA remain unexecuted. The optional persistent monitor reader described below is newly implemented and awaits owner execution; do not infer its operational success from the earlier manual ringbuf recovery.
 
 ## Preferred first attempt: change only the UART backend
 
@@ -29,6 +29,22 @@ Use the existing serialized project QMP client; do not attach an independent FIF
 Decode the response's `return` string as base64, preserve the raw response and decoded bytes, and inspect text with an explicit replacement policy for invalid UTF-8. A read **consumes** those bytes; it is not an idempotent observation. The 1 MiB buffer overwrites its oldest unread bytes if full. A single bounded read can leave additional data pending. Base64 avoids QEMU's documented UTF-8 handling limitations for raw console bytes. [3][4]
 
 The tool restricts `--console-id` to `serial` followed by 1–3 decimal digits, requires it explicitly for both console actions (other actions retain an unused internal `serial0` fallback), and retains the previous safe-path checks, five-second bounded response handling and `qmp-client.lock`. It provides no arbitrary backend/path/input command. The label syntax is not UART identity validation. Existing actions remain unchanged. `console-ringbuf` changes the backend and must not be described as read-only; `console-read` drains only the host-side buffer. Neither sends keyboard input or requests guest CPU/disk/boot changes.
+
+## Optional persistent reader
+
+After the UART backend has been explicitly reviewed and changed to ringbuf, the designated owner can stop **only the old monitor** with its `stop` command and start the replacement persistent TTY monitor against the same running guest:
+
+```sh
+python3 -B scripts/build-monitor.py --interval 60 --auto-cleanup --console-id serial0
+```
+
+Use the actual previously observed UART ID. The option is disabled by default, accepts only the same `serialN` syntax, and **never redirects a backend**. Each iteration invokes the reviewed fixed `console-read` action at most four times, each reading at most 16 KiB with an eight-second subprocess timeout. It stops on an empty reply or an error, validates JSON/base64 and the decoded size, and appends bytes to the project-local regular non-symlink `artifacts/vm-build/serial-ringbuf.log`. The log uses append mode and is not a complete historical console transcript.
+
+Each read iteration emits received/logged byte counts, the last six decoded lines (each limited to its final 1,024 characters), any error, and `console_more_may_be_pending` when its cap is reached or an error makes the remaining buffer uncertain. Reads consume data. A logging failure after a read can lose consumed bytes; differing received/logged counts and the error must be retained as evidence. No automatic retry can recover those bytes.
+
+The existing cleanup and 6 GiB resource-pause check run **before** optional console reads. Expected read/decode/path/I/O/timeout errors are reported nonfatally, preserving the next iteration's cleanup. Existing stdin commands and VM-control behavior are unchanged. This reader does not pause/resume/start/stop the guest or change its backend; the existing resource safeguard can still pause guest CPUs when storage is low. Its purpose is to observe through the already persistent process instead of repeatedly starting fresh filesystem-tool sessions.
+
+AST syntax and diff checks passed for this implementation. No monitor was started or replaced by the implementing agent. Parent review and an actual owner-run observation are required before calling this reader operationally validated.
 
 ## Failure and rollback
 

@@ -107,3 +107,6 @@ Use `python3 -B scripts/probe-qmp.py status` and `blockstats` through the existi
 
 ## Current UART console recovery
 The reviewed tool adds chardevs, console-ringbuf and console-read. Follow docs/LIVE_OBSERVABILITY.md exactly: identify actual UART vs QMP backend, record replies, change only observed UART after review, confirm state, drain bounded base64 output. Backend change is not read-only and may interrupt console traffic; it does not request guest CPU/disk/boot changes. Never change compat_monitor0 or blindly repeat after ambiguous timeout. Preserve final guest log as authoritative build evidence.
+
+## Current combined monitor — supersedes historical handles
+Console recovery and optional reader were executed successfully. Existing guest6329 continues. Storage monitor19363 stopped ONLY its own process; combined TTY monitor82377 now runs `python3 -B scripts/build-monitor.py --interval 60 --auto-cleanup --console-id serial0`. UART serial0 is already ringbuf: do not redirect again or create a second consumer. Observe fresh console fields/log rather than old serial.log age. Bounded reads consume data; final guest log export is complete evidence. Cleanup/resource pause runs before console reads and console errors are reported nonfatally. Current handles/progress in HANDOFF and docs/RESTORED_BUILD.md supersede all older examples.

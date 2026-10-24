@@ -9,7 +9,7 @@ Every project write, dependency, cache, temporary file, log, output and agent fi
 Read HANDOFF.md, PROJECT_STATE.md, TASKS.md, DECISIONS.md, RUNBOOK.md. Inspect Git branch/log/status scoped to windows12 and recorded running jobs. Reconcile real outputs before restarting jobs. Work on the highest-priority actionable task and update all memory after meaningful progress. Agents own only assigned paths; no agent commits unless explicitly assigned. Parent integrates and reviews.
 
 ## Initial repository map
-`docs/`: evidence and validation; `scripts/`: build and validation tools; `image/`: target filesystem overlays; `tests/`: checks; `.work/`: ignored caches and temporary work; `artifacts/`: ignored generated images and logs.
+`docs/`: evidence/validation, LIVE_OBSERVABILITY.md (console recovery), DESKTOP_AUDIT.md (release gates); `scripts/`: build and validation tools; `image/`: target filesystem overlays; `tests/`: checks; `.work/`: ignored caches and temporary work; `artifacts/`: ignored generated images and logs.
 
 ## Checkpoints
 Update task IDs, branch/commit, validation, blockers and exact next command. Stage only windows12 paths; inspect all staged names and diff before committing. Preserve unrelated work. Synchronize through existing repository only, without force push. No large binaries in Git. Generated artifacts need explicit checksums and build provenance; original signed inputs must be archived separately for long-term reconstruction.

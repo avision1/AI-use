@@ -5,7 +5,7 @@ Use a TTY-backed tool session for stdin commands cleanup/status/pause-vm/
 resume-vm/vm-status/stop. stop ends only this monitor, not the guest.
 """
 from pathlib import Path
-import argparse,json,os,select,subprocess,sys,time
+import argparse,base64,json,os,re,select,stat,subprocess,sys,time
 ROOT=Path(__file__).resolve().parents[1]
 WORK=ROOT/'.work/builder';OUT=ROOT/'artifacts/vm-build'
 def safe(path):
@@ -15,7 +15,9 @@ def main():
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--interval',type=int,default=60)
  parser.add_argument('--auto-cleanup',action='store_true')
+ parser.add_argument('--console-id',help='Optional observed UART serialN already redirected to ringbuf; never redirects automatically')
  args=parser.parse_args()
+ if args.console_id is not None and not re.fullmatch(r'serial[0-9]{1,3}',args.console_id):parser.error('--console-id must be an observed UART ID serialN')
  if args.interval<60:raise SystemExit('Use intervals of at least60 seconds around a changing VM disk')
  for path in [WORK,OUT,WORK/'monitor.log']:safe(path)
  env=os.environ.copy()
@@ -48,6 +50,35 @@ def main():
      pending.write_text(json.dumps(record,indent=2)+'\n');pending.replace(safe(WORK/'paused-state.json'))
     except OSError as error:emit({'pause_marker_error':str(error),'pause_status':'unconfirmed'})
    emit({'time':time.time(),'resource_pause_confirmed':confirmed,'free_bytes':free_bytes(),'requires_explicit_resume':True})
+ def read_console():
+  # Cleanup/resource protection executes first; console failures are nonfatal.
+  report={'time':time.time(),'console_id':args.console_id,'console_reads':0,'console_bytes_received':0,'console_bytes_logged':0,'console_more_may_be_pending':False}
+  observed=bytearray()
+  try:
+   target=safe(OUT/'serial-ringbuf.log')
+   for index in range(4):
+    result=subprocess.run([sys.executable,'-B',str(ROOT/'scripts/probe-qmp.py'),'console-read','--console-id',args.console_id],env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=8)
+    report['console_reads']+=1
+    if result.returncode!=0:raise ValueError('Console read failed ('+str(result.returncode)+'): '+(result.stderr or result.stdout)[-2048:])
+    response=json.loads(result.stdout)
+    if not isinstance(response,dict):raise ValueError('Console reply is not a JSON object')
+    encoded=response.get('return')
+    if not isinstance(encoded,str) or len(encoded)>21848:raise ValueError('Console reply missing bounded base64 return string')
+    data=base64.b64decode(encoded,validate=True)
+    if len(data)>16384:raise ValueError('Console reply exceeds fixed read bound')
+    if not data:break
+    observed.extend(data);report['console_bytes_received']+=len(data)
+    descriptor=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_APPEND|os.O_NOFOLLOW|os.O_NONBLOCK,0o600)
+    with os.fdopen(descriptor,'ab') as destination:
+     if not stat.S_ISREG(os.fstat(destination.fileno()).st_mode):raise ValueError('Console log is not a regular file')
+     destination.write(data)
+    report['console_bytes_logged']+=len(data)
+    report['console_more_may_be_pending']=index==3
+  except (OSError,ValueError,UnicodeError,subprocess.TimeoutExpired,SystemExit) as error:
+   report['console_error']=str(error)
+   report['console_more_may_be_pending']=True
+  report['console_latest_lines']=[line[-1024:] for line in observed.decode(errors='replace').splitlines()[-6:]]
+  emit(report)
  def emit_status():
   disk=safe(WORK/'build.qcow2');serial=safe(OUT/'serial.log')
   temporary=[]
@@ -71,6 +102,7 @@ def main():
  stdin_open=True
  while True:
   if args.auto_cleanup and not (OUT/'build.exit').exists():cleanup()
+  if args.console_id is not None:read_console()
   if emit_status():return
   until=time.monotonic()+args.interval
   while time.monotonic()<until:
