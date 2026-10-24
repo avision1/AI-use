@@ -3,7 +3,7 @@
 ## Current milestone
 M1: produce and validate a Debian13 amd64 KDE live/installer ISO with project desktop package. Source build is running; **no target ISO or installation is verified yet**.
 
-Repository: avision1/AI-use, branch main. Previous verified synchronized checkpoint: a32372f17be6a5b3a717f3a9529ad92b66062ca8. User requires frequent direct-to-main pushes, only windows12 changes. Native push lacks credentials; authenticated GitHub tree/commit/ref API works. Initial-to-64bff6f comparison confirmed zero changed paths outside windows12.
+Repository: avision1/AI-use, branch main. Previous verified synchronized checkpoint: bc1a3b58bf36ff9722560e6a7d64ef060b3c3e10. User requires frequent direct-to-main pushes, only windows12 changes. Native push lacks credentials; authenticated GitHub tree/commit/ref API works. Initial-to-64bff6f comparison confirmed zero changed paths outside windows12.
 Absolute project: /workspace/scratch/3c38ab731138/AI-use/windows12. Parent README/LICENSE are tracked upstream but intentionally unmaterialized here; never stage their apparent deletions.
 
 ## Implemented and validated
@@ -16,7 +16,7 @@ Absolute project: /workspace/scratch/3c38ab731138/AI-use/windows12. Parent READM
 - lb config succeeded; lb build entered debootstrap, verified Debian Release signature and is retrieving/validating base packages.
 
 ## Active jobs — inspect before restarting
-Main build tool session50357, .work/builder/vm-launch-06.log, artifacts/vm-build/serial.log. Disk .work/builder/build.qcow2 (24GiB virtual, sparse); source SHA256 410ef567dcb06bc49f6e7e50a87f8173e0e5b3acded7b0275d3c6e68abc10ad9 in checks.tar/build-source.sha256. Latest observed stage: required packages configured; base system unpacking/configuration in progress. No failure marker for current run. Early package/log/checksum HTTP exports succeeded. Old diagnostic jobs are stopped and logs/disks preserved.
+Main build tool session50357, .work/builder/vm-launch-06.log, artifacts/vm-build/serial.log. Disk .work/builder/build.qcow2 (24GiB virtual, sparse); source SHA256 410ef567dcb06bc49f6e7e50a87f8173e0e5b3acded7b0275d3c6e68abc10ad9 in checks.tar/build-source.sha256. Latest observed stage: debootstrap completed; actual target desktop transaction queued2155MB downloads and7419MB additional installed software, including windows12-desktop. No failure marker for current run. Early package/log/checksum HTTP exports succeeded. Old diagnostic jobs are stopped and logs/disks preserved.
 Recovery probe phases1 and2 are completed and stopped (sessions35102,34341). Same guest disk/payload reran with counter1→2 and refreshed proxy environment; callbacks201 and QEMU exit0. Evidence in artifacts/recovery-probe/phase-{1,2}/result.json and docs/RECOVERY.md. No probe VM is running. Main build remains the only active VM.
 
 ## Limitations and incomplete work
@@ -29,3 +29,7 @@ No ISO, target desktop, installer, installed reboot, authenticated Office, Wine/
 4. Recovery and installation harness source has been reviewed and statically parsed. Do not rerun completed recovery probe without a reason. Execute installation harness only after ISO completion and free-space check; record exact scope/results. Update memory and push reviewed windows12-only checkpoints to main.
 
 Source review: all11 Python source files parse via read-only AST inspection; this does not execute or validate the unrun ISO/installer harnesses. Separate xorriso startup verified from signature/hash-authenticated packages. No host package installation occurred.
+
+Monitoring/resource note: persistent monitor session68522, owned by /root/builder, is active (scripts/build-monitor.py, .work/builder/monitor.log). Prefer having its owner poll this existing session at intervals≥60s instead of new/parallel exec calls; stdin status reports state, cleanup applies narrowly audited stale-copy removal, stop stops only monitor. Observed recursive generated .build.qcow2.* copies consumed~10.46GiB;42 stale regular copies were removed after age/inode/re-stat checks, real disk/backing preserved. Audit .work/builder/sync-temp-cleanup.jsonl. Platform synchronization is the suspected cause, not independently established. Preserve recent copies; never delete configured .qcow2 files with this cleanup.
+
+Monitor handles are agent-scoped: only /root/builder can poll current68522. Root received Unknown process id for prior99317; this does not establish that the process stopped. Owner stopped99317 and replaced it with TTY-backed68522 so stdin cleanup commands work. Two reviewed cleanup passes reclaimed~10GiB each; real VM50357 remains active. Latest observed target Qt/KDE downloads~package244, real disk~1.85GB, free~24.9GB after cleanup; continuing temporary-copy growth still requires monitoring.
