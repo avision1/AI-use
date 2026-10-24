@@ -7,9 +7,11 @@ import re
 import subprocess
 import wave
 from .storage import digest, atomic_json
+from filelock import FileLock
 from .voices import validate_voice
+from .preload import MODEL_REPO, MODEL_REVISION, assets
 
-ENGINE_VERSION = "kokoro-0.9.4-82m-v1-pcm24k-v1"
+ENGINE_VERSION = "kokoro-0.9.4-" + MODEL_REVISION + "-pcm24k-v1"
 
 
 def valid_wav(path: Path) -> bool:
@@ -44,10 +46,12 @@ class Kokoro:
 
     def __init__(self):
         try:
-            from kokoro import KPipeline
+            from kokoro import KPipeline, KModel
             import soundfile
         except ImportError:
             raise RuntimeError('Install speech dependencies: pip install -e ".[speech]"; install espeak-ng first') from None
+        files = assets()
+        self.model = KModel(repo_id=MODEL_REPO, config=files["config.json"], model=files["kokoro-v1_0.pth"])
         self.pipeline_type, self.sf = KPipeline, soundfile
         self.pipelines = {}
 
@@ -56,9 +60,11 @@ class Kokoro:
         validate_voice(voice)
         lang = voice["parts"][0]["id"][0]
         if lang not in self.pipelines:
-            self.pipelines[lang] = self.pipeline_type(lang_code=lang, repo_id="hexgrad/Kokoro-82M")
+            self.pipelines[lang] = self.pipeline_type(lang_code=lang, repo_id=MODEL_REPO, model=self.model, device="cpu")
         pipeline = self.pipelines[lang]
-        tensor = sum(pipeline.load_voice(p["id"]) * p["weight"] for p in voice["parts"])
+        import torch
+        files = assets([p["id"] for p in voice["parts"]])
+        tensor = sum(torch.load(files[f'voices/{p["id"]}.pt'], weights_only=True, map_location="cpu") * p["weight"] for p in voice["parts"])
         chunks = []
         for _, _, audio in pipeline(text, voice=tensor, speed=voice["speed"]):
             if audio is None:
@@ -112,21 +118,22 @@ class Renderer:
                     if self.deadline and time.monotonic() > self.deadline:
                         raise RuntimeError("Chapter generation paused at its time budget. Resume to reuse saved segments.")
                     path = cache / f'{item["key"]}.wav'
-                    if not valid_wav(path) and self.remote:
-                        self.remote.get_audio(item["key"], path)
-                    if not valid_wav(path):
-                        if self.engine is None:
-                            self.engine = Kokoro()
-                        temp = path.with_suffix(".tmp")
-                        try:
-                            self.engine.synthesize(item["text"], item["voice"], temp)
-                            if not valid_wav(temp):
-                                raise RuntimeError("Generated audio failed PCM validation")
-                            os.replace(temp, path)
-                            if self.remote:
-                                self.remote.put_audio(item["key"], path)
-                        finally:
-                            temp.unlink(missing_ok=True)
+                    with FileLock(str(path) + ".lock", timeout=300):
+                        if not valid_wav(path) and self.remote:
+                            self.remote.get_audio(item["key"], path)
+                        if not valid_wav(path):
+                            if self.engine is None:
+                                self.engine = Kokoro()
+                            temp = path.with_suffix(".tmp")
+                            try:
+                                self.engine.synthesize(item["text"], item["voice"], temp)
+                                if not valid_wav(temp):
+                                    raise RuntimeError("Generated audio failed PCM validation")
+                                os.replace(temp, path)
+                                if self.remote:
+                                    self.remote.put_audio(item["key"], path)
+                            finally:
+                                temp.unlink(missing_ok=True)
                     with wave.open(str(path), "rb") as audio:
                         duration = audio.getnframes() / 24000
                         combined.writeframes(audio.readframes(audio.getnframes()))

@@ -67,5 +67,7 @@ class Gemini:
             if not candidates or candidates[0].get("finishReason") != "STOP":
                 raise ValueError("Gemini blocked or truncated the chapter; raw source preserved, no audio generated")
             text = "".join(p.get("text", "") for p in candidates[0].get("content", {}).get("parts", []) if not p.get("thought"))
+            if getattr(self, "capture", None):
+                self.capture(text)
             return Script.model_validate_json(text)
         raise RuntimeError("Gemini temporarily unavailable")

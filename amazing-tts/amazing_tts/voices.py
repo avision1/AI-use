@@ -68,6 +68,8 @@ def merge_cast(script, existing):
             owner = owners.get(name.casefold().strip())
             if owner is not None and owner != c.id:
                 raise ValueError(f"Alias collision: {name!r} already belongs to {owner}; repair speaker IDs before retrying")
+        if c.id in result and c.name.casefold().strip() not in {n.casefold().strip() for n in [result[c.id]["name"], *result[c.id].get("aliases", [])]}:
+            raise ValueError(f"Identity mismatch for established character {c.id}; keep its canonical name")
         if c.id not in result:
             result[c.id] = {**c.model_dump(), "voice": cast(c, result)}
         else:

@@ -6,7 +6,7 @@ from pathlib import Path
 from .storage import Library, DEFAULT_DATA
 from .scraper import book_url, Scraper
 from .llm import Gemini
-from .pipeline import process, accept_script
+from .pipeline import process, accept_script, needs_llm
 from .audio import Renderer, export_mp3
 from .models import Script
 
@@ -57,7 +57,7 @@ def main():
                 if args.command == "fetch":
                     print(f'Saved {source["title"]}')
                     continue
-                if book.read(book.chapter_name(source["number"]) + "/script.json") is None and llm is None:
+                if needs_llm(book, source["number"]) and llm is None:
                     llm = Gemini(library, args.model, args.daily_budget, args.rpm, args.tpm)
                 result = process(book, source, llm, renderer)
                 if result.get("audio") and args.mp3:

@@ -13,7 +13,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from .storage import Library, DEFAULT_DATA, digest
 from .scraper import book_url, Scraper
-from .pipeline import process, accept_script
+from .pipeline import process, accept_script, needs_llm
 from .audio import Renderer, export_mp3
 from .models import Script
 from .llm import Gemini
@@ -23,6 +23,7 @@ WORKER = os.getenv("SERVICE_MODE") == "worker"
 ROOT = Path(os.getenv("AMAZING_TTS_DATA", str(DEFAULT_DATA)))
 executor = ThreadPoolExecutor(max_workers=1)
 local_guard = threading.Lock()
+local_futures = {}
 
 
 @asynccontextmanager
@@ -93,7 +94,7 @@ def run_local(url, target):
             book.write("job.json", {**local_job(book), "state": "running", "target": target})
             llm = None
             for source in Scraper().download(book, target):
-                if book.read(book.chapter_name(source["number"])+"/script.json") is None and llm is None:
+                if needs_llm(book, source["number"]) and llm is None:
                     llm = Gemini(library())
                 result = process(book, source, llm, Renderer(library()))
                 if result["state"] == "needs_review":
@@ -146,12 +147,13 @@ def generate(body: GenerationRequest, user=Depends(identity)):
             job = local_job(book)
             if job.get("ready", 0) >= body.chapters:
                 return {"id": book.path.name, **job}
-            if job["state"] not in {"queued", "running", "needs_review"}:
+            active = local_futures.get(book.path.name)
+            if job["state"] != "needs_review" and not (active and not active.done()):
                 # Make it visible immediately; metadata is replaced after real discovery.
                 if not book.read("book.json"):
                     Scraper().discover(book)
                 book.write("job.json", {**job, "state": "queued", "target": body.chapters})
-                executor.submit(run_local, url, body.chapters)
+                local_futures[book.path.name] = executor.submit(run_local, url, body.chapters)
         return {"id": book.path.name, **local_job(book)}
     except (ValueError, RuntimeError) as exc:
         raise HTTPException(400, str(exc)) from None
@@ -213,12 +215,16 @@ def get_review(bid: str, user=Depends(identity)):
         source = c.objects.json(bid, f"chapters/{n:06d}/source.json")
         script = c.objects.json(bid, f"chapters/{n:06d}/script.json")
         candidate = c.objects.json(bid, f"chapters/{n:06d}/candidate.json")
+        if candidate is None:
+            candidate = (c.objects.json(bid, f"chapters/{n:06d}/candidate-response.json") or {}).get("response")
     else:
         book = local_book(bid)
         n = local_job(book).get("next", 1)
         source = book.read(book.chapter_name(n)+"/source.json")
         script = book.read(book.chapter_name(n)+"/script.json")
         candidate = book.read(book.chapter_name(n)+"/candidate.json")
+        if candidate is None:
+            candidate = (book.read(book.chapter_name(n)+"/candidate-response.json") or {}).get("response")
     return {"chapter": n, "source": source, "script": script["script"] if script else candidate}
 
 
@@ -238,7 +244,7 @@ def approve(bid: str, body: ReviewRequest, user=Depends(identity)):
                     raise ValueError("No source to review")
                 accept_script(book, source, Script.model_validate(body.script), approve=True)
                 book.write("job.json", {**job, "state": "queued", "error": None})
-            executor.submit(run_local, book.url, job["target"])
+            local_futures[book.path.name] = executor.submit(run_local, book.url, job["target"])
         return {"ok": True}
     except PermissionError as exc:
         raise HTTPException(403, str(exc)) from None

@@ -19,10 +19,20 @@ def prepare(book, source: dict, llm):
     previous = book.read(book.chapter_name(source["number"]-1) + "/script.json") if source["number"] > 1 else None
     if source["number"] > 1 and previous is None:
         raise ValueError("Prepare chapters in order to preserve character continuity")
-    script = llm.adapt(source["text"], cast, previous["script"]["summary"] if previous else "")
+    candidate = book.read(base + "/candidate.json")
+    raw = book.read(base + "/candidate-response.json")
+    if candidate:
+        script = Script.model_validate(candidate)
+    elif raw:
+        script = Script.model_validate_json(raw["response"])
+    else:
+        if llm is None:
+            raise ValueError("No cached script; Gemini configuration is required")
+        llm.capture = lambda text: book.write(base + "/candidate-response.json", {"response": text})
+        script = llm.adapt(source["text"], cast, previous["script"]["summary"] if previous else "")
     # Save unaccepted responses too, so repairs don't require another paid request.
     book.write(base + "/candidate.json", script.model_dump())
-    return accept_script(book, source, script, llm.model)
+    return accept_script(book, source, script, llm.model if llm else "cached-candidate")
 
 
 def accept_script(book, source, script, model="manual", approve=False):
@@ -44,3 +54,8 @@ def process(book, source, llm, renderer=None):
         return {"chapter": source["number"], "state": "needs_review", "warnings": record["warnings"]}
     path = renderer.render(book, source["number"], script, book.read("cast.json")) if renderer else None
     return {"chapter": source["number"], "state": "ready" if path else "prepared", "audio": str(path) if path else None}
+
+
+def needs_llm(book, number):
+    base = book.chapter_name(number)
+    return not any(book.read(base + suffix) is not None for suffix in ["/script.json", "/candidate.json", "/candidate-response.json"])

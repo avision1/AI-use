@@ -14,7 +14,7 @@ from .storage import Library, digest
 from .scraper import Scraper
 from .llm import Gemini
 from .audio import Renderer, export_mp3
-from .pipeline import process, accept_script
+from .pipeline import process, accept_script, needs_llm
 from .models import Script
 
 EDITION = os.getenv("AUDIOBOOK_EDITION", "v1")
@@ -87,7 +87,7 @@ class Objects:
 class Cloud:
     def __init__(self):
         self.db, self.objects = firestore.Client(), Objects()
-        self.jobs = self.db.collection("amazing_tts_books")
+        self.jobs = self.db.collection("amazing_tts_books_" + EDITION)
 
     def catalog(self):
         return [{"id": doc.id, **doc.to_dict()} for doc in self.jobs.order_by("updated", direction=firestore.Query.DESCENDING).limit(100).stream()]
@@ -129,14 +129,19 @@ class Cloud:
             job = snapshot.to_dict() if snapshot.exists else None
             if job and job.get("ready", 0) >= target:
                 return job
-            if job and job["state"] in {"queued", "running"}:
+            if job and job["state"] in {"queued", "running"} and target <= job["target"]:
                 return job
             if job and job["state"] == "needs_review":
                 return job
             count = usage.to_dict().get("requests", 0) if usage.exists else 0
             if count >= 3:
                 raise ValueError("Daily generation request limit reached (3). Saved audiobooks remain available.")
-            job = job or {"url": url, "title": url.rsplit("/", 1)[-1].replace("-", " ").title(), "owner": uid, "ready": 0, "next": 1, "edition": EDITION}
+            if job and job["state"] in {"queued", "running"}:
+                job.update(target=target, updated=now)
+                tx.update(ref, {"target": target, "updated": now})
+                tx.set(user_ref, {"requests": count+1})
+                return job
+            job = job or {"url": url, "title": url.rsplit("/", 1)[-1].replace("-", " ").title(), "owner": uid, "worker_url": os.environ["WORKER_URL"], "ready": 0, "next": 1, "edition": EDITION}
             job.update(state="queued", target=max(target, job.get("target", 0)), updated=now, lease_until=0, run_id=uuid.uuid4().hex, error=None)
             tx.set(ref, job)
             tx.set(user_ref, {"requests": count+1})
@@ -149,12 +154,13 @@ class Cloud:
     def enqueue(self, bid, chapter, run_id):
         client = tasks_v2.CloudTasksClient()
         queue = client.queue_path(os.environ["GOOGLE_CLOUD_PROJECT"], os.environ.get("CLOUD_REGION", "us-central1"), os.environ.get("TASK_QUEUE", "amazing-tts"))
+        worker_url = os.environ.get("WORKER_URL") or self.get(bid)["worker_url"]
         task = {"name": queue + "/tasks/" + f"{bid}-{run_id}-{chapter}",
                 "dispatch_deadline": {"seconds": 1800},
-                "http_request": {"http_method": tasks_v2.HttpMethod.POST, "url": os.environ["WORKER_URL"] + "/internal/chapter",
+                "http_request": {"http_method": tasks_v2.HttpMethod.POST, "url": worker_url + "/internal/chapter",
                                  "headers": {"Content-Type": "application/json"},
                                  "body": json.dumps({"book_id": bid, "chapter": chapter, "run_id": run_id}).encode(),
-                                 "oidc_token": {"service_account_email": os.environ["TASK_SERVICE_ACCOUNT"], "audience": os.environ["WORKER_URL"]}}}
+                                 "oidc_token": {"service_account_email": os.environ["TASK_SERVICE_ACCOUNT"], "audience": worker_url}}}
         try:
             client.create_task(parent=queue, task=task)
         except AlreadyExists:
@@ -174,13 +180,15 @@ class Cloud:
             return job
         return claim(self.db.transaction()), token
 
-    def finish(self, bid, token, updates):
+    def finish(self, bid, token, updates, has_next=None):
         ref = self.jobs.document(bid)
         @firestore.transactional
         def update(tx):
             doc = ref.get(transaction=tx).to_dict()
             if doc.get("lease_token") != token:
                 raise RuntimeError("Worker lease no longer belongs to this request")
+            if has_next is not None:
+                updates["state"] = "queued" if has_next and updates["ready"] < doc["target"] else "complete"
             tx.update(ref, {**updates, "lease_until": 0, "updated": time.time()})
         update(self.db.transaction())
 
@@ -204,7 +212,7 @@ class Cloud:
                 source = sources[0]
                 # A cached validated script requires no Gemini configuration or request.
                 llm = None
-                if book.read(book.chapter_name(chapter) + "/script.json") is None:
+                if needs_llm(book, chapter):
                     llm = Gemini(library, reserve=lambda tokens: self.reserve(os.environ["GEMINI_MODEL"], tokens))
                 result = process(book, source, llm, Renderer(library, remote=self.objects, deadline=time.monotonic()+1200))
                 self.objects.save(bid, book)
@@ -215,8 +223,9 @@ class Cloud:
                 key = self.objects.upload_chapter(bid, chapter, mp3)
                 manifest = book.read(book.chapter_name(chapter)+"/audio.json")
                 self.jobs.document(bid).collection("chapters").document(f"{chapter:06d}").set({"number": chapter, "title": source["title"], "key": key, "duration_seconds": manifest["duration_seconds"]})
-                state = "queued" if chapter < job["target"] and source["next_url"] else "complete"
-                self.finish(bid, token, {"state": state, "next": chapter+1, "ready": chapter, "title": book.read("book.json")["title"], "warnings": []})
+                state = "queued" if chapter < self.get(bid)["target"] and source["next_url"] else "complete"
+                self.finish(bid, token, {"state": state, "next": chapter+1, "ready": chapter, "title": book.read("book.json")["title"], "warnings": []}, has_next=bool(source["next_url"]))
+                state = self.get(bid)["state"]
             except (ValueError, RuntimeError) as exc:
                 # Persist candidate and cast even on validation/quotas; no raw provider response or secrets in errors.
                 self.objects.save(bid, book)
