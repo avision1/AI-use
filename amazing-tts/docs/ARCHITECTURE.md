@@ -4,7 +4,7 @@
 
 The public catalog uses SHA-256(canonical NovelPing URL + AUDIOBOOK_EDITION). Query parameters and trailing slashes are normalized. A generated edition is a shared resource, not owned playback output per user. Users request an increasing chapter target. Listening requests only read chapter metadata and issue a short-lived signed URL to a private GCS object; they never enter the generation pipeline.
 
-Provider/model changes do not invalidate existing work. Intentionally creating another adaptation/cast edition requires a new AUDIOBOOK_EDITION; deploy it to an isolated catalog collection or migrate catalog IDs intentionally. Old editions remain stored in their bucket prefix. Existing generated audio is not silently replaced.
+Provider/model changes do not invalidate existing work. Intentionally creating another adaptation/cast edition requires a new AUDIOBOOK_EDITION; each edition automatically uses an isolated catalog collection. Old editions remain stored in their bucket prefix. Existing generated audio is not silently replaced.
 
 ## Components
 
@@ -37,3 +37,13 @@ Start with one worker instance, concurrency one, scale-to-zero public site, dail
 The first implementation restores book JSON state into a temporary worker directory and uploads checkpoints. This has O(number of saved chapters) metadata transfer per chapter and is deliberately simple; a large production catalog should restore only the next source plus prior summary and persist changed JSON objects. WAV chunks are shared by content hash and fetched lazily. The UI polls job state; WebSockets are unnecessary for initial traffic. Listening progress is per browser/device, not account-synced.
 
 Cloud infrastructure needs a real-project integration test before public launch. There is no payment system, CDN, automated copyright moderation, multilingual casting, voice cloning, per-character emotional acting, or automatic quota-reset scheduler in this version. New requests are limited to 3 per signed-in user/day; playback is public. Adjust sharing rules and operational controls for the intended audience before launch.
+
+## Primary references checked during implementation
+
+- Gemini JSON schema output: https://ai.google.dev/gemini-api/docs/generate-content/structured-output
+- Gemini quota scopes and midnight-Pacific reset: https://ai.google.dev/gemini-api/docs/rate-limits
+- Kokoro inference API: https://github.com/hexgrad/kokoro
+- Upstream preset inventory: https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md
+- Cloud Tasks HTTP deadline and OIDC: https://docs.cloud.google.com/tasks/docs/creating-http-target-tasks
+- Cloud Run pricing: https://cloud.google.com/run/pricing
+- Storage pricing: https://cloud.google.com/storage/pricing

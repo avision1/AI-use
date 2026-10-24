@@ -2,7 +2,7 @@
 
 A shared novel audiobook website and a portable Python engine. Paste a NovelPing book URL; import chapters, adapt each whole chapter with Gemini, assign persistent character voices, generate local Kokoro speech, and play cached recordings. The Google Cloud deployment shares one edition of each book across listeners.
 
-**Status:** implementation in progress; see docs/HANDOFF.md for verified results and deployment requirements. Cloud infrastructure is supplied as code, not yet deployed.
+**Status:** working local engine and website; 45 automated tests, live two-chapter scraping, real Kokoro speech/cache smoke test, and desktop/mobile browser checks passed. Google Cloud adapters and deployment files are implemented but not deployed or integration-tested against a real cloud project. See docs/HANDOFF.md.
 
 ## Run locally
 
@@ -63,6 +63,8 @@ Local speech generation has no per-request provider fee, but uses your hardware.
 ```bash
 pip install -e '.[dev,cloud]'
 pytest
+# Real speech test with original text; no Gemini key required:
+python examples/speech_smoke.py
 python -m compileall -q amazing_tts
 ```
 

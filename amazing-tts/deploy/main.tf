@@ -8,9 +8,7 @@ terraform {
       version = "~> 6.0"
     }
 
-
   }
-
 
 }
 
@@ -58,7 +56,6 @@ provider "google" {
   region  = var.region
 }
 
-
 resource "google_project_service" "apis" {
 
   for_each           = toset(["run.googleapis.com", "cloudtasks.googleapis.com", "firestore.googleapis.com", "storage.googleapis.com", "secretmanager.googleapis.com", "iamcredentials.googleapis.com", "identitytoolkit.googleapis.com"])
@@ -94,7 +91,6 @@ resource "google_storage_bucket" "audio" {
     prevent_destroy = true
   }
 
-
 }
 
 resource "google_firestore_database" "library" {
@@ -107,7 +103,6 @@ resource "google_firestore_database" "library" {
   lifecycle {
     prevent_destroy = true
   }
-
 
 }
 
@@ -163,7 +158,6 @@ locals {
     AUDIOBOOK_EDITION    = var.edition
 
   }
-
 
 }
 
@@ -303,9 +297,7 @@ resource "google_cloud_run_v2_service" "worker" {
         failure_threshold     = 24
       }
 
-
     }
-
 
   }
 
@@ -360,12 +352,9 @@ resource "google_cloud_run_v2_service" "api" {
           value = env.value
         }
 
-
       }
 
-
     }
-
 
   }
 

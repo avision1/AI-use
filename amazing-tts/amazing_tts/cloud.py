@@ -193,6 +193,7 @@ class Cloud:
         update(self.db.transaction())
 
     def work(self, bid, chapter, run_id):
+        deadline = time.monotonic() + 1200
         job, token = self.lease(bid, chapter, run_id)
         if job is None:
             # Recover a crash after state commit but before scheduling the next chapter.
@@ -214,7 +215,7 @@ class Cloud:
                 llm = None
                 if needs_llm(book, chapter):
                     llm = Gemini(library, reserve=lambda tokens: self.reserve(os.environ["GEMINI_MODEL"], tokens))
-                result = process(book, source, llm, Renderer(library, remote=self.objects, deadline=time.monotonic()+1200))
+                result = process(book, source, llm, Renderer(library, remote=self.objects, deadline=deadline))
                 self.objects.save(bid, book)
                 if result["state"] == "needs_review":
                     self.finish(bid, token, {"state": "needs_review", "warnings": result["warnings"], "title": book.read("book.json")["title"]})
