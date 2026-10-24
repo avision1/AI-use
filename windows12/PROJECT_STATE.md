@@ -1,11 +1,11 @@
 # Project state
 
-## Availability blocker
-The execution environment was reported UNAVAILABLE, and a read-only root shell availability probe returned: "No usable execution environment is available. Wait for an environment to become available before using this tool." Runtime tools will not be retried until access returns. This remote-only interruption checkpoint was made through GitHub; local memory files may still contain pre-outage active-job statements. Read GitHub main versions first on restoration.
+## Restored execution — rebuild in progress
+On 2026-10-24 the Linux shell returned. The supplied workspace contained no AI-use checkout, build disk, cache or artifacts. Read-only inventory found no alternative AI-use checkout in the other supplied scratch directory. The sole checkout was restored at `/workspace/scratch/3c38ab731138/AI-use` from existing GitHub main e6b71866d7f172fa654640840aa3c86a53c06921. Only windows12 files were materialized; root README/LICENSE remain untouched/unmaterialized. Remote root tree has no repository AGENTS.md and its README/LICENSE hashes match the original baseline. Historical ignored artifacts are unavailable in this workspace; no old disk/QMP/source archive exists to resume.
 
-Availability changed after checkpoint b0c4be08ec3791fb1a9d030772b50d6bcfc0437a. GitHub remains accessible, so this interruption checkpoint is being saved directly to main. No filesystem, VM, disk or process state can currently be verified. Do not assume the build stopped, survived, or completed. No target ISO has been verified.
+Branch main. All project writes remain `/workspace/scratch/3c38ab731138/AI-use/windows12/`; parent .git is the sole metadata exception. Native Git fetch works; authenticated GitHub tree/commit/ref remains the publishing route. Last verified checkpoint e6b7186. Rebuild is justified by concrete workspace loss, not an unknown tool handle. Prior validation below remains historical evidence; it does not imply current artifacts exist.
 
-Repository: avision1/AI-use, branch main. All project changes stay under windows12/. Readback of checkpoint b0c4be0 confirmed root LICENSE/README blob hashes unchanged. Native push lacks credentials; authenticated GitHub tree/commit/ref synchronization works. Last local absolute project path: /workspace/scratch/3c38ab731138/AI-use/windows12. Local Git may lag API-published commits; staged content may already be published. Compare remote state before discarding or committing.
+Active assignments: build_restored owns contained tool preparation/build runtime plus docs/RESTORED_BUILD.md; boot_guard owns boot harness serialization, its tests and docs/BOOT_TEST.md. Lead owns integration, memory and main checkpoints. Neither agent may commit or write outside windows12. Build preparation started; no new ISO verified. Read docs/RESTORED_BUILD.md for current owner job handles and logs.
 
 ## Implemented and actually verified
 - Six persistent memory files, primary-source architecture/compatibility research and runnable contained build tooling.
@@ -17,7 +17,7 @@ Repository: avision1/AI-use, branch main. All project changes stay under windows
 - Independent two-boot recovery probe passed on the same disk/payload: counter 1→2, refreshed runtime environment, HTTP201 callbacks and clean QEMU exits. Both probe VMs were stopped before this outage. This is not proof of interrupted live-build recovery.
 - Main source build passed debootstrap and reached desktop archive downloads. Last root-confirmed owner report: archive1391, actual build disk~3.11GB, free~23.77GB, automatic stale-copy cleanup healthy; no resource pause/error reported then. This is historical, not current status.
 
-## Unconfirmed jobs and storage — reconcile after restoration
+## Historical jobs and storage — original workspace absent
 Last main job: tool session50357, owner /root/builder. Last monitor: owner94738, TTY, build-monitor.py --auto-cleanup. Tool handles are agent-scoped; an unknown handle does not prove process termination.
 Disk: .work/builder/build.qcow2 (24GiB virtual). Frozen archive: .work/builder/checks.tar, SHA256410ef567dcb06bc49f6e7e50a87f8173e0e5b3acded7b0275d3c6e68abc10ad9; matching build-source.sha256.
 Evidence: artifacts/vm-build/{serial.log,guest-build.log,run.json,input-provenance.json,build.exit if produced}; .work/builder/{vm-launch-06.log,monitor.log,paused-state.json,pause-events.jsonl,sync-temp-cleanup.jsonl}.
@@ -30,9 +30,8 @@ Changing VM disks generated recursive synchronization temporary copies. Narrow c
 Current cachefalse live-build cleanup PURGES completed apt archives on graceful SIGTERM/EXIT. Do not gracefully abort a surviving download. Actual staged replay test was planned only after confirmed package-install completion, before ISO completion; NO shutdown/replay test was performed before the outage. Current saved LB_APT_HTTP_PROXY is empty; fresh runtime proxy is forwarded. Never hardcode old proxy ports or disable TLS.
 
 ## Exact next actions
-1. Restore/attach a working Linux execution environment; prefer the original workspace. Establish the absolute windows12 boundary before any writes. Do not create a replacement repository or auxiliary checkout.
-2. Locate existing repo/cache/artifacts. Ask the existing builder owner if available; reconcile provider, QMP, logs, locks and output markers. Do NOT launch a duplicate VM merely because a scoped handle is unknown.
-3. If the original job is healthy, continue it. If paused, reconcile storage and explicitly resume only after actual state is known.
-4. If the old job is confirmed stopped and disk/archive survive, validate pinned base and frozen archive, inspect offline image integrity without automatic repair, then use guarded --resume and verify real stage reuse/refreshed environment. Actual staged resume remains unverified.
-5. If workspace/disk loss is confirmed, rebuild from existing GitHub main source and pinned input; record this concrete reason for repeating the build. Preserve prior validation records. Do not claim bit-identical full ISO reconstruction from moving repositories.
-6. After real ISO output/checksum, execute BIOS capture and new disposable-disk installation/reboot/configuration audits. No physical deployment. Update memory, inspect project-only changes and push directly main.
+1. Complete authenticated local tools and pinned cloud-image preparation; owner build_restored records handles/logs in docs/RESTORED_BUILD.md.
+2. Launch one contained builder, run guest test/package gates, monitor with auto-cleanup safeguard; do not start another VM while it runs.
+3. Integrate fail-closed boot-test lock protection; new tests need guest runtime execution after source freeze (a subsequent controlled run if needed). Do not mutate frozen archives.
+4. Verify a real ISO and checksum before boot/install harness execution. Capture BIOS desktop, test new disposable disk install and ISO-free reboot/configuration audits. No physical deployment.
+5. Update memory and push reviewed windows12-only changes directly main at each meaningful checkpoint.
