@@ -37,3 +37,9 @@ Exact continuation: owner polls existing monitor19363 (no more often than60secon
 ## Read-only live I/O observation
 
 Serialized QMP query-blockstats snapshots `.work/builder/blockstats-01.json` and `blockstats-02.json` were collected over60seconds apart. Same qdev /machine/peripheral-anon/device[1]/virtio-backend; measured deltas {"wr_bytes": 16220160, "rd_bytes": 0, "wr_operations": 867, "rd_operations": 0, "flush_operations": 678, "failed_wr_operations": 0, "failed_rd_operations": 0, "failed_flush_operations": 0}. These measure live virtual-disk activity, not completed build stages. Matching QEMU PID2513 was present; `/proc/2513/fd/*` readlinks denied13, so stale serial inode replacement remains an unconfirmed hypothesis. Diagnostic `.work/builder/serial-fd-diagnostic.json`. No pause/resume/quit/powerdown sent.
+
+## Latest observation endpoint
+
+Monitor19363 remains reachable at1792823307; supervisor6329 also still reports running with no stdout/error. Disk allocated1315155968bytes (~1.225GiB), free27262136320bytes (~25.39GiB),12recent synchronization copies2666278912bytes after reviewed cleanup reclaimed~1.765GB. Serial pathname is1173seconds stale; current guest stage remains UNKNOWN. Earlier actual QMP counters established ongoing writes, and allocation continues growing. No build.exit, ISO validation, resource pause or failure is reported. Do not repeat bootstrap or restart the guest for stale console output.
+
+Continue only the existing owner jobs; next action is monitor19363 at60second intervals and await guest final log/artifact export. If owner handles become unavailable, reconcile actualQMP/lock/process state before any restart; an unknown agent-scoped handle is not termination proof. Model handoff does not require stopping VM/monitor. Current archived source stays unchanged. A proposed chunked NBD mitigation is documentation-only and has not been implemented or applied to this live guest.
