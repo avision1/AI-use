@@ -19,6 +19,7 @@ Update task IDs, branch/commit, validation, blockers and exact next command. Sta
 - `python3 -B scripts/build-vm.py --probe`, `--prepare`, then no flag: isolated VM build.
 - `python3 -B scripts/build-tools.py --profile iso`: separate authenticated xorriso/unsquashfs tool tree.
 - `python3 -B scripts/audit-iso.py <real-ISO> --source-archive .work/builder/checks.tar`: content gates, frozen source lock required; not a boot test.
+- `python3 -B scripts/desktop-test.py <real-ISO>` in TTY: contained interactive GUI evidence after builder stops; docs/DESKTOP_TEST.md, public test data only.
 - `python3 -B scripts/probe-qmp.py status` or `blockstats`: read-only state/I/O evidence; counters do not certify build success.
 - `python3 -B scripts/probe-qmp.py quit`: stop only the recorded build VM when deliberately authorized by task context.
 - `python3 -B scripts/build-vm.py --resume`: experimental frozen-source rerun; inspect jobs first.

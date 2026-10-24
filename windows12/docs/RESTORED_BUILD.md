@@ -59,3 +59,7 @@ Current jobs: builder6329 and sole combined storage/consolemonitor82377, owner `
 ## Separate ISO audit tools prepared
 
 Approved iso-profile preparation job69510 exited0, log `.work/builder/iso-tools-prepare-restored.log`. Signature/hash-verified metadata/payloads extracted into separate `.work/builder/iso-tools/`; active QEMU tools were not replaced. Regenerated `build/iso-tools-lock.json` records xorriso/squashfs-tools closure. Read-only startup checks with local LD_LIBRARY_PATH succeeded: xorriso1.5.6 and unsquashfs4.6.1. Help/version evidence `.work/builder/{xorriso-startup-restored,unsquashfs-version-restored,unsquashfs-help-restored}.log`. No ISO inspection/extraction was attempted because no completed ISO exists; main builder6329/combinedmonitor82377 continue.
+
+## Desktop transaction passes1000archives
+
+Combinedmonitor82377 at1792825870 reports fresh guest console Get1011libcryptsetup12, following Get1009Calamares3.3.14-1. Target desktop archives continue (~20/minute recently); this is download progress, not installed/booted Calamares certification. Console2534bytes logged in2reads with no pending warning/error. Actualdisk2519732224bytes, free26121281536bytes,7recent sync copies2580291584bytes; reviewed cleanup removed6stale copies/reclaimed3132887040bytes. No build.exit, resourcepause or ISO verified. Builder6329 and monitor82377 remain active, frozen source unchanged. Continue currentowner handles; await actual package-install/build completion and final exports before ISOaudit or testVMs.

@@ -9,7 +9,7 @@
 | W12-006 | Release checkpoint and sync | 005 | lead | pending | Memory current; reviewed project-only commit synchronized |
 | W12-007 | BIOS ISO evidence capture harness | 003,005 | research agent | guard integrated; all25 guest tests pass; ISO capture pending | Real contained ISO, screenshots/logs, new disposable disk only; no false success claim |
 | W12-008 | Freeze release inputs and harden provenance | 005 | release_inputs/lead | cloud signature research complete (upstream missing); snapshots pending | Snapshot repositories/input authentication; reproducibility records and repeat build |
-| W12-009 | Windows application compatibility milestone | 005 | release_inputs/lead | runtime option research active; no image change | Choose maintained runtime; exact app/version functional tests and honest limits |
+| W12-009 | Windows application compatibility milestone | 005 | release_inputs/lead | research complete; optional Bottles prototype preferred after base validation; unimplemented | Choose maintained runtime; exact app/version functional tests and honest limits |
 | W12-010 | Reliable interrupted-builder resume | 003 | recovery agent/lead | metadata reboot passed; staged replay pending | Demonstrate interrupted long stage resumes with frozen source and refreshed proxy; current --resume is experimental |
 | W12-011 | Automated BIOS disposable-disk installation and reboot harness | 005,012 | research agent/lead | implemented; unexecuted | Real D-I install callback plus installed boot evidence; no host devices; no Calamares certification |
 | W12-012 | Verified project-local ISO inspection tools | 003 | build agent | done | Authenticated xorriso closure extracted to separate iso-tools; active QEMU files untouched |
@@ -20,4 +20,6 @@
 | W12-017 | Recover current console without guest restart | 015 | boot_guard/build_restored/lead | done: UART ringbuf recovery and persistent reader executed | Observed serial0 stdio, preserve QMP pipe, bounded ringbuf output, no guest CPU/disk/boot change |
 | W12-018 | Practical desktop release audit | 004,005 | desktop_audit/lead | source review complete; GUI execution pending | Concrete defects separated from unknowns, practical workflow validation before release |
 | W12-019 | Real ISO content audit | 003,005 | boot_guard/lead | implemented/reviewed; authenticated tools startup passed; actual ISO pending | Frozen source/payload/core package/permissions/proxy/CA evidence; no boot claims |
-| W12-020 | Interactive desktop validation harness | 003,005 | desktop_audit/lead | implementation active; real ISO execution pending | Sole contained VM, safe QMP input/captures, new disk only, no false GUI pass |
+| W12-020 | Interactive desktop validation harness | 003,005 | desktop_audit/lead | implemented/reviewed; real ISO execution pending | Sole contained VM, safe QMP input/captures, new disk only, no false GUI pass |
+| W12-021 | Controlled post-build image iteration plan | 005 | boot_guard/lead | source research complete; implementation/runtime pending | Preserve baseline/source; correct installer regeneration and manifests; version gates |
+| W12-022 | ISO-free installed desktop QA | 011,020 | desktop_audit/lead | queued after reviewed harness checkpoint | One-shot proof stamp, validated prior test disk, new writable child, baseline preserved; real reboot/GUI evidence |

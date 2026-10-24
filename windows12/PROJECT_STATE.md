@@ -3,7 +3,7 @@
 ## Current milestone
 W12-005: build, boot, install and validate the first practical amd64 Debian13/KDE preview. User explicitly requests continued work toward a fleshed-out usable distribution; a running builder is not a completed deliverable. No ISO, live desktop, installed reboot or authenticated Office workflow is verified yet.
 
-Repository avision1/AI-use, branch main. Latest verified checkpoint before this update: 8957c3bd5a03b95d5e515e228b1d500b88f10ce8. Strict absolute project `/workspace/scratch/3c38ab731138/AI-use/windows12/`. Only parent normal Git metadata is excepted. Root README/LICENSE hashes unchanged, no root AGENTS.md. Local HEAD remains e6b7186; staged project files include already-published API checkpoints. Before native reconciliation compare current main/index and preserve changes; never stage root deletions or force-push.
+Repository avision1/AI-use, branch main. Latest verified checkpoint before this update: 636fb9d3a2a057d04daf1c91f7cdfbf3c7a6444e. Strict absolute project `/workspace/scratch/3c38ab731138/AI-use/windows12/`. Only parent normal Git metadata is excepted. Root README/LICENSE hashes unchanged, no root AGENTS.md. Local HEAD remains e6b7186; staged project files include already-published API checkpoints. Before native reconciliation compare current main/index and preserve changes; never stage root deletions or force-push.
 
 ## Active build and supervision
 Original corrected build6329 remains running, owner /root/build_restored. Frozen source SHA25645cd49afcd9417f2deb185410c0e9ac93c0d25ab218f534ec209696c49cde8c4; real disk `.work/builder/build.qcow2`. Do not launch a duplicate VM, use --resume, replace archive or convert active storage. See docs/RESTORED_BUILD.md for full provenance/failure preservation.
@@ -41,3 +41,12 @@ W12-019 audit-iso.py reviewed: checks a real ISO/checksum against frozen checks.
 Cloud detached-signature research found the current official dated release lists no signature and conventional .sign/.gpg both404; current Debian cloud guidance uses TLS/DNSSEC recommendation and distinguishes signed legacy images. No authorized cloud signature identity was established. Keep explicit HTTPS+pin assurance, no CD-key substitution or unnecessary VM restart. See docs/CLOUD_SIGNATURE_PLAN.md; target snapshot pinning remains incomplete.
 
 Latest owner1792825209: desktopdownloads Get785, free26.35GB,disk2.253GB,four sync copies1.19GB,noerror/exit/pause. Jobs6329/82377 unchanged. Parallel W12-020 desktop-test.py harness is being implemented, no extra VM; W12-009 runtime options research is doc-only, no current image changes. Owners/acceptance in TASKS and corresponding docs.
+
+## Graphical and next-candidate readiness
+W12-020 desktop-test.py/source reviewed: shared runner lock, new contained output, read-only ISO, optional NEW disk, fixed QMP screenshot/status/keyboard/ASCII/click commands, bounded cleanup, no host devices/shares/forwards; no GUI success inferred. No real ISO/VM execution yet. Lead will own its future TTY handle to operate screenshots directly. W12-022 is queued to permit ISO-free installed desktop QA from validated prior test-run provenance into a NEW small child overlay, preserving the stopped baseline, plus a one-shot installed proof unit. That new mode is not yet implemented or validated.
+
+Windows runtime research docs/WINDOWS_APP_RUNTIME_PLAN.md prefers an optional maintained Bottles/Flathub GUI lane after base validation, with on-demand components. No current image/runtime/app downloads or support tests. Exact harmless fixture metadata and acceptance are recorded; no native365/driver/game parity claim. App/runtime signature/hash checks must precede execution.
+
+Image iteration research docs/IMAGE_ITERATION_PLAN.md found binary cleaning removes installer assets but retains installer stage flags in reviewed trixie source; manifests also require explicit refresh. No iteration controller exists. Match actual guest live-build version before use, preserve baseline, and never apply host chroot or running-VM changes. Expected default compression xz has not yet been reached/measured.
+
+Latest owner1792826291: fresh desktopGet1147, free24.75GB,disk2.568GB,six synchronization copies3.56GB after cleanup; noerror/exit/pause. Existing6329/82377 active. Continue this build; prepared test tools are not completed distro gates.
