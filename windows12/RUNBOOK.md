@@ -104,3 +104,6 @@ Shell access returned, but original checkout/disk/cache/artifacts were absent. S
 
 ## Read-only progress when console is stale
 Use `python3 -B scripts/probe-qmp.py status` and `blockstats` through the existing serialized client, designated owner only. Compare same-device cumulative counters at least60s apart without summing parent/backing layers. Measured snapshots showed advancing writes with no failed I/O despite stale serial. This does not certify the guest application or ISO. Preserve current VM/archive and wait for final guest log/artifact exports; do not interrupt solely for console silence. See docs/TELEMETRY.md and current HANDOFF.md.
+
+## Current UART console recovery
+The reviewed tool adds chardevs, console-ringbuf and console-read. Follow docs/LIVE_OBSERVABILITY.md exactly: identify actual UART vs QMP backend, record replies, change only observed UART after review, confirm state, drain bounded base64 output. Backend change is not read-only and may interrupt console traffic; it does not request guest CPU/disk/boot changes. Never change compat_monitor0 or blindly repeat after ambiguous timeout. Preserve final guest log as authoritative build evidence.

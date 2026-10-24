@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Query, pause, explicitly resume or stop the contained build VM via local QMP."""
 from pathlib import Path
-import argparse,fcntl,json,os,select,stat,time
+import argparse,fcntl,json,os,re,select,stat,time
 ROOT=Path(__file__).resolve().parents[1]
 WORK=ROOT/'.work/builder'
 def safe(path):
@@ -9,9 +9,13 @@ def safe(path):
  return path
 def main():
  parser=argparse.ArgumentParser(description=__doc__)
- parser.add_argument('command',choices=['status','blockstats','registers','pause','resume','powerdown','quit'],default='status',nargs='?')
+ parser.add_argument('command',choices=['status','blockstats','chardevs','console-ringbuf','console-read','registers','pause','resume','powerdown','quit'],default='status',nargs='?')
  parser.add_argument('--reason',default='Explicit operator request')
+ parser.add_argument('--console-id',help='Explicit observed UART ID serialN required for console actions; never the QMP control backend')
  args=parser.parse_args()
+ if args.command in ['console-ringbuf','console-read'] and args.console_id is None:parser.error('Console actions require explicit --console-id from the observed chardevs response')
+ args.console_id=args.console_id or 'serial0'
+ if not re.fullmatch(r'serial[0-9]{1,3}',args.console_id):parser.error('--console-id must be an observed UART ID serialN')
  safe(WORK)
  pipe=WORK/'qmp'
  for suffix in ['.in','.out']:
@@ -27,7 +31,7 @@ def main():
   reader=os.open(str(pipe)+'.out',os.O_RDONLY|os.O_NONBLOCK)
   try:writer=os.open(str(pipe)+'.in',os.O_WRONLY|os.O_NONBLOCK)
   except OSError:os.close(reader);raise SystemExit('No VM is listening on QMP')
-  commands={'status':{'execute':'query-status'},'blockstats':{'execute':'query-blockstats'},'registers':{'execute':'human-monitor-command','arguments':{'command-line':'info registers'}},'pause':{'execute':'stop'},'resume':{'execute':'cont'},'powerdown':{'execute':'system_powerdown'},'quit':{'execute':'quit'}}
+  commands={'status':{'execute':'query-status'},'blockstats':{'execute':'query-blockstats'},'chardevs':{'execute':'query-chardev'},'console-ringbuf':{'execute':'chardev-change','arguments':{'id':args.console_id,'backend':{'type':'ringbuf','data':{'size':1048576}}}},'console-read':{'execute':'ringbuf-read','arguments':{'device':args.console_id,'size':16384,'format':'base64'}},'registers':{'execute':'human-monitor-command','arguments':{'command-line':'info registers'}},'pause':{'execute':'stop'},'resume':{'execute':'cont'},'powerdown':{'execute':'system_powerdown'},'quit':{'execute':'quit'}}
   identifier='requested-'+str(time.time_ns())
   requested=commands[args.command];requested['id']=identifier
   for command in [{'execute':'qmp_capabilities'},requested]:os.write(writer,(json.dumps(command)+'\n').encode())
