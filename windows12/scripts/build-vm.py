@@ -5,9 +5,16 @@ Writable guest storage: .work/builder/build.qcow2 and artifacts/vm-build ONLY.
 from pathlib import Path
 import argparse, hashlib, http.server, json, os, shlex, shutil, subprocess, tarfile, threading, urllib.parse, time, socket, re, fcntl, select, stat, errno
 ROOT=Path(__file__).resolve().parents[1]
-WORK=ROOT/'.work/builder'
+def bounded(path):
+ if not path.resolve().is_relative_to(ROOT):raise SystemExit('Path escapes project: '+str(path))
+ return path
+def output_file(path):
+ bounded(path)
+ if path.is_symlink():raise SystemExit('Output symlink refused: '+str(path))
+ return path
+WORK=bounded(ROOT/'.work/builder')
 TOOLS=WORK/'tools'
-OUT=ROOT/'artifacts/vm-build'
+OUT=bounded(ROOT/'artifacts/vm-build')
 
 def main():
  ap=argparse.ArgumentParser(description=__doc__)
@@ -15,12 +22,14 @@ def main():
  ap.add_argument('--probe',action='store_true',help='Run QEMU TCG firmware for 10s with no disk/network')
  ap.add_argument('--resume',action='store_true',help='Resume an existing VM disk, not a new build')
  args=ap.parse_args()
- for p in [WORK,OUT,WORK/'home',WORK/'tmp',WORK/'cache']:p.mkdir(parents=True,exist_ok=True)
+ planned_dirs=[WORK,OUT]+[WORK/name for name in ['home','tmp','cache','config','data','state']]
+ for p in planned_dirs:bounded(p)
+ for p in planned_dirs:p.mkdir(parents=True,exist_ok=True)
  for p in [WORK,OUT,ROOT/'image']:
   if not p.resolve().is_relative_to(ROOT):raise SystemExit('Symlink escapes project: '+str(p))
  lock_path=WORK/'runner.lock'
  if lock_path.is_symlink():raise SystemExit('Runner lock symlink refused')
- lock_handle=lock_path.open('a')
+ lock_handle=output_file(lock_path).open('a')
  try:fcntl.flock(lock_handle.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
  except BlockingIOError:raise SystemExit('Another project build runner holds runner.lock; inspect its recorded job')
  # Older runners did not hold runner.lock. Refuse live or ambiguous QMP controls.
@@ -53,7 +62,7 @@ def main():
    if writer is not None:os.close(writer)
 
  env=os.environ.copy()
- env.update(HOME=str(WORK/'home'),TMPDIR=str(WORK/'tmp'),XDG_CACHE_HOME=str(WORK/'cache'),PYTHONDONTWRITEBYTECODE='1')
+ env.update(HOME=str(WORK/'home'),TMPDIR=str(WORK/'tmp'),XDG_CACHE_HOME=str(WORK/'cache'),XDG_CONFIG_HOME=str(WORK/'config'),XDG_DATA_HOME=str(WORK/'data'),XDG_STATE_HOME=str(WORK/'state'),PYTHONDONTWRITEBYTECODE='1')
  lib=TOOLS/'usr/lib/x86_64-linux-gnu'
  env['LD_LIBRARY_PATH']=str(lib)+':'+str(TOOLS/'lib/x86_64-linux-gnu')
  env['QEMU_MODULE_DIR']=str(lib/'qemu')
@@ -89,23 +98,23 @@ def main():
  with cloud.open('rb') as f:
   for block in iter(lambda:f.read(2**20),b''):h.update(block)
  if h.hexdigest()!=expected:raise SystemExit('Builder SHA512 mismatch; cached input left untouched for investigation.')
- (OUT/'input-provenance.json').write_text(json.dumps({'url':lock['url'],'sha512':expected,'verification':'official HTTPS SHA512SUMS; detached signature not verified','tools_lock':'build/tools-lock.json'},indent=2)+'\n')
+ output_file(OUT/'input-provenance.json').write_text(json.dumps({'url':lock['url'],'sha512':expected,'verification':'official HTTPS SHA512SUMS; detached signature not verified','tools_lock':'build/tools-lock.json'},indent=2)+'\n')
  if args.prepare:return
- disk=WORK/'build.qcow2'
+ disk=output_file(WORK/'build.qcow2')
  if args.resume and not disk.exists():raise SystemExit('No VM disk to resume')
  if disk.exists() and not args.resume:raise SystemExit('Build disk exists. Use --resume or preserve then remove it deliberately. No automatic deletion.')
  if not disk.exists():
   run([str(qimg),'create','-f','qcow2','-F','qcow2','-b',str(cloud),str(disk),'24G'])
  # Resume uses the immutable archived source, not possibly changed working files.
- checks=WORK/'checks.tar'
- source_lock=WORK/'build-source.sha256'
+ checks=output_file(WORK/'checks.tar')
+ source_lock=output_file(WORK/'build-source.sha256')
  if args.resume:
   if not checks.exists() or not source_lock.exists():raise SystemExit('Resume requires preserved checks.tar and build-source.sha256')
   source_hash=hashlib.sha256(checks.read_bytes()).hexdigest()
   if source_lock.read_text().strip()!=source_hash:raise SystemExit('Archived source digest mismatch; refusing resume')
   print('Resuming frozen source snapshot',source_hash,flush=True)
  else:
-  pending=WORK/'checks.pending.tar'
+  pending=output_file(WORK/'checks.pending.tar')
   with tarfile.open(pending,'w') as tf:
    for name in ['image','tests','scripts','build']:
     for p in sorted((ROOT/name).rglob('*')):
@@ -124,7 +133,7 @@ def main():
  cert_source=env.get('CODEX_PROXY_CERT')
  if proxy_guest and cert_source:
   cert=Path(cert_source).read_text()
-  (WORK/'build-proxy.crt').write_text(cert)
+  output_file(WORK/'build-proxy.crt').write_text(cert)
   user_data+='  - path: /usr/local/share/ca-certificates/windows12-build-proxy.crt\n    permissions: "0644"\n    content: |\n'+''.join('      '+line+'\n' for line in cert.splitlines())
  runner=['bash','/root/build.sh']
  if proxy_guest:runner=['env','http_proxy='+proxy_guest,'https_proxy='+proxy_guest,'HTTP_PROXY='+proxy_guest,'HTTPS_PROXY='+proxy_guest,'no_proxy=10.0.2.2,127.0.0.1,localhost','NO_PROXY=10.0.2.2,127.0.0.1,localhost']+runner
@@ -160,7 +169,7 @@ def main():
     data=seed[self.path];self.send_response(200);self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
    else:self.send_error(404)
   def log_message(self,format,*arguments):
-   with (OUT/'http-requests.log').open('a') as log:log.write(json.dumps({'time':time.time(),'request':self.requestline,'status':str(arguments[1]) if len(arguments)>1 else ''})+'\n')
+   with output_file(OUT/'http-requests.log').open('a') as log:log.write(json.dumps({'time':time.time(),'request':self.requestline,'status':str(arguments[1]) if len(arguments)>1 else ''})+'\n')
  seed['/seed/meta-data']=seed['/seed/meta-data'].replace(b'INSTANCE',str(time.time_ns()).encode())
  old_status=OUT/'build.exit'
  if old_status.exists():old_status.rename(OUT/f'build.exit.previous-{time.time_ns()}')
@@ -173,9 +182,9 @@ def main():
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
- (OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'source_sha256':source_hash},indent=2)+'\n')
+ output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'source_sha256':source_hash},indent=2)+'\n')
  try:
-  with (OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
+  with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
  finally:server.shutdown()
  status=OUT/'build.exit'
  if not status.exists() or status.read_text().strip()!='0':raise SystemExit('Build incomplete/failed; inspect artifacts/vm-build/serial.log and guest-build.log')
