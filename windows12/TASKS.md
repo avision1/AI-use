@@ -13,6 +13,6 @@
 | W12-010 | Reliable interrupted-builder resume | 003 | recovery agent/lead | metadata reboot passed; staged replay pending | Demonstrate interrupted long stage resumes with frozen source and refreshed proxy; current --resume is experimental |
 | W12-011 | Automated BIOS disposable-disk installation and reboot harness | 005,012 | research agent/lead | implemented; unexecuted | Real D-I install callback plus installed boot evidence; no host devices; no Calamares certification |
 | W12-012 | Verified project-local ISO inspection tools | 003 | build agent | done | Authenticated xorriso closure extracted to separate iso-tools; active QEMU files untouched |
-| W12-013 | Bound live-disk synchronization temporary storage | 003 | build agent/lead | cleanup historically verified; re-establish monitor | Exact-prefix age/inode audit, real disk preserved, measure bounded growth; no parallel exec polling |
-
+| W12-013 | Bound live-disk synchronization temporary storage | 003 | build agent/lead | active monitor/cleanup verified; pause branch remains untested | Exact-prefix age/inode audit, real disk preserved, measure bounded growth; no parallel exec polling |
 | W12-014 | Restore execution access and reconcile original build | 001 | lead/infrastructure | done: shell restored; old workspace absent | Existing job/disk/output state established before any resume/new build; no duplicate VM |
+| W12-015 | Read-only I/O telemetry for stale console diagnosis | 003 | boot_guard/lead | done: two actual QMP snapshots, counter delta validated | Serialized query-blockstats, existing guest unchanged, measured counters and honest limits |

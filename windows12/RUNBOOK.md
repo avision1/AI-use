@@ -101,3 +101,6 @@ If workspace loss is confirmed, rebuild using the existing repository and pinned
 
 ## Restored workspace checkpoint (2026-10-24)
 Shell access returned, but original checkout/disk/cache/artifacts were absent. Sole checkout restored from existing main at the same project path, only windows12 materialized. Original runtime jobs cannot be resumed in this workspace; rebuild from pinned inputs and preserve historical validation. Current owner handles/logs are in docs/RESTORED_BUILD.md, which supersedes historical active-session numbers above. Do not run BIOS/install capture concurrently with the builder.
+
+## Read-only progress when console is stale
+Use `python3 -B scripts/probe-qmp.py status` and `blockstats` through the existing serialized client, designated owner only. Compare same-device cumulative counters at least60s apart without summing parent/backing layers. Measured snapshots showed advancing writes with no failed I/O despite stale serial. This does not certify the guest application or ISO. Preserve current VM/archive and wait for final guest log/artifact exports; do not interrupt solely for console silence. See docs/TELEMETRY.md and current HANDOFF.md.

@@ -17,7 +17,8 @@ Update task IDs, branch/commit, validation, blockers and exact next command. Sta
 ## Essential commands (from windows12; environment setup in RUNBOOK)
 - `python3 -B scripts/build-tools.py`: prepare authenticated local tools, no install.
 - `python3 -B scripts/build-vm.py --probe`, `--prepare`, then no flag: isolated VM build.
-- `python3 -B scripts/probe-qmp.py status` or `quit`: inspect/stop only the recorded build VM.
+- `python3 -B scripts/probe-qmp.py status` or `blockstats`: read-only state/I/O evidence; counters do not certify build success.
+- `python3 -B scripts/probe-qmp.py quit`: stop only the recorded build VM when deliberately authorized by task context.
 - `python3 -B scripts/build-vm.py --resume`: experimental frozen-source rerun; inspect jobs first.
 - `python3 -B scripts/boot-test.py artifacts/vm-build/windows12-amd64-preview.iso`: collect BIOS evidence only after real ISO exists.
 - `python3 -B scripts/export-staged-tree.py`: export reviewed staged project text for authenticated GitHub main checkpoint.
