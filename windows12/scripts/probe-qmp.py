@@ -9,7 +9,7 @@ def safe(path):
  return path
 def main():
  parser=argparse.ArgumentParser(description=__doc__)
- parser.add_argument('command',choices=['status','registers','pause','resume','quit'],default='status',nargs='?')
+ parser.add_argument('command',choices=['status','registers','pause','resume','powerdown','quit'],default='status',nargs='?')
  parser.add_argument('--reason',default='Explicit operator request')
  args=parser.parse_args()
  safe(WORK)
@@ -27,7 +27,7 @@ def main():
   reader=os.open(str(pipe)+'.out',os.O_RDONLY|os.O_NONBLOCK)
   try:writer=os.open(str(pipe)+'.in',os.O_WRONLY|os.O_NONBLOCK)
   except OSError:os.close(reader);raise SystemExit('No VM is listening on QMP')
-  commands={'status':{'execute':'query-status'},'registers':{'execute':'human-monitor-command','arguments':{'command-line':'info registers'}},'pause':{'execute':'stop'},'resume':{'execute':'cont'},'quit':{'execute':'quit'}}
+  commands={'status':{'execute':'query-status'},'registers':{'execute':'human-monitor-command','arguments':{'command-line':'info registers'}},'pause':{'execute':'stop'},'resume':{'execute':'cont'},'powerdown':{'execute':'system_powerdown'},'quit':{'execute':'quit'}}
   identifier='requested-'+str(time.time_ns())
   requested=commands[args.command];requested['id']=identifier
   for command in [{'execute':'qmp_capabilities'},requested]:os.write(writer,(json.dumps(command)+'\n').encode())

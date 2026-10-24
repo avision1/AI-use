@@ -3,7 +3,7 @@
 ## Current milestone
 M1: produce and validate a Debian13 amd64 KDE live/installer ISO with project desktop package. Source build is running; **no target ISO or installation is verified yet**.
 
-Repository: avision1/AI-use, branch main. Previous verified synchronized checkpoint: e916574e78b74e735af2466d410013feb236a532. User requires frequent direct-to-main pushes, only windows12 changes. Native push lacks credentials; authenticated GitHub tree/commit/ref API works. Initial-to-64bff6f comparison confirmed zero changed paths outside windows12.
+Repository: avision1/AI-use, branch main. Previous verified synchronized checkpoint: 735367e4793cf6029ebf1f5e82d87d574b458066. User requires frequent direct-to-main pushes, only windows12 changes. Native push lacks credentials; authenticated GitHub tree/commit/ref API works. Initial-to-64bff6f comparison confirmed zero changed paths outside windows12.
 Absolute project: /workspace/scratch/3c38ab731138/AI-use/windows12. Parent README/LICENSE are tracked upstream but intentionally unmaterialized here; never stage their apparent deletions.
 
 ## Implemented and validated
@@ -39,3 +39,7 @@ Current safeguard: /root/builder owns monitor94738, build-monitor.py --auto-clea
 Local Git may lag published checkpoints while the VM is active: native fetch/reconciliation is deferred to reduce large-file synchronization. Some staged content may already be on GitHub main. Compare remote commit/tree before committing or discarding anything; never force-push. Source checkpoints survive workspace loss; ignored VM disks/cache/artifacts require preservation or rebuild if the transient environment is removed.
 
 Installer harness source now also requires run-specific configuration evidence: no known transient build CA/proxy artifacts, graphical.target default and SDDM unit configuration. This is statically reviewed/source-parsed only; no installer, GUI or update runtime claim. Actual GUI flag remains false until separate evidence.
+
+Controlled replay assessment: current --cache false makes live-build SIGTERM/EXIT cleanup delete all completed chroot apt archives. Do NOT gracefully interrupt the current download. Completed bootstrap and stage markers survive, so root has authorized a controlled ACPI test only after exact-source/log evidence confirms package-install completion while binary/ISO remains incomplete. Builder must report safe-point evidence before acting; skip if ambiguous or ISO already completes. Current recipe saves empty LB_APT_HTTP_PROXY and forwards fresh runtime environment; exact source showed no stale chroot proxy file. Future explicit proxy CLI settings need separate reconciliation. Upcoming run.json records frozen guest SHA, host-wrapper SHA and credential-free proxy_guest. No shutdown/replay test has been performed on this actual build yet.
+
+Latest observed progress: desktop archive1057 (X11 utilities), actualdisk~2.41GB, free~24.84GB; automatic cleanup has maintained safe margin across13 further cycles. No resource pause.

@@ -10,7 +10,7 @@
 | W12-007 | BIOS ISO evidence capture harness | 003,005 | research agent | implemented; unexecuted | Real contained ISO, screenshots/logs, new disposable disk only; no false success claim |
 | W12-008 | Freeze release inputs and harden provenance | 005 | unassigned | pending | Snapshot repositories/input authentication; reproducibility records and repeat build |
 | W12-009 | Windows application compatibility milestone | 005 | unassigned | pending | Choose maintained runtime; exact app/version functional tests and honest limits |
-| W12-010 | Reliable interrupted-builder resume | 003 | recovery agent/lead | metadata reboot passed; staged build recovery pending | Demonstrate interrupted long stage resumes with frozen source and refreshed proxy; current --resume is experimental |
+| W12-010 | Reliable interrupted-builder resume | 003 | recovery agent/lead | metadata reboot passed; staged test waits for package completion | Demonstrate interrupted long stage resumes with frozen source and refreshed proxy; current --resume is experimental |
 | W12-011 | Automated BIOS disposable-disk installation and reboot harness | 005,012 | research agent/lead | implemented; unexecuted | Real D-I install callback plus installed boot evidence; no host devices; no Calamares certification |
 | W12-012 | Verified project-local ISO inspection tools | 003 | build agent | done | Authenticated xorriso closure extracted to separate iso-tools; active QEMU files untouched |
 | W12-013 | Bound live-disk synchronization temporary storage | 003 | build agent/lead | automatic cleanup verified; low-space pause configured | Exact-prefix age/inode audit, real disk preserved, measure bounded growth; no parallel exec polling |

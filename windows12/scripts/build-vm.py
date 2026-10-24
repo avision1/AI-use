@@ -5,6 +5,7 @@ Writable guest storage: .work/builder/build.qcow2 and artifacts/vm-build ONLY.
 from pathlib import Path
 import argparse, hashlib, http.server, json, os, shlex, shutil, subprocess, tarfile, threading, urllib.parse, time, socket, re, fcntl, select, stat, errno
 ROOT=Path(__file__).resolve().parents[1]
+HOST_WRAPPER_SHA256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 def bounded(path):
  if not path.resolve().is_relative_to(ROOT):raise SystemExit('Path escapes project: '+str(path))
  return path
@@ -38,6 +39,9 @@ def main():
  if qmp_in.exists() or qmp_out.exists():
   for path in [qmp_in,qmp_out]:
    if path.is_symlink() or not path.exists() or not stat.S_ISFIFO(path.stat().st_mode):raise SystemExit('Ambiguous QMP controls; reconcile before launch')
+  guard_file=output_file(WORK/'qmp-client.lock').open('a')
+  try:fcntl.flock(guard_file.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+  except BlockingIOError:raise SystemExit('Another QMP client is active; reconcile before launch')
   reader=os.open(qmp_out,os.O_RDONLY|os.O_NONBLOCK)
   writer=None
   try:
@@ -60,6 +64,7 @@ def main():
   finally:
    os.close(reader)
    if writer is not None:os.close(writer)
+   guard_file.close()
 
  env=os.environ.copy()
  env.update(HOME=str(WORK/'home'),TMPDIR=str(WORK/'tmp'),XDG_CACHE_HOME=str(WORK/'cache'),XDG_CONFIG_HOME=str(WORK/'config'),XDG_DATA_HOME=str(WORK/'data'),XDG_STATE_HOME=str(WORK/'state'),PYTHONDONTWRITEBYTECODE='1')
@@ -182,7 +187,7 @@ def main():
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
- output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'source_sha256':source_hash},indent=2)+'\n')
+ output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
  try:
   with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
  finally:server.shutdown()
