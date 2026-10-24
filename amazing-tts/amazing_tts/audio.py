@@ -54,6 +54,7 @@ class Kokoro:
         self.model = KModel(repo_id=MODEL_REPO, config=files["config.json"], model=files["kokoro-v1_0.pth"])
         self.pipeline_type, self.sf = KPipeline, soundfile
         self.pipelines = {}
+        self.voice_tensors = {}
 
     def synthesize(self, text: str, voice: dict, path: Path):
         import numpy as np
@@ -63,8 +64,11 @@ class Kokoro:
             self.pipelines[lang] = self.pipeline_type(lang_code=lang, repo_id=MODEL_REPO, model=self.model, device="cpu")
         pipeline = self.pipelines[lang]
         import torch
-        files = assets([p["id"] for p in voice["parts"]])
-        tensor = sum(torch.load(files[f'voices/{p["id"]}.pt'], weights_only=True, map_location="cpu") * p["weight"] for p in voice["parts"])
+        key = digest(voice["parts"])
+        if key not in self.voice_tensors:
+            files = assets([p["id"] for p in voice["parts"]])
+            self.voice_tensors[key] = sum(torch.load(files[f'voices/{p["id"]}.pt'], weights_only=True, map_location="cpu") * p["weight"] for p in voice["parts"])
+        tensor = self.voice_tensors[key]
         chunks = []
         for _, _, audio in pipeline(text, voice=tensor, speed=voice["speed"]):
             if audio is None:

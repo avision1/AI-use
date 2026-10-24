@@ -11,3 +11,5 @@ deploy/*.tfstate*
 deploy/*.tfplan
 deploy/*.tfvars
 deploy/.terraform.lock.hcl
+
+preview-dist/

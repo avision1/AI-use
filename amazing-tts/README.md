@@ -2,7 +2,11 @@
 
 A shared novel audiobook website and a portable Python engine. Paste a NovelPing book URL; import chapters, adapt each whole chapter with Gemini, assign persistent character voices, generate local Kokoro speech, and play cached recordings. The Google Cloud deployment shares one edition of each book across listeners.
 
-**Status:** working local engine and website; 45 automated tests, live two-chapter scraping, real Kokoro speech/cache smoke test, and desktop/mobile browser checks passed. Google Cloud adapters and deployment files are implemented but not deployed or integration-tested against a real cloud project. See docs/HANDOFF.md.
+**Status:** working local engine and website; 55 automated tests, live two-chapter scraping, real Kokoro speech/cache smoke test, and desktop/mobile browser checks passed. Google Cloud adapters and deployment files are implemented but not deployed or integration-tested against a real cloud project. See docs/HANDOFF.md.
+
+## Current listening preview
+
+The requested *Building an Eternal Dynasty: The Eternal Legacy System* test has **213 readable chapters**, a validated full Chapter 1 script adapted by one lightweight `gpt-6-luna` subagent, and a saved **50-second three-voice audition**. Whole-chapter audio has not been generated. No Gemini API calls were used. The temporary ChatGPT Work preview and rebuild instructions are documented in [LOCAL_PREVIEW.md](docs/LOCAL_PREVIEW.md).
 
 ## Run locally
 

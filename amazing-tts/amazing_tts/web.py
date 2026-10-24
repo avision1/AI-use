@@ -10,9 +10,10 @@ import threading
 import time
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from .storage import Library, DEFAULT_DATA, digest
-from .scraper import book_url, Scraper
+from .scraper import book_url, Scraper, chapter_url, parse_chapter
 from .pipeline import process, accept_script, needs_llm
 from .audio import Renderer, export_mp3
 from .models import Script
@@ -20,6 +21,7 @@ from .llm import Gemini
 
 CLOUD = os.getenv("AMAZING_TTS_CLOUD") == "1"
 WORKER = os.getenv("SERVICE_MODE") == "worker"
+PREVIEW = os.getenv("AMAZING_TTS_PREVIEW") == "1"
 ROOT = Path(os.getenv("AMAZING_TTS_DATA", str(DEFAULT_DATA)))
 executor = ThreadPoolExecutor(max_workers=1)
 local_guard = threading.Lock()
@@ -33,6 +35,7 @@ async def lifespan(app):
 
 
 app = FastAPI(title="Amazing TTS", lifespan=lifespan)
+app.mount("/assets", StaticFiles(directory=Path(__file__).parent / "static"), name="assets")
 
 
 def library():
@@ -119,7 +122,7 @@ def health():
 
 @app.get("/api/config", dependencies=[Depends(public)])
 def config():
-    return {"cloud": CLOUD, "firebase": {"apiKey": os.getenv("FIREBASE_API_KEY", ""), "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN", ""), "projectId": os.getenv("GOOGLE_CLOUD_PROJECT", "")}}
+    return {"cloud": CLOUD, "preview": PREVIEW, "firebase": {"apiKey": os.getenv("FIREBASE_API_KEY", ""), "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN", ""), "projectId": os.getenv("GOOGLE_CLOUD_PROJECT", "")}}
 
 
 @app.get("/api/books", dependencies=[Depends(public)])
@@ -137,6 +140,8 @@ def catalog():
 
 @app.post("/api/books")
 def generate(body: GenerationRequest, user=Depends(identity)):
+    if PREVIEW:
+        raise HTTPException(409, "This low-compute preview plays saved audio; new model generation is disabled.")
     try:
         url = book_url(body.url)
         if CLOUD:
@@ -172,15 +177,51 @@ def details(bid: str):
             chapter.pop("key", None)
             chapter["audio"] = f'/api/books/{bid}/audio/{chapter["number"]}'
         cast = c.objects.json(bid, "cast.json") or {}
-        return {"id": bid, **{k: job.get(k) for k in ["title", "url", "state", "ready", "target", "error", "warnings"]}, "chapters": chapters, "cast": cast}
+        return {"id": bid, **{k: job.get(k) for k in ["title", "url", "state", "ready", "target", "error", "warnings"]}, "chapters": chapters, "cast": cast, "catalog": c.objects.json(bid, "catalog.json") or chapters}
     book = local_book(bid)
     chapters = []
     for path in book.chapters():
         src = json.loads(path.read_text())
         manifest = book.read(book.chapter_name(src["number"])+"/audio.json")
         if manifest:
-            chapters.append({"number": src["number"], "title": src["title"], "duration_seconds": manifest["duration_seconds"], "audio": f'/api/books/{bid}/audio/{src["number"]}'})
-    return {"id": bid, **book.read("book.json"), **local_job(book), "chapters": chapters, "cast": book.read("cast.json", {})}
+            chapters.append({"number": src["number"], "title": src["title"] + (" — cast audition" if manifest.get("scope") == "cast_audition" else ""), "scope": manifest.get("scope", "chapter"), "duration_seconds": manifest["duration_seconds"], "audio": f'/api/books/{bid}/audio/{src["number"]}'})
+    return {"id": bid, **book.read("book.json"), **local_job(book), "chapters": chapters, "cast": book.read("cast.json", {}), "catalog": book.read("catalog.json", chapters)}
+
+
+@app.get("/api/books/{bid}/script/{chapter}", dependencies=[Depends(public)])
+def chapter_script(bid: str, chapter: int):
+    if CLOUD or chapter < 1:
+        raise HTTPException(404)
+    record = local_book(bid).read(f"chapters/{chapter:06d}/script.json")
+    if record is None:
+        raise HTTPException(404)
+    return {"model": record["model"], "script": record["script"], "approved": record["approved"]}
+
+
+@app.get("/api/books/{bid}/text/{chapter}", dependencies=[Depends(public)])
+def chapter_text(bid: str, chapter: int):
+    if CLOUD:
+        raise HTTPException(404, "Source reading is available in the local preview only")
+    if chapter < 1:
+        raise HTTPException(404)
+    book = local_book(bid)
+    name = book.chapter_name(chapter) + "/source.json"
+    source = book.read(name)
+    if source is None:
+        target = book.read("book.json").get("links", {}).get(str(chapter))
+        if not target:
+            raise HTTPException(404)
+        with local_guard:
+            source = book.read(name)
+            if source is None:
+                try:
+                    if not hasattr(app.state, "reader_scraper"):
+                        app.state.reader_scraper = Scraper()
+                    source = parse_chapter(app.state.reader_scraper.get(chapter_url(target, book.url)), target, book.url)
+                    book.write(name, source)
+                except (ValueError, RuntimeError) as exc:
+                    raise HTTPException(502, str(exc)) from None
+    return source
 
 
 @app.get("/api/books/{bid}/audio/{chapter}", dependencies=[Depends(public)])
@@ -230,6 +271,8 @@ def get_review(bid: str, user=Depends(identity)):
 
 @app.post("/api/books/{bid}/review")
 def approve(bid: str, body: ReviewRequest, user=Depends(identity)):
+    if PREVIEW:
+        raise HTTPException(409, "Script review is read-only in this low-compute preview")
     try:
         if CLOUD:
             cloud().review(bid, user["uid"], user.get("admin", False), body.script)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import time
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import urljoin, urlsplit, urlencode
 import httpx
 from bs4 import BeautifulSoup
 
@@ -118,3 +118,37 @@ class Scraper:
                 yield saved
             if not nxt:
                 break
+
+
+def parse_archive(html: str, base: str) -> list[dict]:
+    """Read the public chapter archive, including anchors inside HTML templates."""
+    soup = BeautifulSoup(html, "html.parser")
+    found = {}
+    for a in soup.select('a[href]'):
+        try:
+            target = chapter_url(a["href"], base)
+        except ValueError:
+            continue
+        n = number(target)
+        title = a.get("title") or " ".join(a.stripped_strings) or f"Chapter {n}"
+        found[n] = {"number": n, "title": title, "url": target}
+    if not found:
+        raise ValueError("No public chapter archive entries found")
+    numbers = sorted(found)
+    if numbers != list(range(1, numbers[-1]+1)):
+        raise ValueError("Chapter archive contains gaps; refusing to label it complete")
+    return [found[n] for n in numbers]
+
+
+def import_archive(scraper: Scraper, book, html=None):
+    meta = scraper.discover(book)
+    if html is None:
+        html = scraper.get("https://novelping.com/ajax/chapter-archive?" + urlencode({"novelId": book.url.rsplit("/", 1)[-1]}))
+    catalog = parse_archive(html, book.url)
+    meta["links"].update({str(c["number"]): c["url"] for c in catalog})
+    meta["catalog_count"] = len(catalog)
+    # Knowing the index is complete does not mean all chapter bodies are downloaded.
+    meta["catalog_complete"] = True
+    book.write("catalog.json", catalog)
+    book.write("book.json", meta)
+    return catalog

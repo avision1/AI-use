@@ -24,4 +24,4 @@ include = ["amazing_tts*"]
 testpaths = ["tests"]
 
 [tool.setuptools.package-data]
-amazing_tts = ["static/*.html"]
+amazing_tts = ["static/*.html", "static/*.js", "static/*.css"]
