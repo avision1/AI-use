@@ -22,3 +22,5 @@ Update task IDs, branch/commit, validation, blockers and exact next command. Sta
 - `python3 -B scripts/boot-test.py artifacts/vm-build/windows12-amd64-preview.iso`: collect BIOS evidence only after real ISO exists.
 - `python3 -B scripts/export-staged-tree.py`: export reviewed staged project text for authenticated GitHub main checkpoint.
 Guest test command: `python3 -B -m unittest discover -s /root/windows12-checks/tests -v`. Do not run image build/package installation/test suites against the host.
+
+Before launching a new build, runner.lock and existing QMP controls must exclude a live previous job. Do not unlink control FIFOs, replace source snapshots or rename exit markers while a job may be alive. The current bootstrap host wrapper has a launch guard; reconcile old jobs first.

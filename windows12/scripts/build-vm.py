@@ -3,7 +3,7 @@
 Writable guest storage: .work/builder/build.qcow2 and artifacts/vm-build ONLY.
 """
 from pathlib import Path
-import argparse, hashlib, http.server, json, os, shlex, shutil, subprocess, tarfile, threading, urllib.parse, time, socket, re
+import argparse, hashlib, http.server, json, os, shlex, shutil, subprocess, tarfile, threading, urllib.parse, time, socket, re, fcntl, select, stat, errno
 ROOT=Path(__file__).resolve().parents[1]
 WORK=ROOT/'.work/builder'
 TOOLS=WORK/'tools'
@@ -18,6 +18,40 @@ def main():
  for p in [WORK,OUT,WORK/'home',WORK/'tmp',WORK/'cache']:p.mkdir(parents=True,exist_ok=True)
  for p in [WORK,OUT,ROOT/'image']:
   if not p.resolve().is_relative_to(ROOT):raise SystemExit('Symlink escapes project: '+str(p))
+ lock_path=WORK/'runner.lock'
+ if lock_path.is_symlink():raise SystemExit('Runner lock symlink refused')
+ lock_handle=lock_path.open('a')
+ try:fcntl.flock(lock_handle.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+ except BlockingIOError:raise SystemExit('Another project build runner holds runner.lock; inspect its recorded job')
+ # Older runners did not hold runner.lock. Refuse live or ambiguous QMP controls.
+ qmp_existing=WORK/'qmp'
+ qmp_in=Path(str(qmp_existing)+'.in');qmp_out=Path(str(qmp_existing)+'.out')
+ if qmp_in.exists() or qmp_out.exists():
+  for path in [qmp_in,qmp_out]:
+   if path.is_symlink() or not path.exists() or not stat.S_ISFIFO(path.stat().st_mode):raise SystemExit('Ambiguous QMP controls; reconcile before launch')
+  reader=os.open(qmp_out,os.O_RDONLY|os.O_NONBLOCK)
+  writer=None
+  try:
+   try:writer=os.open(qmp_in,os.O_WRONLY|os.O_NONBLOCK)
+   except OSError as error:
+    if error.errno!=errno.ENXIO:raise SystemExit('Cannot reconcile prior QMP controls: '+str(error))
+   if writer is not None:
+    identifier='launch-guard-'+str(time.time_ns())
+    for request in [{'execute':'qmp_capabilities'},{'execute':'query-status','id':identifier}]:os.write(writer,(json.dumps(request)+'\n').encode())
+    buffer=b'';deadline=time.monotonic()+3
+    while time.monotonic()<deadline:
+     if not select.select([reader],[],[],0.25)[0]:continue
+     buffer+=os.read(reader,65536)
+     while b'\n' in buffer:
+      line,buffer=buffer.split(b'\n',1)
+      try:response=json.loads(line)
+      except ValueError:continue
+      if response.get('id')==identifier:raise SystemExit('An existing VM answers QMP; refusing another launch ('+str(response.get('return',response))+')')
+    raise SystemExit('Prior QMP has a listener but no confirmed status; reconcile it before launch')
+  finally:
+   os.close(reader)
+   if writer is not None:os.close(writer)
+
  env=os.environ.copy()
  env.update(HOME=str(WORK/'home'),TMPDIR=str(WORK/'tmp'),XDG_CACHE_HOME=str(WORK/'cache'),PYTHONDONTWRITEBYTECODE='1')
  lib=TOOLS/'usr/lib/x86_64-linux-gnu'
@@ -135,6 +169,7 @@ def main():
  qmp=WORK/'qmp'
  for extension in ['.in','.out']:
   fifo=Path(str(qmp)+extension)
+  if fifo.is_symlink() or (fifo.exists() and not stat.S_ISFIFO(fifo.stat().st_mode)):raise SystemExit('Unexpected QMP path; reconcile before launch')
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
