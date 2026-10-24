@@ -1,45 +1,36 @@
 # Project state
 
-## Current milestone
-M1: produce and validate a Debian13 amd64 KDE live/installer ISO with project desktop package. Source build is running; **no target ISO or installation is verified yet**.
+## Availability blocker
+The execution environment was reported UNAVAILABLE after checkpoint b0c4be08ec3791fb1a9d030772b50d6bcfc0437a. GitHub remains accessible, so this interruption checkpoint is being saved directly to main. No filesystem, VM, disk or process state can currently be verified. Do not assume the build stopped, survived, or completed. No target ISO has been verified.
 
-Repository: avision1/AI-use, branch main. Previous verified synchronized checkpoint: 735367e4793cf6029ebf1f5e82d87d574b458066. User requires frequent direct-to-main pushes, only windows12 changes. Native push lacks credentials; authenticated GitHub tree/commit/ref API works. Initial-to-64bff6f comparison confirmed zero changed paths outside windows12.
-Absolute project: /workspace/scratch/3c38ab731138/AI-use/windows12. Parent README/LICENSE are tracked upstream but intentionally unmaterialized here; never stage their apparent deletions.
+Repository: avision1/AI-use, branch main. All project changes stay under windows12/. Readback of checkpoint b0c4be0 confirmed root LICENSE/README blob hashes unchanged. Native push lacks credentials; authenticated GitHub tree/commit/ref synchronization works. Last local absolute project path: /workspace/scratch/3c38ab731138/AI-use/windows12. Local Git may lag API-published commits; staged content may already be published. Compare remote state before discarding or committing.
 
-## Implemented and validated
-- Persistent memory, primary-source architecture and compatibility evidence.
-- image/: Office web allowlist launcher, offline welcome, eight menu entries, new-user KDE defaults, bottom panel/pins and original SVG wallpaper. GUI remains unverified.
-- Contained full QEMU TCG builder, smm=off, no host filesystem shares or devices. Source snapshots served read-only via explicit HTTP map; artifact PUT exports are allowlisted, length/path checked and atomically renamed.
-- Authenticated local QEMU packages and separate xorriso tools; tools are extracted, never host-installed. Immutable cloud image lock is enforced; detached cloud signature is not verified.
-- Actual Debian guest Linux/systemd/cloud-init boot; guest HTTPS trust repaired using public infrastructure CA in builder only, TLS verification enabled.
-- 17 overlay unit tests passed inside guest; browser invocations mocked. Desktop package built twice identically; dpkg-deb info/contents parsed successfully. Exported7036-byte package at artifacts/vm-build/windows12-desktop_0.1.0~preview1_all.deb, SHA256 eef6eb901577b2694e44965eaf2a0fe687acf954c45f7feb5777b120a4470b8f; host checksum matched.
-- lb config succeeded; lb build entered debootstrap, verified Debian Release signature and is retrieving/validating base packages.
+## Implemented and actually verified
+- Six persistent memory files, primary-source architecture/compatibility research and runnable contained build tooling.
+- image/: curated Office web launchers, offline welcome, desktop entries, new-user KDE/Breeze/double-click defaults, bottom panel/pins and original SVG wallpaper. GUI has not been validated.
+- Project-local signature/hash-authenticated QEMU and separate xorriso dependencies, extracted without host package installation.
+- Real Debian builder Linux/systemd/cloud-init boot using TCG smm=off. Host namespace isolation was unavailable; all package installs/build/runtime tests ran inside the project-contained VM.
+- 17 overlay unit tests passed inside the VM (browser calls mocked).
+- Desktop package built twice identically, parsed by dpkg-deb and exported. 7036 bytes; SHA256 eef6eb901577b2694e44965eaf2a0fe687acf954c45f7feb5777b120a4470b8f. Its prior path was artifacts/vm-build/windows12-desktop_0.1.0~preview1_all.deb; present availability is UNKNOWN.
+- Independent two-boot recovery probe passed on the same disk/payload: counter 1→2, refreshed runtime environment, HTTP201 callbacks and clean QEMU exits. Both probe VMs were stopped before this outage. This is not proof of interrupted live-build recovery.
+- Main source build passed debootstrap and reached desktop archive downloads. Last root-confirmed owner report: archive1391, actual build disk~3.11GB, free~23.77GB, automatic stale-copy cleanup healthy; no resource pause/error reported then. This is historical, not current status.
 
-## Active jobs — inspect before restarting
-Main build tool session50357, .work/builder/vm-launch-06.log, artifacts/vm-build/serial.log. Disk .work/builder/build.qcow2 (24GiB virtual, sparse); source SHA256 410ef567dcb06bc49f6e7e50a87f8173e0e5b3acded7b0275d3c6e68abc10ad9 in checks.tar/build-source.sha256. Latest observed stage: debootstrap completed; actual target desktop transaction queued2155MB downloads and7419MB additional installed software, including windows12-desktop. No failure marker for current run. Early package/log/checksum HTTP exports succeeded. Old diagnostic jobs are stopped and logs/disks preserved.
-Recovery probe phases1 and2 are completed and stopped (sessions35102,34341). Same guest disk/payload reran with counter1→2 and refreshed proxy environment; callbacks201 and QEMU exit0. Evidence in artifacts/recovery-probe/phase-{1,2}/result.json and docs/RECOVERY.md. No probe VM is running. Main build remains the only active VM.
+## Unconfirmed jobs and storage — reconcile after restoration
+Last main job: tool session50357, owner /root/builder. Last monitor: owner94738, TTY, build-monitor.py --auto-cleanup. Tool handles are agent-scoped; an unknown handle does not prove process termination.
+Disk: .work/builder/build.qcow2 (24GiB virtual). Frozen archive: .work/builder/checks.tar, SHA256410ef567dcb06bc49f6e7e50a87f8173e0e5b3acded7b0275d3c6e68abc10ad9; matching build-source.sha256.
+Evidence: artifacts/vm-build/{serial.log,guest-build.log,run.json,input-provenance.json,build.exit if produced}; .work/builder/{vm-launch-06.log,monitor.log,paused-state.json,pause-events.jsonl,sync-temp-cleanup.jsonl}.
+Original environment availability is unknown beyond the provider's UNAVAILABLE status. Ignored disks/cache/artifacts may need preservation or rebuild if the workspace was removed.
 
-## Limitations and incomplete work
-No ISO, target desktop, installer, installed reboot, authenticated Office, Wine/game or physical hardware tests. BIOS capture harness is implemented but unexecuted; D-I installation harness is implemented but unexecuted. Target package repositories are mutable, so full ISO byte reproducibility is not established. --resume remains experimental for live-build stages. A separate measured two-boot probe now proves frozen-payload metadata/environment rerun on the same disk using unchanged nocloud-net. Interrupted live-build stage recovery still needs verification. Namespace/Landlock isolation is unavailable; all runtime build/test work must use contained VM. No /dev/kvm, use TCG. Initial host free~30GiB; latest~28GiB. Proxy ports change per tool invocation, never hardcode.
+## Known constraints and incomplete work
+No completed ISO, live target desktop, installation, installed reboot, authenticated Office, Wine/game, UEFI or physical hardware validation. BIOS capture and D-I installation/reboot harnesses are source-ready but unexecuted.
+Cloud image is pinned by immutable URL/hash; detached cloud signature is not verified. Target repositories remain mutable; full ISO byte reproducibility is pending.
+Changing VM disks generated recursive synchronization temporary copies. Narrow cleanup was verified; an automatic monitor cleans only unchanged regular .build.qcow2.* copies older120s, protecting configured inodes. It requests QMP guest-CPU stop below6GiB after cleanup, never auto-resumes/quits. Pause/resume/full-disk branches were not runtime-tested. Actual QMP status overrides stale/missing markers.
+Current cachefalse live-build cleanup PURGES completed apt archives on graceful SIGTERM/EXIT. Do not gracefully abort a surviving download. Actual staged replay test was planned only after confirmed package-install completion, before ISO completion; NO shutdown/replay test was performed before the outage. Current saved LB_APT_HTTP_PROXY is empty; fresh runtime proxy is forwarded. Never hardcode old proxy ports or disable TLS.
 
 ## Exact next actions
-1. Query `python3 -B scripts/probe-qmp.py status` and inspect serial.log/session50357. Continue healthy current job; do not relaunch or overwrite its controls/source/disk.
-2. Monitor debootstrap, chroot package install, package validation and ISO stages. Fix only actual failures; preserve failed logs and state.
-3. If ISO succeeds, verify output checksum then run BIOS capture harness, inspect screenshots and execute disposable-disk install/reboot checks. No physical installation.
-4. Recovery and installation harness source has been reviewed and statically parsed. Do not rerun completed recovery probe without a reason. Execute installation harness only after ISO completion and free-space check; record exact scope/results. Update memory and push reviewed windows12-only checkpoints to main.
-
-Source review: all11 Python source files parse via read-only AST inspection; this does not execute or validate the unrun ISO/installer harnesses. Separate xorriso startup verified from signature/hash-authenticated packages. No host package installation occurred.
-
-Monitoring/resource note: persistent monitor session94738, owned by /root/builder, is active (scripts/build-monitor.py, .work/builder/monitor.log). Prefer having its owner poll this existing session at intervals≥60s instead of new/parallel exec calls; stdin status reports state, cleanup applies narrowly audited stale-copy removal, stop stops only monitor. Observed recursive generated .build.qcow2.* copies consumed~10.46GiB;42 stale regular copies were removed after age/inode/re-stat checks, real disk/backing preserved. Audit .work/builder/sync-temp-cleanup.jsonl. Platform synchronization is the suspected cause, not independently established. Preserve recent copies; never delete configured .qcow2 files with this cleanup.
-
-Monitor handles are agent-scoped: only /root/builder can poll current94738. Root received Unknown process id for prior99317; this does not establish that the process stopped. Owner stopped99317 and replaced it with automatic TTY-backed94738 so stdin cleanup commands work. Two reviewed cleanup passes reclaimed~10GiB each; real VM50357 remains active. Latest observed target Qt/KDE downloads~package244, real disk~1.85GB, free~24.9GB after cleanup; continuing temporary-copy growth still requires monitoring.
-
-Current safeguard: /root/builder owns monitor94738, build-monitor.py --auto-cleanup in a TTY-backed session. All older monitors are stopped. Reviewed stale-copy cleanup runs every60s; recent cycles kept~25–26GB free with actualdisk~2GB and desktop download~package568. If free remains below6GiB, monitor requests QMP stop of guest CPUs only, records paused-state/reason when possible and NEVER automatically resumes or quits guest. Cleanup/status were exercised; real guest pause/resume and disk-filling failure tests were not performed. Log-write failures are nonfatal, malformed marker tolerated, state markers replaced atomically where space permits. Read .work/builder/monitor.log, paused-state.json and pause-events.jsonl before action; actual QMP state overrides stale/missing markers.
-
-Local Git may lag published checkpoints while the VM is active: native fetch/reconciliation is deferred to reduce large-file synchronization. Some staged content may already be on GitHub main. Compare remote commit/tree before committing or discarding anything; never force-push. Source checkpoints survive workspace loss; ignored VM disks/cache/artifacts require preservation or rebuild if the transient environment is removed.
-
-Installer harness source now also requires run-specific configuration evidence: no known transient build CA/proxy artifacts, graphical.target default and SDDM unit configuration. This is statically reviewed/source-parsed only; no installer, GUI or update runtime claim. Actual GUI flag remains false until separate evidence.
-
-Controlled replay assessment: current --cache false makes live-build SIGTERM/EXIT cleanup delete all completed chroot apt archives. Do NOT gracefully interrupt the current download. Completed bootstrap and stage markers survive, so root has authorized a controlled ACPI test only after exact-source/log evidence confirms package-install completion while binary/ISO remains incomplete. Builder must report safe-point evidence before acting; skip if ambiguous or ISO already completes. Current recipe saves empty LB_APT_HTTP_PROXY and forwards fresh runtime environment; exact source showed no stale chroot proxy file. Future explicit proxy CLI settings need separate reconciliation. Upcoming run.json records frozen guest SHA, host-wrapper SHA and credential-free proxy_guest. No shutdown/replay test has been performed on this actual build yet.
-
-Latest observed progress: desktop archive1057 (X11 utilities), actualdisk~2.41GB, free~24.84GB; automatic cleanup has maintained safe margin across13 further cycles. No resource pause.
+1. Restore/attach a working Linux execution environment; prefer the original workspace. Establish the absolute windows12 boundary before any writes. Do not create a replacement repository or auxiliary checkout.
+2. Locate existing repo/cache/artifacts. Ask the existing builder owner if available; reconcile provider, QMP, logs, locks and output markers. Do NOT launch a duplicate VM merely because a scoped handle is unknown.
+3. If the original job is healthy, continue it. If paused, reconcile storage and explicitly resume only after actual state is known.
+4. If the old job is confirmed stopped and disk/archive survive, validate pinned base and frozen archive, inspect offline image integrity without automatic repair, then use guarded --resume and verify real stage reuse/refreshed environment. Actual staged resume remains unverified.
+5. If workspace/disk loss is confirmed, rebuild from existing GitHub main source and pinned input; record this concrete reason for repeating the build. Preserve prior validation records. Do not claim bit-identical full ISO reconstruction from moving repositories.
+6. After real ISO output/checksum, execute BIOS capture and new disposable-disk installation/reboot/configuration audits. No physical deployment. Update memory, inspect project-only changes and push directly main.

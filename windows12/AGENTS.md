@@ -24,3 +24,6 @@ Update task IDs, branch/commit, validation, blockers and exact next command. Sta
 Guest test command: `python3 -B -m unittest discover -s /root/windows12-checks/tests -v`. Do not run image build/package installation/test suites against the host.
 
 Before launching a new build, runner.lock and existing QMP controls must exclude a live previous job. Do not unlink control FIFOs, replace source snapshots or rename exit markers while a job may be alive. The current bootstrap host wrapper has a launch guard; reconcile old jobs first.
+
+## Environment unavailable
+If the selected execution environment becomes unavailable, stop runtime/file operations and checkpoint through the existing GitHub connection under windows12/. Mark all job/disk/monitor status UNKNOWN until verified after restoration. An agent-scoped unknown handle is not proof of termination. Do not create replacement repos, auxiliary checkouts, host installations or broaden the boundary to work around lost access. Reconcile original state before resume/rebuild; Git preserves source/memory, not ignored transient disks.
