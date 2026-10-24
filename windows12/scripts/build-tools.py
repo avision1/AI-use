@@ -72,7 +72,7 @@ def main():
      provider=candidate.copy();declared=re.search(r'\(= ([^)]+)\)',provided)
      provider['_ProvidedVersion']=declared[1] if declared else None
      packages.setdefault(alias,[]).append(provider)
- todo=['qemu-system-x86','qemu-utils','seabios'] if arguments.profile=='vm' else ['xorriso'];selected={};constraints=[]
+ todo=['qemu-system-x86','qemu-utils','seabios'] if arguments.profile=='vm' else ['xorriso','squashfs-tools'];selected={};constraints=[]
  while todo:
   name=todo.pop()
   if name in selected:continue

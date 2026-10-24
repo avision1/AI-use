@@ -3,7 +3,7 @@
 ## Current milestone
 W12-005: build, boot, install and validate the first practical amd64 Debian13/KDE preview. User explicitly requests continued work toward a fleshed-out usable distribution; a running builder is not a completed deliverable. No ISO, live desktop, installed reboot or authenticated Office workflow is verified yet.
 
-Repository avision1/AI-use, branch main. Latest verified checkpoint before this update: fa6cdefc9af832cf1dd502d0826e3bf2d24481bf. Strict absolute project `/workspace/scratch/3c38ab731138/AI-use/windows12/`. Only parent normal Git metadata is excepted. Root README/LICENSE hashes unchanged, no root AGENTS.md. Local HEAD remains e6b7186; staged project files include already-published API checkpoints. Before native reconciliation compare current main/index and preserve changes; never stage root deletions or force-push.
+Repository avision1/AI-use, branch main. Latest verified checkpoint before this update: 8957c3bd5a03b95d5e515e228b1d500b88f10ce8. Strict absolute project `/workspace/scratch/3c38ab731138/AI-use/windows12/`. Only parent normal Git metadata is excepted. Root README/LICENSE hashes unchanged, no root AGENTS.md. Local HEAD remains e6b7186; staged project files include already-published API checkpoints. Before native reconciliation compare current main/index and preserve changes; never stage root deletions or force-push.
 
 ## Active build and supervision
 Original corrected build6329 remains running, owner /root/build_restored. Frozen source SHA25645cd49afcd9417f2deb185410c0e9ac93c0d25ab218f534ec209696c49cde8c4; real disk `.work/builder/build.qcow2`. Do not launch a duplicate VM, use --resume, replace archive or convert active storage. See docs/RESTORED_BUILD.md for full provenance/failure preservation.
@@ -34,3 +34,10 @@ Source desktop audit completed in docs/DESKTOP_AUDIT.md: conditional partial-pan
 3. Wait for real build.exit/ISO/checksums/final guest log and supervising exit; verify nonempty ISO and host SHA256. Preserve failed evidence if nonzero/missing.
 4. After builder stops, inspect actual media then BIOS boot and NEW disposable-disk install/ISO-free reboot. Test graphical workflows and fix measured failures before release; no host or physical installation.
 5. Maintain memory, reviewed project-only checkpoints and frequent direct main pushes.
+
+## Next-gate tooling checkpoint
+W12-019 audit-iso.py reviewed: checks a real ISO/checksum against frozen checks.tar+source lock, actual ISO boot structures (not boot success), authenticated xorriso/unsquashfs bytes, SquashFS dpkg state, 17 core packages, managed payloads/permissions and known transient proxy/CA paths. No mount/root extraction/guest executable. ISO profile alone adds squashfs-tools; VM tool tree unaffected. Prep69510 exited0 with signed metadata/hash validation. xorriso1.5.6 / unsquashfs4.6.1 startup and requested flags confirmed; regenerated iso-tools-lock records actual packages. Real ISO audit remains pending.
+
+Cloud detached-signature research found the current official dated release lists no signature and conventional .sign/.gpg both404; current Debian cloud guidance uses TLS/DNSSEC recommendation and distinguishes signed legacy images. No authorized cloud signature identity was established. Keep explicit HTTPS+pin assurance, no CD-key substitution or unnecessary VM restart. See docs/CLOUD_SIGNATURE_PLAN.md; target snapshot pinning remains incomplete.
+
+Latest owner1792825209: desktopdownloads Get785, free26.35GB,disk2.253GB,four sync copies1.19GB,noerror/exit/pause. Jobs6329/82377 unchanged. Parallel W12-020 desktop-test.py harness is being implemented, no extra VM; W12-009 runtime options research is doc-only, no current image changes. Owners/acceptance in TASKS and corresponding docs.
