@@ -308,6 +308,49 @@ root=$(findmnt -n -o SOURCE /)
 case "$root" in /dev/vda[0-9]*) ;; *) exit 1;; esac
 [ "$(dpkg-query -W -f='${db:Status-Status}' windows12-desktop)" = installed ]
 getent passwd testuser >/dev/null
+python3 - <<'CONFIG_AUDIT'
+import json
+from pathlib import Path
+import re
+import subprocess
+
+# Known transient trust artifacts must be absent, including broken symlinks.
+for root in ('/usr/local/share/ca-certificates', '/usr/share/ca-certificates', '/etc/ssl/certs'):
+    directory = Path(root)
+    for filename in ('windows12-build-proxy.crt', 'windows12-build-proxy.pem'):
+        for candidate in directory.rglob(filename) if directory.is_dir() else ():
+            if candidate.exists() or candidate.is_symlink():
+                raise SystemExit('Transient build CA leaked: ' + str(candidate))
+apt = Path('/etc/apt')
+files = list(apt.rglob('*')) if apt.is_dir() else []
+files.append(Path('/etc/environment'))
+for filename in files:
+    if not filename.is_file():
+        continue
+    for line in filename.read_text(errors='replace').splitlines():
+        stripped = line.strip()
+        if stripped.startswith(('#', '//')):
+            continue
+        if 'proxy' in line.lower() and re.search(r'(?<![0-9.])10[.]0[.]2[.]2(?![0-9.])', line):
+            raise SystemExit('Transient build proxy configuration leaked: ' + str(filename))
+
+def systemctl(*arguments):
+    return subprocess.check_output(['systemctl', *arguments], text=True, timeout=20).strip()
+
+default_target = systemctl('get-default')
+fragment = systemctl('show', '--property=FragmentPath', '--value', 'display-manager.service')
+manager_file = Path('/etc/X11/default-display-manager')
+manager = manager_file.read_text().strip() if manager_file.is_file() else None
+if default_target != 'graphical.target' or Path(fragment).name != 'sddm.service':
+    raise SystemExit('Expected graphical.target and configured SDDM display-manager service')
+if manager is not None and Path(manager).name != 'sddm':
+    raise SystemExit('Unexpected default-display-manager configuration')
+audit = {'default_target': default_target, 'display_manager_unit': Path(fragment).name,
+         'display_manager_file': manager, 'build_proxy_ca_absent': True,
+         'build_proxy_entries_absent': True, 'gui_runtime_verified': False}
+with Path('/dev/ttyS0').open('a') as console:
+    console.write('CONFIG_MARKER ' + json.dumps(audit, sort_keys=True) + chr(10))
+CONFIG_AUDIT
 printf '\\nMARKER root=%s package=%s\\n' "$root" "$(dpkg-query -W -f='${Version}' windows12-desktop)" >/dev/ttyS0
 sync
 systemctl --no-block poweroff
@@ -325,7 +368,7 @@ WantedBy=multi-user.target
 SERVICE
 ln -s ../windows12-install-proof.service /target/etc/systemd/system/multi-user.target.wants/windows12-install-proof.service
 wget -O /dev/null ENDPOINT/complete-TOKEN
-'''.replace('GUARD', '(' + guard + ') || exit 71').replace('MARKER', marker).replace('ENDPOINT', endpoint).replace('TOKEN', token)
+'''.replace('GUARD', '(' + guard + ') || exit 71').replace('CONFIG_MARKER', 'WINDOWS12_INSTALLED_CONFIG:' + token).replace('MARKER', marker).replace('ENDPOINT', endpoint).replace('TOKEN', token)
         preseed = f'''# PUBLIC disposable test credentials. Never use on a physical PC.
 d-i debian-installer/locale string en_US.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
@@ -401,9 +444,14 @@ d-i preseed/late_command string wget -O /tmp/windows12-late.sh {endpoint}/late-{
                                     output, env, args.boot_timeout, args.interval)
         serial = (output / 'installed-boot-serial.log').read_text(errors='replace')
         proof = re.search(re.escape(marker) + r' root=/dev/vda[0-9]+ package=([^\s]+)', serial)
-        if result['boot_run']['timed_out'] or result['boot_run']['returncode'] != 0 or not proof:
-            raise RuntimeError('ISO-free installed boot proof missing; no installation success certified')
-        result.update(install_verified=True, disk_boot_verified=True,
+        config_proof = re.search(re.escape('WINDOWS12_INSTALLED_CONFIG:' + token) + r' (\{[^\r\n]+\})', serial)
+        if result['boot_run']['timed_out'] or result['boot_run']['returncode'] != 0 or not proof or not config_proof:
+            raise RuntimeError('ISO-free installed boot/configuration proof missing; no installation success certified')
+        audit = json.loads(config_proof.group(1))
+        if (audit.get('default_target') != 'graphical.target' or audit.get('display_manager_unit') != 'sddm.service'
+                or audit.get('build_proxy_ca_absent') is not True or audit.get('build_proxy_entries_absent') is not True):
+            raise RuntimeError('Installed configuration audit did not pass')
+        result.update(install_verified=True, disk_boot_verified=True, configuration_audit=audit,
                       installed_package_version=proof.group(1), outcome='installed-root-boot-proof-passed')
         return 0
     except KeyboardInterrupt:

@@ -3,7 +3,7 @@
 ## Current milestone
 M1: produce and validate a Debian13 amd64 KDE live/installer ISO with project desktop package. Source build is running; **no target ISO or installation is verified yet**.
 
-Repository: avision1/AI-use, branch main. Previous verified synchronized checkpoint: 8eaffcbd1e1b45d9fa3302b282690ec12bb68f6b. User requires frequent direct-to-main pushes, only windows12 changes. Native push lacks credentials; authenticated GitHub tree/commit/ref API works. Initial-to-64bff6f comparison confirmed zero changed paths outside windows12.
+Repository: avision1/AI-use, branch main. Previous verified synchronized checkpoint: e916574e78b74e735af2466d410013feb236a532. User requires frequent direct-to-main pushes, only windows12 changes. Native push lacks credentials; authenticated GitHub tree/commit/ref API works. Initial-to-64bff6f comparison confirmed zero changed paths outside windows12.
 Absolute project: /workspace/scratch/3c38ab731138/AI-use/windows12. Parent README/LICENSE are tracked upstream but intentionally unmaterialized here; never stage their apparent deletions.
 
 ## Implemented and validated
@@ -37,3 +37,5 @@ Monitor handles are agent-scoped: only /root/builder can poll current94738. Root
 Current safeguard: /root/builder owns monitor94738, build-monitor.py --auto-cleanup in a TTY-backed session. All older monitors are stopped. Reviewed stale-copy cleanup runs every60s; recent cycles kept~25–26GB free with actualdisk~2GB and desktop download~package568. If free remains below6GiB, monitor requests QMP stop of guest CPUs only, records paused-state/reason when possible and NEVER automatically resumes or quits guest. Cleanup/status were exercised; real guest pause/resume and disk-filling failure tests were not performed. Log-write failures are nonfatal, malformed marker tolerated, state markers replaced atomically where space permits. Read .work/builder/monitor.log, paused-state.json and pause-events.jsonl before action; actual QMP state overrides stale/missing markers.
 
 Local Git may lag published checkpoints while the VM is active: native fetch/reconciliation is deferred to reduce large-file synchronization. Some staged content may already be on GitHub main. Compare remote commit/tree before committing or discarding anything; never force-push. Source checkpoints survive workspace loss; ignored VM disks/cache/artifacts require preservation or rebuild if the transient environment is removed.
+
+Installer harness source now also requires run-specific configuration evidence: no known transient build CA/proxy artifacts, graphical.target default and SDDM unit configuration. This is statically reviewed/source-parsed only; no installer, GUI or update runtime claim. Actual GUI flag remains false until separate evidence.
