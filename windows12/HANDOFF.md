@@ -2,6 +2,8 @@
 
 **BLOCKED: execution environment unavailable. GitHub source/checkpoints are safe; VM/disk/job survival is unknown. No ISO has been verified.**
 
+This emergency checkpoint is REMOTE-ONLY because the shell is unavailable. Local memory may still show the prior running state; read GitHub main first. Root's read-only shell probe explicitly reported no usable execution environment. Do not retry runtime tools until an environment becomes available.
+
 Read AGENTS.md, PROJECT_STATE.md, TASKS.md, DECISIONS.md and RUNBOOK.md. Restore execution access before runtime work. Last verified remote checkpoint before this update: b0c4be08ec3791fb1a9d030772b50d6bcfc0437a. Continue using existing avision1/AI-use main, only windows12/.
 
 Last absolute project: /workspace/scratch/3c38ab731138/AI-use/windows12. Root README/LICENSE were intentionally unmaterialized locally; never stage their apparent deletions. Native Git can lag API commits and staged content may already be published; reconcile remote tree first, never force-push or discard blindly.

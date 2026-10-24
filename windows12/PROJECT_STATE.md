@@ -1,7 +1,9 @@
 # Project state
 
 ## Availability blocker
-The execution environment was reported UNAVAILABLE after checkpoint b0c4be08ec3791fb1a9d030772b50d6bcfc0437a. GitHub remains accessible, so this interruption checkpoint is being saved directly to main. No filesystem, VM, disk or process state can currently be verified. Do not assume the build stopped, survived, or completed. No target ISO has been verified.
+The execution environment was reported UNAVAILABLE, and a read-only root shell availability probe returned: "No usable execution environment is available. Wait for an environment to become available before using this tool." Runtime tools will not be retried until access returns. This remote-only interruption checkpoint was made through GitHub; local memory files may still contain pre-outage active-job statements. Read GitHub main versions first on restoration.
+
+Availability changed after checkpoint b0c4be08ec3791fb1a9d030772b50d6bcfc0437a. GitHub remains accessible, so this interruption checkpoint is being saved directly to main. No filesystem, VM, disk or process state can currently be verified. Do not assume the build stopped, survived, or completed. No target ISO has been verified.
 
 Repository: avision1/AI-use, branch main. All project changes stay under windows12/. Readback of checkpoint b0c4be0 confirmed root LICENSE/README blob hashes unchanged. Native push lacks credentials; authenticated GitHub tree/commit/ref synchronization works. Last local absolute project path: /workspace/scratch/3c38ab731138/AI-use/windows12. Local Git may lag API-published commits; staged content may already be published. Compare remote state before discarding or committing.
 
