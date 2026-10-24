@@ -34,27 +34,34 @@ def main():
   return
  # HTTPS checksum manifest pins exact builder bytes. Debian signatures are not verified here;
  # HTTPS origin authentication plus SHA512 detects transfer/cache corruption, not a compromised origin.
- base='https://cloud.debian.org/images/cloud/trixie/latest/'
- name='debian-13-genericcloud-amd64.qcow2'
- sums=WORK/'cloud-SHA512SUMS';cloud=WORK/name
+ lock=json.loads((ROOT/'build/builder-image.lock.json').read_text())
+ name=lock['filename'];expected=lock['sha512']
+ if Path(name).name!=name or not re.fullmatch(r'[0-9a-f]{128}',expected):raise SystemExit('Invalid builder image lock')
+ sums=WORK/'pinned-SHA512SUMS'
+ legacy=WORK/lock.get('legacy_cache_name',name)
+ cloud=legacy if legacy.is_file() else WORK/name
  def download(url,path):
+  if path.is_symlink() or not path.resolve().is_relative_to(ROOT):raise SystemExit('Download path escapes project')
+  partial=Path(str(path)+'.part')
+  if partial.is_symlink():raise SystemExit('Download temporary path is a symlink')
   if not path.exists():
-   run(['curl','--fail','--location','--retry','2','--output',str(path)+'.part',url]);Path(str(path)+'.part').rename(path)
- download(base+'SHA512SUMS',sums)
- expected=next((line.split()[0] for line in sums.read_text().splitlines() if line.split()[-1]==name),None)
- if not expected:raise SystemExit('Expected builder image missing from upstream manifest')
- download(base+name,cloud)
+   run(['curl','--fail','--location','--retry','2','--output',str(partial),url]);partial.rename(path)
+ download(lock['manifest_url'],sums)
+ if hashlib.sha256(sums.read_bytes()).hexdigest()!=lock['manifest_sha256']:raise SystemExit('Pinned manifest SHA256 mismatch')
+ manifest_digest=next((line.split()[0] for line in sums.read_text().splitlines() if line.split()[-1]==name),None)
+ if manifest_digest!=expected:raise SystemExit('Pinned builder digest differs from official dated manifest')
+ download(lock['url'],cloud)
  h=hashlib.sha512()
  with cloud.open('rb') as f:
   for block in iter(lambda:f.read(2**20),b''):h.update(block)
  if h.hexdigest()!=expected:raise SystemExit('Builder SHA512 mismatch; cached input left untouched for investigation.')
- (OUT/'input-provenance.json').write_text(json.dumps({'url':base+name,'sha512':expected,'verification':'official HTTPS SHA512SUMS; detached signature not verified','tools_lock':'build/tools-lock.json'},indent=2)+'\n')
+ (OUT/'input-provenance.json').write_text(json.dumps({'url':lock['url'],'sha512':expected,'verification':'official HTTPS SHA512SUMS; detached signature not verified','tools_lock':'build/tools-lock.json'},indent=2)+'\n')
  if args.prepare:return
  disk=WORK/'build.qcow2'
  if args.resume and not disk.exists():raise SystemExit('No VM disk to resume')
  if disk.exists() and not args.resume:raise SystemExit('Build disk exists. Use --resume or preserve then remove it deliberately. No automatic deletion.')
  if not disk.exists():
-  run([str(qimg),'create','-f','qcow2','-F','qcow2','-b',str(cloud),str(disk),'20G'])
+  run([str(qimg),'create','-f','qcow2','-F','qcow2','-b',str(cloud),str(disk),'24G'])
  # Resume uses the immutable archived source, not possibly changed working files.
  checks=WORK/'checks.tar'
  source_lock=WORK/'build-source.sha256'
@@ -80,10 +87,15 @@ def main():
  user_data='#cloud-config\nwrite_files:\n  - path: /run/windows12-build-vm\n    content: "contained full VM build\\n"\n  - path: /root/build.sh\n    permissions: "0700"\n    content: |\n'+''.join('      '+line+'\n' for line in guest.splitlines())
  if proxy_guest:
   user_data+='  - path: /etc/apt/apt.conf.d/80windows12-build-proxy\n    content: |\n      Acquire::http::Proxy "'+proxy_guest+'";\n      Acquire::https::Proxy "'+proxy_guest+'";\n'
+ cert_source=env.get('CODEX_PROXY_CERT')
+ if proxy_guest and cert_source:
+  cert=Path(cert_source).read_text()
+  (WORK/'build-proxy.crt').write_text(cert)
+  user_data+='  - path: /usr/local/share/ca-certificates/windows12-build-proxy.crt\n    permissions: "0644"\n    content: |\n'+''.join('      '+line+'\n' for line in cert.splitlines())
  runner=['bash','/root/build.sh']
  if proxy_guest:runner=['env','http_proxy='+proxy_guest,'https_proxy='+proxy_guest,'HTTP_PROXY='+proxy_guest,'HTTPS_PROXY='+proxy_guest,'no_proxy=10.0.2.2,127.0.0.1,localhost','NO_PROXY=10.0.2.2,127.0.0.1,localhost']+runner
- user_data+='runcmd:\n  - '+json.dumps(runner)+'\n'
- seed={'/seed/meta-data':b'instance-id: windows12-builder-INSTANCE\nlocal-hostname: windows12-builder\n','/seed/user-data':user_data.encode(),'/seed/vendor-data':b''}
+ user_data+='runcmd:\n  - [ update-ca-certificates ]\n  - '+json.dumps(runner)+'\n'
+ seed={'/seed/meta-data':b'instance-id: windows12-builder-INSTANCE\nlocal-hostname: windows12-builder\n','/seed/user-data':user_data.encode(),'/seed/vendor-data':b'','/seed/network-config':b'version: 2\nethernets:\n  build:\n    match:\n      name: "en*"\n    dhcp4: true\n    dhcp6: false\n'}
  class Handler(http.server.BaseHTTPRequestHandler):
   def do_PUT(self):
    name=self.path.removeprefix('/output/')
@@ -113,7 +125,8 @@ def main():
    elif self.path in seed:
     data=seed[self.path];self.send_response(200);self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
    else:self.send_error(404)
-  def log_message(self,*args):pass
+  def log_message(self,format,*arguments):
+   with (OUT/'http-requests.log').open('a') as log:log.write(json.dumps({'time':time.time(),'request':self.requestline,'status':str(arguments[1]) if len(arguments)>1 else ''})+'\n')
  seed['/seed/meta-data']=seed['/seed/meta-data'].replace(b'INSTANCE',str(time.time_ns()).encode())
  old_status=OUT/'build.exit'
  if old_status.exists():old_status.rename(OUT/f'build.exit.previous-{time.time_ns()}')

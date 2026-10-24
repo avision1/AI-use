@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "release": "trixie",
+  "build": "20261021-2638",
+  "filename": "debian-13-genericcloud-amd64-20261021-2638.qcow2",
+  "url": "https://cloud.debian.org/images/cloud/trixie/20261021-2638/debian-13-genericcloud-amd64-20261021-2638.qcow2",
+  "sha512": "16e0965312c56feb331049d45d2b1b5778f3f942a33d4300eedbb97527707f2bea87c0006f3e4cc7a25fadbff739c4e235a51fb9bcd1b66fd554f7f8e80ba45c",
+  "manifest_url": "https://cloud.debian.org/images/cloud/trixie/20261021-2638/SHA512SUMS",
+  "manifest_sha256": "5e22239e7bcb7ac4056324aa1829620f2853bff0c3b77b3af8c4578642c0f359",
+  "assurance": "Official HTTPS manifest and content checksum; detached signature not verified",
+  "legacy_cache_name": "debian-13-genericcloud-amd64.qcow2"
+}

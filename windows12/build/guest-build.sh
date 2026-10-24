@@ -3,9 +3,9 @@
 set -Eeuo pipefail
 [[ -f /run/windows12-build-vm ]] || { echo 'Refusing host execution'; exit 70; }
 mkdir -p /project-output
-exec > >(tee -a /project-output/guest-build.log /dev/ttyS0) 2>&1
+exec > >(tee -a /project-output/guest-build.log) 2>&1
 export_results() {
- python3 - "$1" <<'EXPORT'
+ python3 - "$1" "${2:-final}" <<'EXPORT'
 import http.client
 from pathlib import Path
 import sys
@@ -32,6 +32,7 @@ try:
 except Exception as error:
  print('Artifact export failed:',error,file=sys.stderr)
  status=74
+if sys.argv[2]=='checkpoint':raise SystemExit(0 if status==0 else 74)
 (root/'build.exit').write_text(str(status)+'\n')
 upload(root/'build.exit')
 EXPORT
@@ -53,12 +54,15 @@ dpkg-deb --info "$package"
 dpkg-deb --contents "$package"
 cp "$package" /project-output/
 cp /root/windows12-checks/artifacts/packages/SHA256SUMS /project-output/desktop-SHA256SUMS
+export_results 0 checkpoint
 export DEBIAN_FRONTEND=noninteractive
-apt-get update
+apt-get -o APT::Update::Error-Mode=any update
 apt-get install -y live-build debootstrap ca-certificates curl
 mkdir -p /root/windows12-build
 cd /root/windows12-build
-lb config --mode debian --distribution trixie --architectures amd64 \
+apt-get clean
+df -h / /root/windows12-build /project-output
+lb config --cache false --mode debian --distribution trixie --architectures amd64 \
  --binary-images iso-hybrid --archive-areas 'main contrib non-free non-free-firmware' \
  --debian-installer live --bootappend-live 'boot=live components username=user hostname=windows12' \
  --iso-application 'Windows12 independent Linux preview' \
@@ -105,6 +109,10 @@ cat > config/hooks/live/0990-remove-proxy.hook.chroot <<'HOOK'
 #!/bin/sh
 set -eu
 rm -f /etc/apt/apt.conf.d/80windows12-build-proxy
+if [ -f /usr/local/share/ca-certificates/windows12-build-proxy.crt ]; then
+ rm -f /usr/local/share/ca-certificates/windows12-build-proxy.crt
+ update-ca-certificates --fresh
+fi
 find /usr/share/applications -name 'windows12*.desktop' -exec desktop-file-validate {} +
 python3 -m py_compile /usr/local/bin/windows12-webapp
 HOOK

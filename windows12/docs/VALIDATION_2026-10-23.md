@@ -18,3 +18,5 @@ Build attempt 04, contained QEMU TCG Debian13 builder, source tar SHA256 `dd2117
 | Authenticated Office, Wine apps or physical hardware | Not performed |
 
 Primary execution evidence remains under ignored `artifacts/vm-build/serial.log`, guest-build.log when exported, and run.json. This compact record preserves the observed results in Git; it is not a substitute for full release logs or artifacts. The browser calls in unit tests were mocked, so those results establish launcher behavior only. The booted builder cloud OS is not the target distribution.
+
+Follow-up fresh attempt05: public infrastructure CA injection fixed guest HTTPS certificate verification; Debian InRelease and package indexes downloaded with TLS verification enabled. Target ISO still not built at this checkpoint. HTTP artifact export from prior failed build succeeded, including .deb/checksum/log and nonzero exit marker; host .deb checksum matches guest. Experimental resume attempt was inconclusive and stopped before a fresh build.
