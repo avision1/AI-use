@@ -4,6 +4,8 @@
 
 ## Prerequisites and invocation
 
+The capture harness holds `.work/builder/runner.lock` for the entire run, including emulator cleanup. A source-build or install-test runner holding that lock blocks capture before any output directory or guest is created. Surviving legacy builder QMP FIFO listeners and ambiguous/non-FIFO/symlink controls also block capture; inspect the recorded job instead of deleting controls. A stale, complete FIFO pair with no listener is permitted and left unchanged. Do not run independent project VMs concurrently.
+
 The project QEMU tools must already exist under `.work/builder/tools` and an actual ISO must exist beneath `windows12`. From `AI-use/windows12`:
 
 ```sh
@@ -37,4 +39,4 @@ The `smm=off` setting follows a firmware boot-loop diagnosis in this restricted 
 
 ## Status
 
-Source implementation prepared for the first available project ISO. No harness execution or boot result is claimed by this document. See project validation/state records for subsequent runs.
+Source implementation prepared for the first available project ISO. Serialization regression tests in `tests/test_boot_guard.py` cover lock contention and release, the capture-wide lock lifetime, live/stale/ambiguous legacy FIFOs, symlink controls and escaping state paths without launching QEMU. They require the build-VM marker and keep fixtures beneath the guest project. AST syntax checks passed during implementation; runtime test execution remains pending. No harness execution or boot result is claimed by this document. See project validation/state records for subsequent runs.

@@ -4,7 +4,7 @@ Read AGENTS.md, PROJECT_STATE.md, TASKS.md, DECISIONS.md and RUNBOOK.md first. S
 
 Active W12-005: build_restored prepares authenticated tools and rebuilds pinned Debian13 KDE image, owns `.work`, `artifacts`, regenerated tool locks and docs/RESTORED_BUILD.md. Read that file for current jobs before starting anything. Never run simultaneous VMs or replace frozen source. Use invocation-current proxy/CA, TCG smm=off, controlled HTTP and no filesystem sharing. Monitor temporary-copy growth with reviewed auto-cleanup; never auto-resume a resource-paused guest.
 
-Active W12-007: boot_guard adds whole-run exclusive builder lock / legacy-QMP guard to boot-test.py, preserving install-test helper loading, tests and BOOT_TEST docs. Lead integrates/pushes; agents do not commit. New guard tests must execute inside a contained VM, not host.
+Active W12-007: boot_guard completed whole-run exclusive builder lock / legacy-QMP guard to boot-test.py, preserving install-test helper loading, tests and BOOT_TEST docs. Lead integrates/pushes; agents do not commit. Eight new guard tests are included in the next fresh build snapshot and must execute inside a contained VM, not host. Reviewed syntax/diff checks pass; runtime pending. Checkpoint f91d019 verified on main.
 
 Historical evidence:17 guest tests; deterministic7036-byte desktop package SHA256eef6eb901577b2694e44965eaf2a0fe687acf954c45f7feb5777b120a4470b8f; real Debian builder boot; two-phase frozen-task recovery probe. No ISO, target GUI, installation or actual interrupted live-build replay verified. Those artifacts were ignored and are absent in restored workspace.
 

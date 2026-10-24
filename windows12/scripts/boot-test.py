@@ -3,12 +3,16 @@
 Success means captures were collected, never that the guest booted or installed.
 """
 import argparse
+import contextlib
+import errno
+import fcntl
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
 import select
+import stat
 import subprocess
 import sys
 import time
@@ -24,6 +28,45 @@ def contained(path):
     if any(char in str(result) for char in (',', '\n', '\r', '\x00')):
         raise ValueError('Runtime paths cannot contain commas or control separators')
     return result
+
+
+@contextlib.contextmanager
+def exclusive_runner():
+    """Serialize all project VM runs and refuse surviving legacy controls.
+
+    Do not remove or consume FIFO data: a listener without a current runner
+    lock is still sufficient evidence to reject another guest.
+    """
+    work = contained(ROOT / '.work/builder')
+    if not work.is_dir():
+        raise ValueError('Project builder tools/state directory missing')
+    raw_lock = work / 'runner.lock'
+    if raw_lock.is_symlink():
+        raise ValueError('Runner lock symlink refused')
+    lock = contained(raw_lock)
+    descriptor = os.open(lock, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
+    with os.fdopen(descriptor, 'r+') as handle:
+        if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+            raise ValueError('Runner lock is not a regular file')
+        try:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise ValueError('Another build/boot/install runner holds runner.lock; inspect its recorded job')
+        controls = [work / 'qmp.in', work / 'qmp.out']
+        if any(path.exists() or path.is_symlink() for path in controls):
+            for path in controls:
+                if path.is_symlink() or not path.exists() or not stat.S_ISFIFO(path.stat().st_mode):
+                    raise ValueError('Ambiguous legacy builder QMP controls; inspect the recorded build job')
+            try:
+                writer = os.open(controls[0], os.O_WRONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+            except OSError as error:
+                if error.errno != errno.ENXIO:
+                    raise
+            else:
+                os.close(writer)
+                raise ValueError('Legacy source-build QMP listener is active; wait for its VM to stop')
+        # Keep the lock through captures AND emulator cleanup.
+        yield
 
 
 class QMP:
@@ -98,6 +141,11 @@ def main():
         parser.error('timeout/interval must be positive and memory at least 512 MiB')
     if args.installer_disk_size and not re.fullmatch(r'[1-9][0-9]*G', args.installer_disk_size):
         parser.error('installer disk size must be a positive integer followed by G')
+    with exclusive_runner():
+        return capture(args)
+
+
+def capture(args):
     iso = contained(args.iso)
     if not iso.is_file() or iso.suffix.lower() != '.iso':
         raise ValueError('ISO must be an existing regular .iso file beneath the project')
