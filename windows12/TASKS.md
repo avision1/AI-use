@@ -7,3 +7,6 @@
 | W12-004 | Desktop overlay and Office web integration | 002 | lead | implemented; runtime unverified | Runnable launchers, welcome/help, Windows-style desktop defaults |
 | W12-005 | Integrate, build and validate milestone image | 003,004 | lead/build agent | active | Build logs/checksums; boot and install results or precise blockers |
 | W12-006 | Release checkpoint and sync | 005 | lead | pending | Memory current; reviewed project-only commit synchronized |
+| W12-007 | BIOS ISO evidence capture harness | 003,005 | research agent | implemented; unexecuted | Real contained ISO, screenshots/logs, new disposable disk only; no false success claim |
+| W12-008 | Freeze release inputs and harden provenance | 005 | unassigned | pending | Snapshot repositories/input authentication; reproducibility records and repeat build |
+| W12-009 | Windows application compatibility milestone | 005 | unassigned | pending | Choose maintained runtime; exact app/version functional tests and honest limits |

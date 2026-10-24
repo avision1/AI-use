@@ -8,7 +8,7 @@ An independent installable Linux distribution project for everyday Windows-style
 
 Read [AGENTS.md](AGENTS.md), [HANDOFF.md](HANDOFF.md) and [RUNBOOK.md](RUNBOOK.md). All project writes—including VM disks, caches, downloaded dependencies, temporary files and build logs—must stay within this `windows12/` folder. Only ordinary repository Git metadata is excepted. Never run the target installer or package installation against the host.
 
-The build approach uses a full QEMU software-emulated VM, with dependencies extracted locally. Guest writes stay in a project-contained virtual disk and controlled artifact share. The builder must pass its execution probe before an OS build is attempted. No fallback to privileged host chroot or global package installation is permitted.
+The build approach uses a full QEMU software-emulated VM, with dependencies extracted locally. Guest writes stay in a project-contained virtual disk and allowlisted local HTTP artifact exports. The builder must pass its execution probe before an OS build is attempted. No fallback to privileged host chroot or global package installation is permitted.
 
 ## Source map
 

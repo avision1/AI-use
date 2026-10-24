@@ -3,9 +3,40 @@
 set -Eeuo pipefail
 [[ -f /run/windows12-build-vm ]] || { echo 'Refusing host execution'; exit 70; }
 mkdir -p /project-output
-mount -t 9p -o trans=virtio,version=9p2000.L output /project-output
 exec > >(tee -a /project-output/guest-build.log /dev/ttyS0) 2>&1
-trap 'rc=$?; printf "%s\n" "$rc" > /project-output/build.exit; sync; shutdown -h now' EXIT
+export_results() {
+ python3 - "$1" <<'EXPORT'
+import http.client
+from pathlib import Path
+import sys
+root=Path('/project-output')
+status=int(sys.argv[1])
+def upload(path):
+ length=path.stat().st_size
+ connection=http.client.HTTPConnection('10.0.2.2',8765,timeout=600)
+ connection.putrequest('PUT','/output/'+path.name)
+ connection.putheader('Content-Length',str(length))
+ connection.endheaders()
+ with path.open('rb') as source:
+  remaining=length
+  while remaining:
+   block=source.read(min(1024*1024,remaining))
+   if not block:raise RuntimeError('Output shortened during export')
+   connection.send(block);remaining-=len(block)
+ response=connection.getresponse()
+ if response.status!=201:raise RuntimeError('Artifact export HTTP '+str(response.status))
+ response.read();connection.close()
+try:
+ for path in sorted(root.iterdir()):
+  if path.is_file() and path.name!='build.exit':upload(path)
+except Exception as error:
+ print('Artifact export failed:',error,file=sys.stderr)
+ status=74
+(root/'build.exit').write_text(str(status)+'\n')
+upload(root/'build.exit')
+EXPORT
+}
+trap 'rc=$?; export_results "$rc" || true; sync; shutdown -h now' EXIT
 mkdir -p /root/windows12-checks
 python3 - <<'PYTEST'
 import urllib.request,tarfile,io
@@ -79,7 +110,7 @@ python3 -m py_compile /usr/local/bin/windows12-webapp
 HOOK
 chmod +x config/hooks/live/0990-remove-proxy.hook.chroot
 lb build
-cp live-image-amd64.hybrid.iso /project-output/windows12-amd64-preview.iso
+mv live-image-amd64.hybrid.iso /project-output/windows12-amd64-preview.iso
 cp live-image-amd64.packages /project-output/windows12-amd64-preview.packages
 cd /project-output
 sha256sum windows12-amd64-preview.iso > SHA256SUMS

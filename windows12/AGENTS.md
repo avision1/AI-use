@@ -13,3 +13,12 @@ Read HANDOFF.md, PROJECT_STATE.md, TASKS.md, DECISIONS.md, RUNBOOK.md. Inspect G
 
 ## Checkpoints
 Update task IDs, branch/commit, validation, blockers and exact next command. Stage only windows12 paths; inspect all staged names and diff before committing. Preserve unrelated work. Synchronize through existing repository only, without force push. No large binaries in Git. Generated artifacts need explicit checksums and build provenance; original signed inputs must be archived separately for long-term reconstruction.
+
+## Essential commands (from windows12; environment setup in RUNBOOK)
+- `python3 -B scripts/build-tools.py`: prepare authenticated local tools, no install.
+- `python3 -B scripts/build-vm.py --probe`, `--prepare`, then no flag: isolated VM build.
+- `python3 -B scripts/probe-qmp.py status` or `quit`: inspect/stop only the recorded build VM.
+- `python3 -B scripts/build-vm.py --resume`: experimental frozen-source rerun; inspect jobs first.
+- `python3 -B scripts/boot-test.py artifacts/vm-build/windows12-amd64-preview.iso`: collect BIOS evidence only after real ISO exists.
+- `python3 -B scripts/export-staged-tree.py`: export reviewed staged project text for authenticated GitHub main checkpoint.
+Guest test command: `python3 -B -m unittest discover -s /root/windows12-checks/tests -v`. Do not run image build/package installation/test suites against the host.

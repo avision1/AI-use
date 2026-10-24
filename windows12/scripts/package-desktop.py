@@ -27,6 +27,16 @@ Description: Independent Windows-style Linux desktop integration preview
 def tarball(entries):
     output = io.BytesIO()
     with tarfile.open(fileobj=output, mode='w', format=tarfile.USTAR_FORMAT) as archive:
+        # Explicit parent directories make unpacking independent of existing layout.
+        directories = {parent.as_posix() for name, _, _ in entries for parent in Path(name).parents if parent.as_posix() != '.'}
+        for name in sorted(directories, key=lambda value: (value.count('/'), value)):
+            entry = tarfile.TarInfo(name + '/')
+            entry.type = tarfile.DIRTYPE
+            entry.mode = 0o755
+            entry.uid = entry.gid = 0
+            entry.uname = entry.gname = 'root'
+            entry.mtime = 0
+            archive.addfile(entry)
         for name, data, mode in sorted(entries):
             entry = tarfile.TarInfo(name)
             entry.size = len(data)
