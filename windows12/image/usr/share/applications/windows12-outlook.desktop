@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Outlook (web)
+Comment=Official Microsoft web service; requires internet and an eligible account
+Exec=/usr/local/bin/windows12-webapp outlook
+TryExec=/usr/local/bin/windows12-webapp
+Icon=internet-mail
+Terminal=false
+Categories=Office;Network;
+StartupNotify=true
+StartupWMClass=windows12-outlook

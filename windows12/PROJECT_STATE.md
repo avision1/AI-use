@@ -1,9 +1,10 @@
 # Project state
-Milestone M0: establish reproducible project and investigate feasible contained build path.
-Repository: avision1/AI-use; branch main; upstream initial commit bcf129f34a3d15b50043c8615acf99167e449fa3.
-Local sole checkout: /workspace/scratch/3c38ab731138/AI-use. Parent README/LICENSE intentionally not materialized; index tracks upstream. Do not stage their apparent deletions.
-Implemented: project memory and boundary established.
-No ISO built; no GUI, install, or application validation yet.
-Environment: ~30 GiB free; no QEMU, Docker, Podman, live-build, xorriso or squashfs tools initially. No /dev/kvm. bwrap fails opening process namespace; unshare user mapping denied; Landlock ENOSYS. Debian HTTPS and public Git fetch work. GitHub connector has repository write access.
-Next: investigate contained userspace VM or image remaster route; create runnable target integration and evidence matrix.
-Jobs: initial fetch session 63043 may be lingering although FETCH_HEAD populated; remote probe session 49196 failed credentials and may linger. No build jobs.
+Milestone M1: contained Debian 13 amd64 KDE live-build VM and initial desktop integration. Not a released OS yet.
+Repository: avision1/AI-use, branch main. Latest synchronized checkpoint before this change: d987c2cf133a20a3cf49d7c8c79744c768097665 (GitHub connector; native push has no credentials). Always push directly main, only windows12 paths. Local pre-sync commit 5edbd90 is superseded by equivalent remote checkpoint, retained in reflog.
+Absolute project: /workspace/scratch/3c38ab731138/AI-use/windows12. Root README/LICENSE intentionally not materialized; apparent deletions are unrelated and must not be staged.
+Implemented: six persistent memory files; primary-source architecture/options/compatibility matrix; Python Office web allowlist launcher and offline welcome; desktop menu entries; KDE new-user double-click/Breeze defaults; first-login taskbar/pins/wallpaper script. GUI not yet verified.
+Build tools: agent developing project-local QEMU package bootstrap plus full-VM live-build. All package installs happen in contained VM disks, never host. Source image/ is target filesystem overlay.
+Validation so far: repository and boundary inspection; Git staged whitespace check passed initial memory checkpoint. No runtime or image tests yet. Agent writing tests/test_overlay.py for VM execution.
+Environment: ~30 GiB initial free, no /dev/kvm. Native bwrap fails process namespace lookup, unshare user mapping denied, Landlock ENOSYS. QEMU must use TCG. Debian HTTPS/public Git fetch work. Proxy loopback ports change per exec; derive from current environment, never hardcode.
+Running work: build agent bootstrap/probe (inspect .work and artifacts logs before restart); research agent tests. No ISO or installed-system test yet.
+Next: complete QEMU probe, run overlay tests inside guest, build image, boot/install disposable virtual disk. Record precise blocker if VM unavailable.

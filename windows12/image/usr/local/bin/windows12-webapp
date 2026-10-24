@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+"""Launch a curated Microsoft web service using the system browser.
+No credential capture, unofficial webview, arbitrary URL, or shell invocation.
+"""
+import argparse
+import json
+import os
+import shutil
+import sys
+
+APPS = {
+    "office": ("Microsoft 365 (web)", "https://www.microsoft365.com/"),
+    "word": ("Word (web)", "https://word.cloud.microsoft/"),
+    "excel": ("Excel (web)", "https://excel.cloud.microsoft/"),
+    "powerpoint": ("PowerPoint (web)", "https://powerpoint.cloud.microsoft/"),
+    "outlook": ("Outlook (web)", "https://outlook.office.com/mail/"),
+    "onedrive": ("OneDrive (web)", "https://onedrive.live.com/"),
+    "teams": ("Teams (web)", "https://teams.microsoft.com/"),
+}
+
+
+def command(app, find=shutil.which):
+    _, url = APPS[app]
+    for browser in ("chromium", "chromium-browser", "google-chrome", "microsoft-edge"):
+        executable = find(browser)
+        if executable:
+            return [executable, "--class=windows12-" + app, "--app=" + url]
+    for browser in ("firefox-esr", "firefox"):
+        executable = find(browser)
+        if executable:
+            return [executable, "--new-window", url]
+    raise RuntimeError("No supported browser found. Install Chromium or Firefox through Software Center.")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("app", choices=sorted(APPS))
+    parser.add_argument("--print-command", action="store_true", help="Show JSON argv without opening a browser")
+    args = parser.parse_args()
+    try:
+        argv = command(args.app)
+        if args.print_command:
+            print(json.dumps(argv))
+            return 0
+        # Signed-in sessions remain in the browser's own normal user profile.
+        # On an installed OS these are ordinary per-user XDG directories.
+        if os.geteuid() == 0:
+            print("Open web apps from your regular desktop user account.", file=sys.stderr)
+            return 1
+        os.execv(argv[0], argv)
+    except (RuntimeError, OSError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Word (web)
+Comment=Official Microsoft web service; requires internet and an eligible account
+Exec=/usr/local/bin/windows12-webapp word
+TryExec=/usr/local/bin/windows12-webapp
+Icon=x-office-document
+Terminal=false
+Categories=Office;Network;
+StartupNotify=true
+StartupWMClass=windows12-word

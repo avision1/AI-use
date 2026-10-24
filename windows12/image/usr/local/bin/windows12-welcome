@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+"""Open the local, offline Windows12 quick-start page in the default browser."""
+from pathlib import Path
+import os
+import shutil
+import sys
+
+
+def main():
+    page = Path("/usr/local/share/windows12/welcome.html")
+    opener = shutil.which("xdg-open")
+    if not page.is_file() or not opener:
+        print("Windows12 help or xdg-open is missing.", file=sys.stderr)
+        return 1
+    if os.geteuid() == 0:
+        print("Open Welcome from your regular desktop user account.", file=sys.stderr)
+        return 1
+    try:
+        os.execv(opener, [opener, page.as_uri()])
+    except OSError as exc:
+        print(f"Unable to open Welcome: {exc}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

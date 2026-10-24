@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Teams (web)
+Comment=Official Microsoft web service; requires internet and an eligible account
+Exec=/usr/local/bin/windows12-webapp teams
+TryExec=/usr/local/bin/windows12-webapp
+Icon=internet-group-chat
+Terminal=false
+Categories=Office;Network;
+StartupNotify=true
+StartupWMClass=windows12-teams

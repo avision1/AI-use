@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Welcome to Windows12 Linux
+Comment=Desktop guide and compatibility notes (offline)
+Exec=/usr/local/bin/windows12-welcome
+TryExec=/usr/local/bin/windows12-welcome
+Icon=help-browser
+Terminal=false
+Categories=Documentation;Utility;

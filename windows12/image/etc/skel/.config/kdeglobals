@@ -1,0 +1,9 @@
+[KDE]
+SingleClick=false
+LookAndFeelPackage=org.kde.breeze.desktop
+
+[General]
+ColorScheme=BreezeLight
+
+[Icons]
+Theme=breeze

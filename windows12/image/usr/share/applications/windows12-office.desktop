@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Microsoft 365 (web)
+Comment=Official Microsoft web service; requires internet and an eligible account
+Exec=/usr/local/bin/windows12-webapp office
+TryExec=/usr/local/bin/windows12-webapp
+Icon=applications-office
+Terminal=false
+Categories=Office;Network;
+StartupNotify=true
+StartupWMClass=windows12-office
