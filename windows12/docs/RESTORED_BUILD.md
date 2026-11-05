@@ -63,3 +63,17 @@ Approved iso-profile preparation job69510 exited0, log `.work/builder/iso-tools-
 ## Desktop transaction passes1000archives
 
 Combinedmonitor82377 at1792825870 reports fresh guest console Get1011libcryptsetup12, following Get1009Calamares3.3.14-1. Target desktop archives continue (~20/minute recently); this is download progress, not installed/booted Calamares certification. Console2534bytes logged in2reads with no pending warning/error. Actualdisk2519732224bytes, free26121281536bytes,7recent sync copies2580291584bytes; reviewed cleanup removed6stale copies/reclaimed3132887040bytes. No build.exit, resourcepause or ISO verified. Builder6329 and monitor82377 remain active, frozen source unchanged. Continue currentowner handles; await actual package-install/build completion and final exports before ISOaudit or testVMs.
+
+## Active recovery build — 2026-11-05
+Authenticated native Debian tool prep72608 exited0:91 selected packages, QEMU1:10.0.13+ds-0+deb13u1, SeaBIOS1.16.3-2; diskless TCG10-second probe passed. Pinned cloud manifest/image both verified; prep63856 exited0. Fresh build31920 is active, sole TTY monitor50947 auto-cleanup60s. Source SHA256 `f045e04aff5ae2c730e171dc10b559655ad90724d62848c245b1b83ec8049dff`. New24GiB virtual disk in .work/builder/build.qcow2, no old state overwritten. Linux kernel/init observed; new guest tests/package/ISO still pending. Logs .work/build-2026-11-05.log, artifacts/vm-build/serial.log, .work/builder/monitor.log. Free initially63.39GB/no synchronization copies.
+
+Preview2 source changes: independently ensure tray/clock/show-desktop; Discover update guidance; explicit Flatpak backend; kde-plasma-desktop with explicit accessibility/audio/printing/power/fonts/LibreOffice integration. Version0.1.0~preview2. AST and bash syntax/diff checks pass; functional GUI unverified.
+
+Local recovery commit b5c9452 exists, but REMOTE MAIN IS STILL c2dad1b at last read. GitHub update_ref repeatedly returns upstream GraphQL internal error; update_file also returns internal error. Native push exits128 (credentials unavailable). No successful push is claimed. Preserve local commits and retry authenticated connection; never force-push. Root and sibling files remain untouched.
+
+## Current validation checkpoint
+Fresh preview2 guest:25 tests in0.391s, allOK. Deterministic double package build, dpkg info/contents and HTTP export passed. Package7118bytes, SHA256 `5db8cb011056994620abdfe550a31cbebc492e5a66ce2006551861484adf1776`, artifacts/vm-build/windows12-desktop_0.1.0~preview2_all.deb. Full ISO still building (debootstrap retrieving/validating package indexes at~159s guest uptime). No new build.exit/ISO/GUI/install result.
+
+Separate ISO tool prep17663 completed successfully; xorriso1.5.6 started with exit0; unsquashfs4.6.1 printed its version with exit1 (its version-command status; actual SquashFS read remains pending). A verification test changed signed Debian Release cleartext and sqv rejected it with exit1; evidence .work/signature-negative-check.json.
+
+Install harness now disables proof unit, syncs a run-token completion stamp and requires a new proof_once token marker; unit skips when stamp exists. Generated late/proof shell passes sh -n; Python AST/diff checks pass. No runtime installation or subsequent GUI boot is claimed. This host-side harness update does not modify frozen build source.

@@ -8,7 +8,9 @@ panel.height = 48;
 var widgets = panel.widgets();
 var launcher = null;
 var tasks = null;
+var present = {};
 for (var i = 0; i < widgets.length; ++i) {
+    present[widgets[i].type] = true;
     if (widgets[i].type === "org.kde.plasma.kickoff") launcher = widgets[i];
     if (widgets[i].type === "org.kde.plasma.icontasks") tasks = widgets[i];
 }
@@ -18,11 +20,10 @@ launcher.writeConfig("icon", "start-here-kde");
 if (!tasks) tasks = panel.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];
 tasks.writeConfig("launchers", ["applications:org.kde.dolphin.desktop", "applications:chromium.desktop", "applications:windows12-office.desktop", "applications:org.kde.discover.desktop"]);
-if (!widgets.length) {
-    panel.addWidget("org.kde.plasma.systemtray");
-    panel.addWidget("org.kde.plasma.digitalclock");
-    panel.addWidget("org.kde.plasma.showdesktop");
-}
+// Repair each missing essential widget even on a partially populated panel.
+if (!present["org.kde.plasma.systemtray"]) panel.addWidget("org.kde.plasma.systemtray");
+if (!present["org.kde.plasma.digitalclock"]) panel.addWidget("org.kde.plasma.digitalclock");
+if (!present["org.kde.plasma.showdesktop"]) panel.addWidget("org.kde.plasma.showdesktop");
 var screens = desktops();
 for (var j = 0; j < screens.length; ++j) {
     screens[j].wallpaperPlugin = "org.kde.image";

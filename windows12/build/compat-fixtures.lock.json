@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "assurance": "Official upstream HTTPS GitHub release asset metadata; SHA256 and size pins. Not a publisher signature or compatibility result.",
+  "fixtures": [
+    {
+      "id": "7zip-x64-exe",
+      "filename": "7z2605-x64.exe",
+      "url": "https://github.com/ip7z/7zip/releases/download/26.05/7z2605-x64.exe",
+      "bytes": 1663506,
+      "sha256": "fd99e86f57d8f429ef5ed045bf98315af962e2309b0f1ba87a147a44c71647d0",
+      "signature_required": false,
+      "signature_verified": false
+    },
+    {
+      "id": "7zip-x86-exe",
+      "filename": "7z2605.exe",
+      "url": "https://github.com/ip7z/7zip/releases/download/26.05/7z2605.exe",
+      "bytes": 1362132,
+      "sha256": "6435a470fe7c4769962dbed8a60c641ee21401c833ced06077c80e33e7845a5e",
+      "signature_required": false,
+      "signature_verified": false
+    },
+    {
+      "id": "7zip-x64-msi",
+      "filename": "7z2605-x64.msi",
+      "url": "https://github.com/ip7z/7zip/releases/download/26.05/7z2605-x64.msi",
+      "bytes": 2008576,
+      "sha256": "3fe4ab99fa15629c652944309a2b2bc6e41fc933fc6b63f5df1ebcf3aea68263",
+      "signature_required": false,
+      "signature_verified": false
+    },
+    {
+      "id": "notepadpp-x64-exe",
+      "filename": "npp.8.9.8.1.Installer.x64.exe",
+      "url": "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.9.8.1/npp.8.9.8.1.Installer.x64.exe",
+      "bytes": 6963432,
+      "sha256": "26f3bcced788fadbac4e7e577b430ea2ce6060cf3bcad993ef4612ecd7d743da",
+      "signature_required": true,
+      "signature_verified": false,
+      "publisher_key": {
+        "filename": "nppGpgPub.asc",
+        "url": "https://raw.githubusercontent.com/notepad-plus-plus/notepad-plus-plus/v8.9.8.1/nppGpgPub.asc",
+        "bytes": 34929,
+        "sha256": "40d6de423a3c0025c4ce9d23a2b8cc8ef5c265b8f74bdc52e149783a080ea4db",
+        "fingerprint": "14BCE4362749B2B51F8C71226C429F1D8D84F46E"
+      },
+      "signature": {
+        "filename": "npp.8.9.8.1.Installer.x64.exe.sig",
+        "url": "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.9.8.1/npp.8.9.8.1.Installer.x64.exe.sig",
+        "bytes": 594,
+        "sha256": "f0ee7d275fe4a7e96b83108e6ae4ba769e1bd0665e346263350b43de61c5ae74"
+      }
+    }
+  ]
+}

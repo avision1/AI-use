@@ -351,8 +351,14 @@ audit = {'default_target': default_target, 'display_manager_unit': Path(fragment
 with Path('/dev/ttyS0').open('a') as console:
     console.write('CONFIG_MARKER ' + json.dumps(audit, sort_keys=True) + chr(10))
 CONFIG_AUDIT
-printf '\\nMARKER root=%s package=%s\\n' "$root" "$(dpkg-query -W -f='${Version}' windows12-desktop)" >/dev/ttyS0
+# Retain a usable installed baseline for the later graphical login test.
+systemctl disable windows12-install-proof.service
+install -d -m 0700 /var/lib/windows12-install-proof
+printf '%s\\n' 'TOKEN' >/var/lib/windows12-install-proof/completed.pending
+mv /var/lib/windows12-install-proof/completed.pending /var/lib/windows12-install-proof/completed
 sync
+[ "$(cat /var/lib/windows12-install-proof/completed)" = 'TOKEN' ]
+printf '\\nMARKER root=%s package=%s proof_once=TOKEN\\n' "$root" "$(dpkg-query -W -f='${Version}' windows12-desktop)" >/dev/ttyS0
 systemctl --no-block poweroff
 PROOF
 chmod 755 /target/usr/local/sbin/windows12-install-proof
@@ -360,6 +366,7 @@ cat > /target/etc/systemd/system/windows12-install-proof.service <<'SERVICE'
 [Unit]
 Description=Disposable Windows12 installed-root boot proof
 After=local-fs.target
+ConditionPathExists=!/var/lib/windows12-install-proof/completed
 [Service]
 Type=oneshot
 ExecStart=/usr/local/sbin/windows12-install-proof
@@ -443,7 +450,7 @@ d-i preseed/late_command string wget -O /tmp/windows12-late.sh {endpoint}/late-{
         result['boot_run'] = run_vm('installed-boot', common, ['-boot', 'order=c', '-nic', 'none'],
                                     output, env, args.boot_timeout, args.interval)
         serial = (output / 'installed-boot-serial.log').read_text(errors='replace')
-        proof = re.search(re.escape(marker) + r' root=/dev/vda[0-9]+ package=([^\s]+)', serial)
+        proof = re.search(re.escape(marker) + r' root=/dev/vda[0-9]+ package=([^\s]+) proof_once=' + re.escape(token) + r'(?:\r?\n|$)', serial)
         config_proof = re.search(re.escape('WINDOWS12_INSTALLED_CONFIG:' + token) + r' (\{[^\r\n]+\})', serial)
         if result['boot_run']['timed_out'] or result['boot_run']['returncode'] != 0 or not proof or not config_proof:
             raise RuntimeError('ISO-free installed boot/configuration proof missing; no installation success certified')
@@ -452,7 +459,8 @@ d-i preseed/late_command string wget -O /tmp/windows12-late.sh {endpoint}/late-{
                 or audit.get('build_proxy_ca_absent') is not True or audit.get('build_proxy_entries_absent') is not True):
             raise RuntimeError('Installed configuration audit did not pass')
         result.update(install_verified=True, disk_boot_verified=True, configuration_audit=audit,
-                      installed_package_version=proof.group(1), outcome='installed-root-boot-proof-passed')
+                      installed_package_version=proof.group(1), proof_service_one_shot=True,
+                      proof_stamp_reported=True, outcome='installed-root-boot-proof-passed')
         return 0
     except KeyboardInterrupt:
         result['outcome'] = 'interrupted'

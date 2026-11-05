@@ -31,3 +31,6 @@ Before launching a new build, runner.lock and existing QMP controls must exclude
 
 ## Environment unavailable
 If the selected execution environment becomes unavailable, stop runtime/file operations and checkpoint through the existing GitHub connection under windows12/. Mark all job/disk/monitor status UNKNOWN until verified after restoration. An agent-scoped unknown handle is not proof of termination. Do not create replacement repos, auxiliary checkouts, host installations or broaden the boundary to work around lost access. Reconcile original state before resume/rebuild; Git preserves source/memory, not ignored transient disks.
+
+## Current host and runtime status
+Current host is Debian13; build-tools.py supports native Debian13 and Ubuntu24.04 using installed archive keyring and gpgv/sqv, extracting only project-local files. No global installation. Current-job source of truth is HANDOFF.md's November checkpoint; older October handles are historical. Runtime disk/artifacts can be lost by workspace pruning. Frequent local commits are required even when authenticated GitHub branch synchronization fails; report that failure honestly and retry without force.

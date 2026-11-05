@@ -128,3 +128,6 @@ No Windows kernel-driver installation, vendor kernel utility support, Microsoft 
 - [L1] Valve Proton limits/anti-cheat integration: https://partner.steamgames.com/doc/steamhardware/proton
 
 Research complete. Next action for parent: decide the optional Bottles prototype after the current ISO's real desktop/install validation, then implement and execute these gates. No app/runtime support result is implied by this document.
+
+## Implementation update2026-11-05
+Preview2 now explicitly includes Discover's Flatpak backend; remote/catalog and GUI checks remain pending. COMPAT_FIXTURES.md and scripts/compat-fixtures.py implement pinned test-input acquisition. All four real installers passed size/hash checks, Notepad++ publisher signature and altered-byte rejection passed, and offline re-verification passed. No Windows app/runtime execution or compatibility test occurred. These measured input checks supersede the opening research-only download/signature statements; the runtime integration recommendation is still unimplemented.

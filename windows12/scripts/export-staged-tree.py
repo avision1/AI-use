@@ -2,7 +2,9 @@
 """Emit reviewed staged project text files for GitHub create_tree.
 Run git diff --cached first. This does not publish or modify the repository.
 """
+import argparse
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -15,7 +17,15 @@ if project.name != 'windows12' or not (repo / '.git').is_dir():
 def git(*args):
     return subprocess.check_output(['git', '-C', str(repo), *args])
 
-names = git('diff', '--cached', '--name-only', '-z').decode().split('\0')
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--base', help='Full verified remote commit SHA; include local committed changes since this base')
+args = parser.parse_args()
+base = args.base or 'HEAD'
+if args.base:
+    if not re.fullmatch(r'[0-9a-f]{40}', args.base):
+        raise SystemExit('--base must be a full verified remote commit SHA')
+    git('rev-parse', '--verify', args.base + '^{commit}')
+names = git('diff', '--cached', base, '--name-only', '-z').decode().split('\0')
 names = [n for n in names if n]
 if not names:
     raise SystemExit('Nothing staged')

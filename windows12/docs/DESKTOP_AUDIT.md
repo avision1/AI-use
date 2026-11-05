@@ -46,3 +46,6 @@ Sources retrieved on 2026-10-24; package versions and interfaces may change. The
 3. KDE, scripting API: https://develop.kde.org/docs/plasma/scripting/api/
 4. Microsoft 365 Insider, web app homepages: https://techcommunity.microsoft.com/blog/microsoft365insiderblog/a-faster-way-to-find-your-word-excel-and-powerpoint-files-online/4496115 ; Microsoft Support, PowerPoint web creation: https://support.microsoft.com/en-gb/powerpoint/training/create-a-presentation-in-powerpoint-for-the-web
 5. Debian, `task-kde-desktop` in trixie (3.81): https://packages.debian.org/trixie/task-kde-desktop — desktop dependencies and recommended accessibility/Office integration components.
+
+## Preview2 source changes (2026-11-05)
+Panel initialization now checks each essential tray/clock/show-desktop widget separately, including partially populated panels. Help directs updates to Discover. Image recipe explicitly includes Discover Flatpak backend. Debian kde-plasma-desktop replaces task-kde-desktop with sound/accessibility/printing/power/fonts/LibreOffice integration selected explicitly; actual GUI remains unverified. Overlay package version changes to0.1.0~preview2. These changes do not configure Flathub or certify a tested application runtime.

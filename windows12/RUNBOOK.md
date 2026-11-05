@@ -119,3 +119,10 @@ After actual image content audit and main builder stop, root can own a TTY-backe
 
 ## Current recovery — 2026-11-05
 HANDOFF.md and PROJECT_STATE.md current-execution sections supersede all October active-job examples above. Workspace pruning removed ignored build state; no surviving VM/disk/ISO was found. Current native Debian13 bootstrap is in validation. sqv verifies cleartext InRelease to a project-local file; only verified metadata supplies package-index SHA256. No global packages are installed. Old25-test/package results remain historical. Check current job/log before any new prep/build.
+
+## Proven GitHub lease-error fallback and local checkpoints
+On2026-11-05 the optional expected_sha parameter caused repeat upstream GraphQL internal errors. Re-read main, create a child of that exact main using its full base tree, then update with force=false and omit expected_sha. This succeeded and readback confirmed the new head. GitHub's normal fast-forward check prevents overwriting concurrent unrelated commits; if rejected, inspect and integrate the new main rather than forcing. The original lease path can be retried when fixed.
+
+For reviewed commits already saved locally, stage the intended final project files and use `python3 -B scripts/export-staged-tree.py --base <full-verified-remote-commit>`. Review `git diff --cached <base> --name-only` and diff before export. The exporter still refuses all outside-project differences, binaries and symlinks. Read back remote main/tree after publishing; align local metadata only after exact project tree comparison and preserving uncommitted work. No sibling checkout is needed.
+
+Windows QA inputs: `python3 -B scripts/compat-fixtures.py`, then `--verify-only` offline. See docs/COMPAT_FIXTURES.md. These commands do not execute Windows software or prove compatibility.

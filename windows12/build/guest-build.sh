@@ -78,7 +78,16 @@ live-boot
 live-config
 live-config-systemd
 systemd-sysv
-task-kde-desktop
+kde-plasma-desktop
+kdeaccessibility
+orca
+plasma-pa
+pipewire-audio
+powerdevil
+print-manager
+libreoffice-plasma
+fonts-noto-core
+fonts-noto-color-emoji
 sddm
 calamares
 calamares-settings-debian
@@ -100,6 +109,7 @@ okular
 konsole
 flatpak
 plasma-discover
+plasma-discover-backend-flatpak
 desktop-file-utils
 xdg-utils
 PKGS
