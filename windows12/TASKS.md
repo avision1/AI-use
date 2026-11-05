@@ -5,7 +5,7 @@
 | W12-002 | Architecture and compatibility research | 001 | research agent | done | Primary sources; supported/partial/alternative/unsupported; no untested claims |
 | W12-003 | Contained build feasibility and implementation | 001 | build agent | implemented; restored25 guest tests and package gates pass | Runnable tooling; image writes isolated; verified inputs; fail closed |
 | W12-004 | Desktop overlay and Office web integration | 002 | lead | unit checks passed; GUI pending | Runnable launchers, welcome/help, Windows-style desktop defaults |
-| W12-005 | Integrate, build and validate milestone image | 003,004 | lead/build agent | rebuild active;25 guest tests/package pass; ISO pending | Build logs/checksums; boot and install results or precise blockers |
+| W12-005 | Integrate, build and validate milestone image | 003,004 | lead/build agent | recovery active; historical25 tests/package pass; artifacts lost; ISO pending | Build logs/checksums; boot and install results or precise blockers |
 | W12-006 | Release checkpoint and sync | 005 | lead | pending | Memory current; reviewed project-only commit synchronized |
 | W12-007 | BIOS ISO evidence capture harness | 003,005 | research agent | guard integrated; all25 guest tests pass; ISO capture pending | Real contained ISO, screenshots/logs, new disposable disk only; no false success claim |
 | W12-008 | Freeze release inputs and harden provenance | 005 | release_inputs/lead | cloud signature research complete (upstream missing); snapshots pending | Snapshot repositories/input authentication; reproducibility records and repeat build |
@@ -13,8 +13,8 @@
 | W12-010 | Reliable interrupted-builder resume | 003 | recovery agent/lead | metadata reboot passed; staged replay pending | Demonstrate interrupted long stage resumes with frozen source and refreshed proxy; current --resume is experimental |
 | W12-011 | Automated BIOS disposable-disk installation and reboot harness | 005,012 | research agent/lead | implemented; unexecuted | Real D-I install callback plus installed boot evidence; no host devices; no Calamares certification |
 | W12-012 | Verified project-local ISO inspection tools | 003 | build agent | done | Authenticated xorriso closure extracted to separate iso-tools; active QEMU files untouched |
-| W12-013 | Bound live-disk synchronization temporary storage | 003 | build agent/lead | active monitor/cleanup verified; pause branch remains untested | Exact-prefix age/inode audit, real disk preserved, measure bounded growth; no parallel exec polling |
-| W12-014 | Restore execution access and reconcile original build | 001 | lead/infrastructure | done: shell restored; old workspace absent | Existing job/disk/output state established before any resume/new build; no duplicate VM |
+| W12-013 | Bound live-disk synchronization temporary storage | 003 | build agent/lead | historically verified cleanup; no current monitor; pause branch untested | Exact-prefix age/inode audit, real disk preserved, measure bounded growth; no parallel exec polling |
+| W12-014 | Restore execution access and reconcile original build | 001 | lead/infrastructure | reopened 2026-11-05: source restored; Debian host tools preparing | Existing job/disk/output state established before any resume/new build; no duplicate VM |
 | W12-015 | Read-only I/O telemetry for stale console diagnosis | 003 | boot_guard/lead | done: two actual QMP snapshots, counter delta validated | Serialized query-blockstats, existing guest unchanged, measured counters and honest limits |
 | W12-016 | Conditional storage-backend feasibility | 013 | boot_guard/lead | research complete; prototype conditional, unimplemented | Primary sources, durability/test obligations; no current VM change; prototype only if sync blocks existing build |
 | W12-017 | Recover current console without guest restart | 015 | boot_guard/build_restored/lead | done: UART ringbuf recovery and persistent reader executed | Observed serial0 stdio, preserve QMP pipe, bounded ringbuf output, no guest CPU/disk/boot change |
@@ -22,4 +22,7 @@
 | W12-019 | Real ISO content audit | 003,005 | boot_guard/lead | implemented/reviewed; authenticated tools startup passed; actual ISO pending | Frozen source/payload/core package/permissions/proxy/CA evidence; no boot claims |
 | W12-020 | Interactive desktop validation harness | 003,005 | desktop_audit/lead | implemented/reviewed; real ISO execution pending | Sole contained VM, safe QMP input/captures, new disk only, no false GUI pass |
 | W12-021 | Controlled post-build image iteration plan | 005 | boot_guard/lead | source research complete; implementation/runtime pending | Preserve baseline/source; correct installer regeneration and manifests; version gates |
-| W12-022 | ISO-free installed desktop QA | 011,020 | desktop_audit/lead | queued after reviewed harness checkpoint | One-shot proof stamp, validated prior test disk, new writable child, baseline preserved; real reboot/GUI evidence |
+| W12-022 | ISO-free installed desktop QA | 011,020 | desktop_audit/lead | not present in main; uncommitted implementation lost; rebuild pending | One-shot proof stamp, validated prior test disk, new writable child, baseline preserved; real reboot/GUI evidence |
+
+| W12-023 | Fast contained unittest runner | 003 | lead | prior uncommitted work lost; pending | Fresh VM/source and bounded results; no host suite execution |
+| W12-024 | Debian 13 host bootstrap | 014 | lead | implementing; operational prep72608 | Native signed repositories/keyring; local extraction; actual startup and TCG probe; no host installs |

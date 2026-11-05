@@ -17,7 +17,7 @@ export GNUPGHOME="$project_path/.work/gnupg"
 export PYTHONDONTWRITEBYTECODE=1
 ```
 
-Do not point these writable locations outside the project or through escaping symlinks. Host bootstrap currently requires x86_64 Ubuntu 24.04, Python 3.12+, curl, dpkg-deb and gpgv plus the installed Ubuntu archive keyring (read only). Other hosts need compatible project-local tools; do not install globally to satisfy this runbook.
+Do not point these writable locations outside the project or through escaping symlinks. Host bootstrap supports x86_64 Ubuntu 24.04 or Debian 13, Python 3.12+, curl, dpkg-deb and an existing gpgv or sqv plus the corresponding installed archive keyring (read only). Other hosts need compatible project-local tools; do not install globally to satisfy this runbook.
 
 ## Prepare and build
 
@@ -28,7 +28,7 @@ python3 -B scripts/build-vm.py --prepare
 python3 -B scripts/build-vm.py
 ```
 
-Tool preparation verifies Ubuntu InRelease signatures, package-index SHA256 and package SHA256, then extracts local tools. `build/tools-lock.json` records the versions actually selected; the current resolver still uses live repository metadata, so it is a build record, not yet enforced frozen input resolution. Invalid cached downloads fail validation; preserve them for diagnosis before deliberate replacement.
+Tool preparation verifies the native distribution InRelease signatures, package-index SHA256 and package SHA256, then extracts local tools. `build/tools-lock.json` records the versions actually selected; the current resolver still uses live repository metadata, so it is a build record, not yet enforced frozen input resolution. Invalid cached downloads fail validation; preserve them for diagnosis before deliberate replacement.
 
 The builder cloud qcow2 is pinned by build/builder-image.lock.json to dated build20261021-2638, exact image SHA512 and immutable manifest SHA256; the wrapper enforces this lock and reuses a cached legacy filename only after digest verification. Detached cloud-image signatures remain a hardening task. No claim of a fully independently signed release input chain is made. Preserve the immutable manifest and qcow2 together; upstream retention is outside this project.
 
@@ -116,3 +116,6 @@ After successful build/export and main VM stop, run `python3 -B scripts/audit-is
 
 ## Interactive graphical gate
 After actual image content audit and main builder stop, root can own a TTY-backed `python3 -B scripts/desktop-test.py artifacts/vm-build/windows12-amd64-preview.iso --output artifacts/desktop-review-001 --timeout 1800` session. Start without a writable disk for live workflow checks. Fixed screenshot/status/keys/text/click commands are documented in docs/DESKTOP_TEST.md; public disposable data only. Source reviewed, actual invocation still pending. Preserve screenshots and independently record workflow results; harness booleans never certify success automatically. Installed-disk mode is a separately queued W12-022 extension, not available in this checkpoint.
+
+## Current recovery — 2026-11-05
+HANDOFF.md and PROJECT_STATE.md current-execution sections supersede all October active-job examples above. Workspace pruning removed ignored build state; no surviving VM/disk/ISO was found. Current native Debian13 bootstrap is in validation. sqv verifies cleartext InRelease to a project-local file; only verified metadata supplies package-index SHA256. No global packages are installed. Old25-test/package results remain historical. Check current job/log before any new prep/build.

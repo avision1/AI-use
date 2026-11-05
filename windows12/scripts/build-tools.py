@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Extract signature-verified Ubuntu VM or ISO build tools locally; never install packages.
-Only supports amd64 Ubuntu 24.04 host. Uses apt signed metadata but no apt state.
+"""Extract signature-verified VM or ISO build tools locally; never install packages.
+Supports amd64 Ubuntu 24.04 and Debian 13 hosts, without apt state.
 """
 from pathlib import Path
-import hashlib, lzma, os, re, subprocess, json, sys
+import hashlib, lzma, os, re, subprocess, json, sys, shutil
 from concurrent.futures import ThreadPoolExecutor
 import tarfile, io, argparse, fcntl, errno, stat
 ROOT=Path(__file__).resolve().parents[1]
@@ -50,15 +50,33 @@ def main():
     os.close(listener);raise SystemExit('A VM has live QMP controls; never overwrite its mapped QEMU tools')
 
  host=dict(line.split('=',1) for line in Path('/etc/os-release').read_text().splitlines() if '=' in line)
- if host.get('ID','').strip(chr(34))!='ubuntu' or host.get('VERSION_ID','').strip(chr(34))!='24.04':sys.exit('Bootstrap requires Ubuntu 24.04; supply a host-compatible QEMU instead.')
+ identity=(host.get('ID','').strip(chr(34)),host.get('VERSION_ID','').strip(chr(34)))
+ if identity==('ubuntu','24.04'):
+  repositories=[('noble','https://archive.ubuntu.com/ubuntu'),('noble-updates','https://archive.ubuntu.com/ubuntu'),('noble-security','https://security.ubuntu.com/ubuntu')]
+  keyring=Path('/usr/share/keyrings/ubuntu-archive-keyring.gpg')
+ elif identity==('debian','13'):
+  repositories=[('trixie','https://deb.debian.org/debian'),('trixie-updates','https://deb.debian.org/debian'),('trixie-security','https://security.debian.org/debian-security')]
+  keyring=Path('/usr/share/keyrings/debian-archive-keyring.gpg')
+ else:sys.exit('Bootstrap requires amd64 Ubuntu 24.04 or Debian 13; no host changes attempted.')
  if os.uname().machine!='x86_64':sys.exit('Local bootstrap requires x86_64; provide a host-compatible QEMU instead.')
+ if not keyring.is_file():sys.exit('Host archive keyring missing; refusing unauthenticated tools.')
+ verifier=shutil.which('gpgv') or shutil.which('sqv')
+ if not verifier:sys.exit('Host needs an existing gpgv or sqv signature verifier; no host installation attempted.')
  packages={}
- for suite in ['noble','noble-updates','noble-security']:
-  base='https://security.ubuntu.com/ubuntu' if suite.endswith('security') else 'https://archive.ubuntu.com/ubuntu'
-  rel=WORK/f'{suite}-InRelease';get(f'{base}/dists/{suite}/InRelease',rel)
-  run(['gpgv','--homedir',str(WORK/'gnupg'),'--keyring','/usr/share/keyrings/ubuntu-archive-keyring.gpg',str(rel)])
-  ix=WORK/f'{suite}-Packages.xz';get(f'{base}/dists/{suite}/main/binary-amd64/Packages.xz',ix)
-  match=re.search(r'^ ([0-9a-f]{64})\s+\d+ main/binary-amd64/Packages.xz$',rel.read_text(),re.M)
+ for suite,base in repositories:
+  rel=WORK/f'{identity[0]}-{suite}-InRelease';get(f'{base}/dists/{suite}/InRelease',rel)
+  if Path(verifier).name=='gpgv':
+   run([verifier,'--homedir',str(WORK/'gnupg'),'--keyring',str(keyring),str(rel)])
+   authenticated=rel.read_text()
+  else:
+   # sqv releases the verified cleartext only after a successful signature check.
+   verified=bounded(WORK/f'{identity[0]}-{suite}-Release.verified')
+   if verified.is_symlink():sys.exit('Verified metadata symlink refused')
+   if verified.exists():verified.unlink()
+   run([verifier,'--keyring',str(keyring),'--output',str(verified),'--cleartext',str(rel)])
+   authenticated=verified.read_text()
+  ix=WORK/f'{identity[0]}-{suite}-Packages.xz';get(f'{base}/dists/{suite}/main/binary-amd64/Packages.xz',ix)
+  match=re.search(r'^ ([0-9a-f]{64})\s+\d+ main/binary-amd64/Packages.xz$',authenticated,re.M)
   if not match or hashlib.sha256(ix.read_bytes()).hexdigest()!=match[1]:sys.exit('Signed Packages SHA256 mismatch: '+suite)
   for block in lzma.open(ix,'rt').read().split('\n\n'):
    f=fields(block)
