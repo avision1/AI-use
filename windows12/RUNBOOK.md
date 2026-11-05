@@ -126,3 +126,6 @@ On2026-11-05 the optional expected_sha parameter caused repeat upstream GraphQL 
 For reviewed commits already saved locally, stage the intended final project files and use `python3 -B scripts/export-staged-tree.py --base <full-verified-remote-commit>`. Review `git diff --cached <base> --name-only` and diff before export. The exporter still refuses all outside-project differences, binaries and symlinks. Read back remote main/tree after publishing; align local metadata only after exact project tree comparison and preserving uncommitted work. No sibling checkout is needed.
 
 Windows QA inputs: `python3 -B scripts/compat-fixtures.py`, then `--verify-only` offline. See docs/COMPAT_FIXTURES.md. These commands do not execute Windows software or prove compatibility.
+
+## Sequential validation after current build
+`python3 -B scripts/validate-after-build.py --install` can wait for the exact existing builder to finish, then run content audit, BIOS evidence capture and NEW disposable-disk installation proof sequentially. It never launches a test guest before builder shutdown/runner-lock release. Consult docs/VALIDATION_QUEUE.md and current HANDOFF for any already-running queue before starting another. A queue cancel file stops only that queue, with cooperative helper cleanup; no GUI/release certification is inferred.
