@@ -8,8 +8,7 @@
       "url": "https://github.com/ip7z/7zip/releases/download/26.05/7z2605-x64.exe",
       "bytes": 1663506,
       "sha256": "fd99e86f57d8f429ef5ed045bf98315af962e2309b0f1ba87a147a44c71647d0",
-      "signature_required": false,
-      "signature_verified": false
+      "signature_required": false
     },
     {
       "id": "7zip-x86-exe",
@@ -17,8 +16,7 @@
       "url": "https://github.com/ip7z/7zip/releases/download/26.05/7z2605.exe",
       "bytes": 1362132,
       "sha256": "6435a470fe7c4769962dbed8a60c641ee21401c833ced06077c80e33e7845a5e",
-      "signature_required": false,
-      "signature_verified": false
+      "signature_required": false
     },
     {
       "id": "7zip-x64-msi",
@@ -26,8 +24,7 @@
       "url": "https://github.com/ip7z/7zip/releases/download/26.05/7z2605-x64.msi",
       "bytes": 2008576,
       "sha256": "3fe4ab99fa15629c652944309a2b2bc6e41fc933fc6b63f5df1ebcf3aea68263",
-      "signature_required": false,
-      "signature_verified": false
+      "signature_required": false
     },
     {
       "id": "notepadpp-x64-exe",
@@ -36,7 +33,6 @@
       "bytes": 6963432,
       "sha256": "26f3bcced788fadbac4e7e577b430ea2ce6060cf3bcad993ef4612ecd7d743da",
       "signature_required": true,
-      "signature_verified": false,
       "publisher_key": {
         "filename": "nppGpgPub.asc",
         "url": "https://raw.githubusercontent.com/notepad-plus-plus/notepad-plus-plus/v8.9.8.1/nppGpgPub.asc",

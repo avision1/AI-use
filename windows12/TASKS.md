@@ -4,9 +4,9 @@
 | W12-001 | Boundaries and persistent memory | none | lead | done | Sole repo located; six memory files in project |
 | W12-002 | Architecture and compatibility research | 001 | research agent | done | Primary sources; supported/partial/alternative/unsupported; no untested claims |
 | W12-003 | Contained build feasibility and implementation | 001 | build agent | implemented; restored25 guest tests and package gates pass | Runnable tooling; image writes isolated; verified inputs; fail closed |
-| W12-004 | Desktop overlay and Office web integration | 002 | lead | unit checks passed; GUI pending | Runnable launchers, welcome/help, Windows-style desktop defaults |
+| W12-004 | Desktop overlay and Office web integration | 002 | lead | preview2 guest unit/package checks pass; GUI pending | Runnable launchers, welcome/help, Windows-style desktop defaults |
 | W12-005 | Integrate, build and validate milestone image | 003,004 | lead/build agent | preview2 build31920 active;25 guest tests and package gates pass; ISO pending | Build logs/checksums; boot and install results or precise blockers |
-| W12-006 | Release checkpoint and sync | 005 | lead | pending | Memory current; reviewed project-only commit synchronized |
+| W12-006 | Release checkpoint and sync | 005 | lead | source checkpoints synchronized; release pending | Memory current; reviewed project-only commit synchronized |
 | W12-007 | BIOS ISO evidence capture harness | 003,005 | research agent | guard integrated; all25 guest tests pass; ISO capture pending | Real contained ISO, screenshots/logs, new disposable disk only; no false success claim |
 | W12-008 | Freeze release inputs and harden provenance | 005 | release_inputs/lead | cloud signature research complete (upstream missing); snapshots pending | Snapshot repositories/input authentication; reproducibility records and repeat build |
 | W12-009 | Windows application compatibility milestone | 005 | release_inputs/lead | research complete; optional Bottles prototype preferred after base validation; unimplemented | Choose maintained runtime; exact app/version functional tests and honest limits |
@@ -28,3 +28,5 @@
 | W12-024 | Debian 13 host bootstrap | 014 | lead | done: prep72608 and TCG probe pass;91 authenticated packages | Native signed repositories/keyring; local extraction; actual startup and TCG probe; no host installs |
 
 | W12-025 | Pinned Windows QA installer inputs | 009 | lead | done: real hashes/signature/offline/negative checks; no app execution | Locked public fixtures, no host execution, reproducible cache and honest assurance |
+
+| W12-026 | Independent fixture-tool review | 025 | fixture_review_nov05/lead | done: reporting issue fixed; operational checks pass | Source review, bounded ownership, no false runtime claims |

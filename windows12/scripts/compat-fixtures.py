@@ -45,11 +45,27 @@ def check(path, fixture):
     return digest.hexdigest()
 
 
+def write_report(report):
+    pending = safe(WORK / ('verification.pending-' + str(time.time_ns())))
+    with pending.open('x') as stream:
+        json.dump(report, stream, indent=2)
+        stream.write('\n')
+    pending.replace(safe(WORK / 'verification.json'))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--verify-only', action='store_true', help='Check cached files without network')
     parser.add_argument('--list', action='store_true', help='Show pins without downloads')
     args = parser.parse_args()
+    started = time.time()
+    if not args.list:
+        safe(WORK).mkdir(parents=True, exist_ok=True)
+        # Invalidate prior success before parsing any verification input. An unsafe
+        # output path still fails without writing through it; CLI exit is authoritative.
+        write_report({'schema': 1, 'started': started, 'outcome': 'input-validation-incomplete',
+                      'hash_verification_passed': False, 'required_publisher_signatures_verified': False,
+                      'applications_executed': False, 'compatibility_verified': False})
     lock_path = safe(ROOT / 'build/compat-fixtures.lock.json')
     locked = lock_path.read_bytes()
     lock = json.loads(locked)
@@ -111,7 +127,7 @@ def main():
         return target
 
     report = {'schema': 1, 'lock_sha256': hashlib.sha256(locked).hexdigest(),
-              'started': time.time(), 'hash_verification_passed': False,
+              'started': started, 'outcome': 'verifying', 'hash_verification_passed': False,
               'publisher_signatures_verified': False, 'applications_executed': False,
               'compatibility_verified': False, 'fixtures': []}
     destination = safe(WORK / 'verification.json')
@@ -139,16 +155,14 @@ def main():
                                        'signature_required_before_execution': fixture['signature_required']})
         report['hash_verification_passed'] = True
         report['required_publisher_signatures_verified'] = True
+        report['outcome'] = 'verified'
     except Exception as error:
         report['error'] = str(error)
+        report['outcome'] = 'failed'
         raise
     finally:
         report['finished'] = time.time()
-        pending = safe(WORK / ('verification.pending-' + str(time.time_ns())))
-        with pending.open('x') as stream:
-            json.dump(report, stream, indent=2)
-            stream.write('\n')
-        pending.replace(destination)
+        write_report(report)
     print(destination)
     print('Pinned bytes verified; no Windows application executed or compatibility certified.')
 
