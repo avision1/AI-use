@@ -1,0 +1,17 @@
+storage-linux-x86 — actual exercise function
+
+080491d7 <exercise>:
+ 80491d7:	55                   	push   ebp
+ 80491d8:	89 e5                	mov    ebp,esp
+ 80491da:	83 ec 10             	sub    esp,0x10
+ 80491dd:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+ 80491e0:	83 c0 05             	add    eax,0x5
+ 80491e3:	89 45 fc             	mov    DWORD PTR [ebp-0x4],eax
+ 80491e6:	a1 00 b0 04 08       	mov    eax,ds:0x804b000
+ 80491eb:	83 c0 02             	add    eax,0x2
+ 80491ee:	a3 00 b0 04 08       	mov    ds:0x804b000,eax
+ 80491f3:	8b 15 00 b0 04 08    	mov    edx,DWORD PTR ds:0x804b000
+ 80491f9:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
+ 80491fc:	01 d0                	add    eax,edx
+ 80491fe:	c9                   	leave
+ 80491ff:	c3                   	ret

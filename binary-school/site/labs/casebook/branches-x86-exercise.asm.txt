@@ -1,0 +1,18 @@
+branches-linux-x86 — actual exercise function
+
+080491d7 <exercise>:
+ 80491d7:	55                   	push   ebp
+ 80491d8:	89 e5                	mov    ebp,esp
+ 80491da:	83 7d 08 00          	cmp    DWORD PTR [ebp+0x8],0x0
+ 80491de:	79 07                	jns    80491e7 <exercise+0x10>
+ 80491e0:	b8 fe ff ff ff       	mov    eax,0xfffffffe
+ 80491e5:	eb 14                	jmp    80491fb <exercise+0x24>
+ 80491e7:	83 7d 08 05          	cmp    DWORD PTR [ebp+0x8],0x5
+ 80491eb:	7f 08                	jg     80491f5 <exercise+0x1e>
+ 80491ed:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+ 80491f0:	83 c0 09             	add    eax,0x9
+ 80491f3:	eb 06                	jmp    80491fb <exercise+0x24>
+ 80491f5:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+ 80491f8:	83 e8 04             	sub    eax,0x4
+ 80491fb:	5d                   	pop    ebp
+ 80491fc:	c3                   	ret

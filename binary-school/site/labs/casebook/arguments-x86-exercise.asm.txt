@@ -1,0 +1,17 @@
+arguments-linux-x86 — actual exercise function
+
+08049205 <exercise>:
+ 8049205:	55                   	push   ebp
+ 8049206:	89 e5                	mov    ebp,esp
+ 8049208:	6a 17                	push   0x17
+ 804920a:	6a 13                	push   0x13
+ 804920c:	6a 11                	push   0x11
+ 804920e:	6a 07                	push   0x7
+ 8049210:	6a 0d                	push   0xd
+ 8049212:	6a 05                	push   0x5
+ 8049214:	6a 0b                	push   0xb
+ 8049216:	ff 75 08             	push   DWORD PTR [ebp+0x8]
+ 8049219:	e8 b9 ff ff ff       	call   80491d7 <blend>
+ 804921e:	83 c4 20             	add    esp,0x20
+ 8049221:	c9                   	leave
+ 8049222:	c3                   	ret

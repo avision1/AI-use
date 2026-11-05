@@ -1,0 +1,17 @@
+storage-linux-x64 — actual exercise function
+
+0000000000001159 <exercise>:
+    1159:	55                   	push   rbp
+    115a:	48 89 e5             	mov    rbp,rsp
+    115d:	89 7d ec             	mov    DWORD PTR [rbp-0x14],edi
+    1160:	8b 45 ec             	mov    eax,DWORD PTR [rbp-0x14]
+    1163:	83 c0 05             	add    eax,0x5
+    1166:	89 45 fc             	mov    DWORD PTR [rbp-0x4],eax
+    1169:	8b 05 b9 2e 00 00    	mov    eax,DWORD PTR [rip+0x2eb9]        # 4028 <stored>
+    116f:	83 c0 02             	add    eax,0x2
+    1172:	89 05 b0 2e 00 00    	mov    DWORD PTR [rip+0x2eb0],eax        # 4028 <stored>
+    1178:	8b 15 aa 2e 00 00    	mov    edx,DWORD PTR [rip+0x2eaa]        # 4028 <stored>
+    117e:	8b 45 fc             	mov    eax,DWORD PTR [rbp-0x4]
+    1181:	01 d0                	add    eax,edx
+    1183:	5d                   	pop    rbp
+    1184:	c3                   	ret

@@ -1,0 +1,18 @@
+Binary School Localhost 1.2
+
+137 lessons/activities in 13 modules.
+13 per-course flag challenges; each has guided and optimized stripped Linux x64 binaries.
+8 comparative case studies with 16 Linux x86/x64 binaries, actual disassembly,
+source, state tables, instruction-group explanations, and MSVC build kits.
+Longer learning assignments are ungraded; interactive answers provide feedback.
+Sources are bundled with portable debug paths. Existing lesson IDs remain stable.
+
+Validation: 26 flag binaries checked for success, failure, and malformed input;
+328 original case-study input checks on x64; x86 files statically checked only.
+All lesson pages, per-course lab links, flag feedback, local HTTP routes, and
+old progress/notes compatibility checked. Native Windows builds need local
+verification; this package does not include prebuilt MSVC executables.
+
+Extract into a new folder. Export progress from your current installation,
+then import the backup into the new one if you change browser origin/profile.
+Python 3.8+ required; no extra packages. Videos/references require internet.

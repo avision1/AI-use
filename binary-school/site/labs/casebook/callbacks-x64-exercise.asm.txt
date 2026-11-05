@@ -1,0 +1,34 @@
+callbacks-linux-x64 — actual exercise function
+
+0000000000001185 <exercise>:
+    1185:	55                   	push   rbp
+    1186:	48 89 e5             	mov    rbp,rsp
+    1189:	48 83 ec 10          	sub    rsp,0x10
+    118d:	89 7d fc             	mov    DWORD PTR [rbp-0x4],edi
+    1190:	83 7d fc 00          	cmp    DWORD PTR [rbp-0x4],0x0
+    1194:	79 07                	jns    119d <exercise+0x18>
+    1196:	b8 f7 ff ff ff       	mov    eax,0xfffffff7
+    119b:	eb 42                	jmp    11df <exercise+0x5a>
+    119d:	8b 4d fc             	mov    ecx,DWORD PTR [rbp-0x4]
+    11a0:	48 63 c1             	movsxd rax,ecx
+    11a3:	48 69 c0 56 55 55 55 	imul   rax,rax,0x55555556
+    11aa:	48 c1 e8 20          	shr    rax,0x20
+    11ae:	48 89 c2             	mov    rdx,rax
+    11b1:	89 c8                	mov    eax,ecx
+    11b3:	c1 f8 1f             	sar    eax,0x1f
+    11b6:	29 c2                	sub    edx,eax
+    11b8:	89 d0                	mov    eax,edx
+    11ba:	01 c0                	add    eax,eax
+    11bc:	01 d0                	add    eax,edx
+    11be:	29 c1                	sub    ecx,eax
+    11c0:	89 ca                	mov    edx,ecx
+    11c2:	48 63 c2             	movsxd rax,edx
+    11c5:	48 8d 14 c5 00 00 00 	lea    rdx,[rax*8+0x0]
+    11cc:	00 
+    11cd:	48 8d 05 5c 2e 00 00 	lea    rax,[rip+0x2e5c]        # 4030 <operations>
+    11d4:	48 8b 14 02          	mov    rdx,QWORD PTR [rdx+rax*1]
+    11d8:	8b 45 fc             	mov    eax,DWORD PTR [rbp-0x4]
+    11db:	89 c7                	mov    edi,eax
+    11dd:	ff d2                	call   rdx
+    11df:	c9                   	leave
+    11e0:	c3                   	ret

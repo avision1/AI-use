@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.venv/
+.openai/
+binary-school-progress*.json
+.DS_Store

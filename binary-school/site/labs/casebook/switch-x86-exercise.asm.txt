@@ -1,0 +1,39 @@
+switch-linux-x86 — actual exercise function
+
+080491fb <exercise>:
+ 80491fb:	55                   	push   ebp
+ 80491fc:	89 e5                	mov    ebp,esp
+ 80491fe:	83 7d 08 04          	cmp    DWORD PTR [ebp+0x8],0x4
+ 8049202:	77 58                	ja     804925c <exercise+0x61>
+ 8049204:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+ 8049207:	c1 e0 02             	shl    eax,0x2
+ 804920a:	05 0c a0 04 08       	add    eax,0x804a00c
+ 804920f:	8b 00                	mov    eax,DWORD PTR [eax]
+ 8049211:	ff e0                	jmp    eax
+ 8049213:	ff 75 08             	push   DWORD PTR [ebp+0x8]
+ 8049216:	e8 bc ff ff ff       	call   80491d7 <op_a>
+ 804921b:	83 c4 04             	add    esp,0x4
+ 804921e:	eb 41                	jmp    8049261 <exercise+0x66>
+ 8049220:	ff 75 08             	push   DWORD PTR [ebp+0x8]
+ 8049223:	e8 ba ff ff ff       	call   80491e2 <op_b>
+ 8049228:	83 c4 04             	add    esp,0x4
+ 804922b:	eb 34                	jmp    8049261 <exercise+0x66>
+ 804922d:	ff 75 08             	push   DWORD PTR [ebp+0x8]
+ 8049230:	e8 b8 ff ff ff       	call   80491ed <op_c>
+ 8049235:	83 c4 04             	add    esp,0x4
+ 8049238:	eb 27                	jmp    8049261 <exercise+0x66>
+ 804923a:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+ 804923d:	83 c0 02             	add    eax,0x2
+ 8049240:	50                   	push   eax
+ 8049241:	e8 91 ff ff ff       	call   80491d7 <op_a>
+ 8049246:	83 c4 04             	add    esp,0x4
+ 8049249:	eb 16                	jmp    8049261 <exercise+0x66>
+ 804924b:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+ 804924e:	83 e8 01             	sub    eax,0x1
+ 8049251:	50                   	push   eax
+ 8049252:	e8 96 ff ff ff       	call   80491ed <op_c>
+ 8049257:	83 c4 04             	add    esp,0x4
+ 804925a:	eb 05                	jmp    8049261 <exercise+0x66>
+ 804925c:	b8 f9 ff ff ff       	mov    eax,0xfffffff9
+ 8049261:	c9                   	leave
+ 8049262:	c3                   	ret

@@ -1,0 +1,19 @@
+branches-linux-x64 — actual exercise function
+
+0000000000001159 <exercise>:
+    1159:	55                   	push   rbp
+    115a:	48 89 e5             	mov    rbp,rsp
+    115d:	89 7d fc             	mov    DWORD PTR [rbp-0x4],edi
+    1160:	83 7d fc 00          	cmp    DWORD PTR [rbp-0x4],0x0
+    1164:	79 07                	jns    116d <exercise+0x14>
+    1166:	b8 fe ff ff ff       	mov    eax,0xfffffffe
+    116b:	eb 14                	jmp    1181 <exercise+0x28>
+    116d:	83 7d fc 05          	cmp    DWORD PTR [rbp-0x4],0x5
+    1171:	7f 08                	jg     117b <exercise+0x22>
+    1173:	8b 45 fc             	mov    eax,DWORD PTR [rbp-0x4]
+    1176:	83 c0 09             	add    eax,0x9
+    1179:	eb 06                	jmp    1181 <exercise+0x28>
+    117b:	8b 45 fc             	mov    eax,DWORD PTR [rbp-0x4]
+    117e:	83 e8 04             	sub    eax,0x4
+    1181:	5d                   	pop    rbp
+    1182:	c3                   	ret

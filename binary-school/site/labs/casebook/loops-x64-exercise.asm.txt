@@ -1,0 +1,19 @@
+loops-linux-x64 — actual exercise function
+
+0000000000001159 <exercise>:
+    1159:	55                   	push   rbp
+    115a:	48 89 e5             	mov    rbp,rsp
+    115d:	89 7d ec             	mov    DWORD PTR [rbp-0x14],edi
+    1160:	c7 45 fc 00 00 00 00 	mov    DWORD PTR [rbp-0x4],0x0
+    1167:	c7 45 f8 00 00 00 00 	mov    DWORD PTR [rbp-0x8],0x0
+    116e:	eb 0d                	jmp    117d <exercise+0x24>
+    1170:	8b 45 f8             	mov    eax,DWORD PTR [rbp-0x8]
+    1173:	83 c0 02             	add    eax,0x2
+    1176:	01 45 fc             	add    DWORD PTR [rbp-0x4],eax
+    1179:	83 45 f8 01          	add    DWORD PTR [rbp-0x8],0x1
+    117d:	8b 45 f8             	mov    eax,DWORD PTR [rbp-0x8]
+    1180:	3b 45 ec             	cmp    eax,DWORD PTR [rbp-0x14]
+    1183:	7c eb                	jl     1170 <exercise+0x17>
+    1185:	8b 45 fc             	mov    eax,DWORD PTR [rbp-0x4]
+    1188:	5d                   	pop    rbp
+    1189:	c3                   	ret

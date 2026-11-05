@@ -1,0 +1,29 @@
+records-linux-x86 — actual exercise function
+
+080491d7 <exercise>:
+ 80491d7:	55                   	push   ebp
+ 80491d8:	89 e5                	mov    ebp,esp
+ 80491da:	83 7d 08 00          	cmp    DWORD PTR [ebp+0x8],0x0
+ 80491de:	78 06                	js     80491e6 <exercise+0xf>
+ 80491e0:	83 7d 08 02          	cmp    DWORD PTR [ebp+0x8],0x2
+ 80491e4:	7e 07                	jle    80491ed <exercise+0x16>
+ 80491e6:	b8 f8 ff ff ff       	mov    eax,0xfffffff8
+ 80491eb:	eb 2a                	jmp    8049217 <exercise+0x40>
+ 80491ed:	8b 55 08             	mov    edx,DWORD PTR [ebp+0x8]
+ 80491f0:	89 d0                	mov    eax,edx
+ 80491f2:	01 c0                	add    eax,eax
+ 80491f4:	01 d0                	add    eax,edx
+ 80491f6:	c1 e0 02             	shl    eax,0x2
+ 80491f9:	05 04 b0 04 08       	add    eax,0x804b004
+ 80491fe:	8b 08                	mov    ecx,DWORD PTR [eax]
+ 8049200:	8b 55 08             	mov    edx,DWORD PTR [ebp+0x8]
+ 8049203:	89 d0                	mov    eax,edx
+ 8049205:	01 c0                	add    eax,eax
+ 8049207:	01 d0                	add    eax,edx
+ 8049209:	c1 e0 02             	shl    eax,0x2
+ 804920c:	05 08 b0 04 08       	add    eax,0x804b008
+ 8049211:	0f b7 00             	movzx  eax,WORD PTR [eax]
+ 8049214:	98                   	cwde
+ 8049215:	01 c8                	add    eax,ecx
+ 8049217:	5d                   	pop    ebp
+ 8049218:	c3                   	ret

@@ -1,0 +1,19 @@
+loops-linux-x86 — actual exercise function
+
+080491d7 <exercise>:
+ 80491d7:	55                   	push   ebp
+ 80491d8:	89 e5                	mov    ebp,esp
+ 80491da:	83 ec 10             	sub    esp,0x10
+ 80491dd:	c7 45 fc 00 00 00 00 	mov    DWORD PTR [ebp-0x4],0x0
+ 80491e4:	c7 45 f8 00 00 00 00 	mov    DWORD PTR [ebp-0x8],0x0
+ 80491eb:	eb 0d                	jmp    80491fa <exercise+0x23>
+ 80491ed:	8b 45 f8             	mov    eax,DWORD PTR [ebp-0x8]
+ 80491f0:	83 c0 02             	add    eax,0x2
+ 80491f3:	01 45 fc             	add    DWORD PTR [ebp-0x4],eax
+ 80491f6:	83 45 f8 01          	add    DWORD PTR [ebp-0x8],0x1
+ 80491fa:	8b 45 f8             	mov    eax,DWORD PTR [ebp-0x8]
+ 80491fd:	3b 45 08             	cmp    eax,DWORD PTR [ebp+0x8]
+ 8049200:	7c eb                	jl     80491ed <exercise+0x16>
+ 8049202:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
+ 8049205:	c9                   	leave
+ 8049206:	c3                   	ret
