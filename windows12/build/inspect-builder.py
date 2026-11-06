@@ -5,6 +5,7 @@ The sole write is /project-output/builder-inspection.json inside the VM disk.
 Do not execute on the host. Marker + controller VM isolation are both required.
 """
 import argparse
+import datetime
 import hashlib
 import json
 import os
@@ -257,6 +258,103 @@ def base_files_os_release_md5sums():
             'note': 'Stored expected MD5 only; no classification, security verification or diversion repair.'}
 
 
+
+def classify_payload(report):
+    """Classify one source-proven construction state; never suppress raw output."""
+    payload = report.get('target_payload_verification')
+    if not isinstance(payload, dict):
+        return
+    payload['available_md5_no_unexplained_differences'] = payload['available_md5_no_reported_differences']
+    result = {'accepted': False, 'kind': 'temporary-live-build-os-release-diversion',
+              'reason': 'No temporary-state exception established',
+              'coverage': 'Available MD5 screen plus exact os-release evidence only; not all-file/security verification.'}
+    payload['temporary_preparation_classification'] = result
+    if payload['available_md5_no_reported_differences']:
+        result['reason'] = 'Native verifier reported no differences; no temporary-state exception used'
+        return
+
+    def require(condition, reason):
+        if not condition:
+            raise ValueError(reason)
+
+    def regular(item):
+        return (isinstance(item, dict) and item.get('exists') is True and item.get('type') == 'regular'
+                and item.get('uid') == 0 and item.get('gid') == 0 and item.get('links') == 1
+                and item.get('mode') == '0o644')
+
+    try:
+        require(payload.get('returncode') == 0 and payload.get('stdout') == 'missing     /etc/os-release.debootstrap\n'
+                and payload.get('stderr') == '' and payload.get('output_truncated') is False,
+                'Native verifier findings do not match the sole reviewed missing backup')
+        require(payload.get('stored_md5_file_count') == 144 and payload.get('stored_md5_metadata_bytes') == 450161
+                and payload.get('stored_md5_metadata_sha256') == '7a8db8eeb27715739965b9ebab51089dcec46205552c2a7b816476cc9f630487',
+                'Stored checksum metadata differs from the reviewed bootstrap')
+        require(report.get('live_build_version') == '1:20250505+deb13u1', 'Unreviewed live-build version')
+        sources = {item['path']: item['sha256'] for item in report['source_functions']}
+        require(sources.get('/usr/lib/live/build/bootstrap_debootstrap') == '0397f1e77a01f82d83cbf479cf63954c1eb138c8cbba721247f93b03341db8a3'
+                and sources.get('/usr/lib/live/build/chroot_hacks') == '1dac3a0aee51d35119aa649cf3001faac31dbbe940cc847fe8d4695033607dc9',
+                'Installed preparation/cleanup source differs from reviewed source')
+        packages = report['chroot_dpkg']
+        require(packages.get('status_sha256') == '2fe156f9c72673a5cf03773f7773789b77050012ebf4cf2c1c26b635444ad4a7'
+                and packages.get('status_counts') == {'install ok installed': 144}
+                and packages['selected_packages']['base-files'] == [{'Package': 'base-files', 'Version': '13.8+deb13u7', 'Status': 'install ok installed'}],
+                'Target package database/version is not the approved bootstrap')
+        stages = report['stage_flags']
+        names = {'config', 'bootstrap', 'bootstrap_cache.save', 'chroot_apt', 'chroot_debianchroot',
+                 'chroot_dpkg', 'chroot_hostname', 'chroot_hosts', 'chroot_resolv', 'chroot_sysv-rc'}
+        flags = stages['entries']
+        require(stages.get('truncated') is False and stages.get('count') == len(names) == len(flags)
+                and {item['path'] for item in flags} == {str(BUILD / '.build' / name) for name in names}
+                and all(regular(item) and item['bytes'] == 0 for item in flags),
+                'Temporary preparation is not the exact approved incomplete lifecycle')
+        diversions = report['target_dpkg_diversions']
+        require(regular(diversions) and diversions.get('parse_complete') is True
+                and diversions.get('raw_utf8_valid') is True and diversions.get('triples_truncated') is False,
+                'Diversion metadata is incomplete or unsafe')
+        related = [item for item in diversions['triples'] if item['path'] in ('/etc/os-release', '/etc/os-release.debootstrap')
+                   or item['diverted_to'] in ('/etc/os-release', '/etc/os-release.debootstrap')]
+        require(related == [{'path': '/etc/os-release', 'diverted_to': '/etc/os-release.debootstrap', 'package': ':'}],
+                'The exact unambiguous local os-release diversion is absent')
+        files = report['target_os_release_files']
+        require(len(files) == 3 and all(isinstance(item, dict) for item in files), 'Incomplete os-release inventory')
+        paths = {item['image_path']: item for item in files}
+        require(set(paths) == {'/etc/os-release', '/etc/os-release.debootstrap', '/usr/lib/os-release'}, 'Unexpected os-release paths')
+        backup = paths['/etc/os-release.debootstrap']
+        require(backup.get('resolution') == 'absent' and backup['lstat'].get('exists') is False,
+                'Backup is not genuinely absent')
+        for name in ('/etc/os-release', '/usr/lib/os-release'):
+            item = paths[name]
+            require(regular(item['lstat']) and regular(item['resolved_lstat']) and item.get('link_steps') == []
+                    and item.get('resolution') == 'image-contained-regular' and item.get('resolved_image_path') == name,
+                    'Expected regular root-owned non-aliased os-release files')
+        vendor = paths['/usr/lib/os-release']; current = paths['/etc/os-release']
+        data = vendor['content_utf8'].encode('utf-8'); actual = current['content_utf8'].encode('utf-8')
+        require(len(data) == vendor.get('content_bytes') == 286
+                and hashlib.sha256(data).hexdigest() == vendor.get('sha256') == 'e249e69c32d81350fdd6b05ac5575255f14e380ba14b8454acea14e49f088bfa'
+                and hashlib.md5(data, usedforsecurity=False).hexdigest() == vendor.get('md5') == '776b0aac9b17d49a0ac879da9801f51b',
+                'Vendor os-release does not match authenticated base-files bytes')
+        expected = report['base_files_os_release_md5sums']
+        require(regular(expected) and expected.get('malformed_line_count') == 0
+                and [(item['path'], item['expected_md5']) for item in expected['matches']] == [('usr/lib/os-release', vendor['md5'])],
+                'Stored base-files os-release MD5 entry differs')
+        prefix = data + b'IMAGE_ID=live\nBUILD_ID='
+        require(actual.startswith(prefix), 'Image os-release prefix differs from the source algorithm')
+        suffix = actual[len(prefix):]
+        require(re.fullmatch(rb'[0-9]{8}T[0-9]{6}Z\n', suffix) is not None,
+                'Image build timestamp/extra bytes differ from the source algorithm')
+        stamp = suffix[:-1].decode('ascii')
+        require(datetime.datetime.strptime(stamp, '%Y%m%dT%H%M%SZ').strftime('%Y%m%dT%H%M%SZ') == stamp,
+                'Image build timestamp is not a valid UTC calendar value')
+        require(current.get('content_bytes') == len(actual) == len(prefix) + 17
+                and current.get('sha256') == hashlib.sha256(actual).hexdigest(), 'Current identity metadata differs')
+        result.update(accepted=True, reason='Exact source-proven temporary no-rename diversion and authenticated derived identity',
+                      build_id=stamp, vendor_sha256=vendor['sha256'], derived_sha256=current['sha256'],
+                      derived_bytes=len(actual), diversion=related[0])
+        payload['available_md5_no_unexplained_differences'] = True
+    except (KeyError, TypeError, AttributeError, ValueError) as error:
+        result['reason'] = str(error)
+
+
 def processes():
     result = []
     unreadable = []
@@ -346,7 +444,7 @@ def main():
         report['target_apt_binary_caches'].append(attempt(report, str(path), lambda path=path: observe(path)))
     report['source_functions'] = []
     paths = [Path('/usr/share/live/build/functions') / name for name in ('lockfile.sh', 'exit.sh', 'cache.sh', 'stagefile.sh', 'configuration.sh')]
-    paths += [Path('/usr/lib/live/build') / name for name in ('build', 'bootstrap', 'bootstrap_cache', 'chroot', 'chroot_prep', 'chroot_cache', 'chroot_tmpfs')]
+    paths += [Path('/usr/lib/live/build') / name for name in ('build', 'bootstrap', 'bootstrap_cache', 'chroot', 'chroot_prep', 'chroot_cache', 'chroot_tmpfs', 'bootstrap_debootstrap', 'chroot_hacks')]
     for path in paths:
         data = attempt(report, str(path), lambda path=path: read_regular(path, 2 * 1024 * 1024))
         if data is not None:
@@ -390,6 +488,7 @@ def main():
         return [line[:1024] for line in text.splitlines() if len(line.split()) > 4 and
                 line.split()[4].startswith(str(BUILD))][:128]
     report['build_mounts'] = attempt(report, 'mountinfo', numeric_mounts)
+    classify_payload(report)
     report['finished'] = time.time()
     report['inspection_complete'] = not report['inspection_errors']
     payload = json.dumps(report, indent=2).encode() + b'\n'
