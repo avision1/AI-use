@@ -22,6 +22,7 @@ MAX_PLAN = 2 * 1024 * 1024
 MAX_PACKAGE = 512 * 1024 * 1024
 MAX_TOTAL = 8 * 1024 * 1024 * 1024
 HEX = re.compile('[0-9a-f]{64}')
+RUNTIME_STAGES = {'chroot_devpts', 'chroot_proc', 'chroot_selinuxfs', 'chroot_sysfs'}
 STAGES = {'config', 'bootstrap', 'bootstrap_cache.save', 'chroot_apt',
           'chroot_debianchroot', 'chroot_dpkg', 'chroot_hostname', 'chroot_hosts',
           'chroot_resolv', 'chroot_sysv-rc', 'chroot_archives', 'chroot_firmware',
@@ -145,6 +146,31 @@ def receive(path, limit, stream=None):
     return total, h.hexdigest(), b''.join(chunks)
 
 
+def copy_local(item, stream):
+    source = Path(item['source_path'])
+    ancestry(source)
+    fd = os.open(source, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    h, total = hashlib.sha256(), 0
+    with os.fdopen(fd, 'rb') as incoming:
+        before = os.fstat(incoming.fileno())
+        if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or before.st_size != item['size']:
+            raise ValueError('Local source type/size differs')
+        while True:
+            chunk = incoming.read(min(1024 * 1024, item['size'] - total + 1))
+            if not chunk:
+                break
+            total += len(chunk)
+            if total > item['size']:
+                raise ValueError('Local source grew beyond planned size')
+            stream.write(chunk)
+            h.update(chunk)
+        after = os.fstat(incoming.fileno())
+    ancestry(source)
+    if stable_metadata(before) != stable_metadata(after) or stable_metadata(source.lstat()) != stable_metadata(after):
+        raise ValueError('Local source changed during copy')
+    return total, h.hexdigest(), b''
+
+
 def unique_object(pairs):
     value = {}
     for key, item in pairs:
@@ -158,20 +184,49 @@ def load_plan(raw, args):
     plan = json.loads(raw, object_pairs_hook=unique_object)
     if plan.get('schema') != 1 or plan.get('planning_only') is not True or plan.get('nonce') != args.plan_nonce:
         raise ValueError('Wrong plan schema, purpose or nonce')
-    packages = plan['packages']
-    if not isinstance(packages, list) or len(packages) > 4096:
+    coverage = plan['coverage']
+    if coverage.get('full_transaction') is not True or coverage.get('isolated_empty_archive_cache') is not True:
+        raise ValueError('Full transaction from an isolated empty archive cache required')
+    remote, local = plan['packages'], plan['local_archives']
+    if not isinstance(remote, list) or not isinstance(local, list):
+        raise ValueError('Invalid remote/local archive lists')
+    packages = remote + local
+    if len(packages) > 4096:
         raise ValueError('Oversized package plan')
     names, hashes, total = set(), {}, 0
     for p in packages:
-        if set(p) != {'url', 'filename', 'size', 'sha256', 'package', 'version'}:
+        is_local = 'source_path' in p
+        required = ({'filename', 'size', 'sha256', 'source_path', 'target_source_path'} if is_local
+                    else {'url', 'filename', 'size', 'sha256', 'package', 'version'})
+        if not required.issubset(p) or set(p) - required - ({'target_source_present'} if is_local else set()):
             raise ValueError('Unexpected package fields')
+        if is_local != (p in local):
+            raise ValueError('Archive delivery kind differs from plan list')
         if not isinstance(p['filename'], str) or not re.fullmatch(r'[A-Za-z0-9+.%:~_-]+\.deb', p['filename']):
             raise ValueError('Unsafe archive basename')
         if not isinstance(p['sha256'], str) or not HEX.fullmatch(p['sha256']):
             raise ValueError('Invalid package SHA256')
         if type(p['size']) is not int or not 0 < p['size'] <= MAX_PACKAGE:
             raise ValueError('Invalid package size')
-        if not all(isinstance(p[k], str) and 0 < len(p[k]) <= 4096 for k in ('url', 'package', 'version')):
+        if is_local:
+            source = Path(p['source_path'])
+            target = Path(p['target_source_path'])
+            if (str(source) != p['source_path'] or source.parent not in (BUILD / 'config/packages.chroot', BUILD / 'config/packages')
+                    or not re.fullmatch(r'[A-Za-z0-9+.%:~_-]+\.deb', source.name)
+                    or str(target) != p['target_source_path'] or target.parent != ROOT / 'packages'
+                    or not re.fullmatch(r'[A-Za-z0-9+.%:~_-]+\.deb', target.name)):
+                raise ValueError('Unexpected local archive source path')
+            expected = {k: p[k] for k in ('size', 'sha256')}
+            inputs = [i for i in plan['local_packages'] if i.get('kind') == 'local-build-input'
+                      and i.get('host_download') is False and i.get('path') == str(source)
+                      and all(i.get(k) == v for k, v in expected.items())]
+            matches = [i for i in plan['provenance'] if i.get('path') == str(source)
+                       and all(i.get(k) == v for k, v in expected.items()) and 'kind' not in i]
+            if len(inputs) != 1 or len(matches) != 1:
+                raise ValueError('Local archive is not an exact planned config input')
+            if 'target_source_present' in p and type(p['target_source_present']) is not bool:
+                raise ValueError('Invalid informational local source presence')
+        elif not all(isinstance(p[k], str) and 0 < len(p[k]) <= 4096 for k in ('url', 'package', 'version')):
             raise ValueError('Invalid package identity')
         if p['filename'] in names or (p['sha256'] in hashes and hashes[p['sha256']] != p['size']):
             raise ValueError('Duplicate name or conflicting content identity')
@@ -240,8 +295,10 @@ def provenance(plan):
     if actual != seen:
         raise ValueError('Provenance membership changed')
     stages = list((BUILD / '.build').iterdir())
-    if len(stages) != 19 or any(p.name not in STAGES or not stat.S_ISREG(p.lstat().st_mode) or p.stat().st_size for p in stages):
-        raise ValueError('Expected retained 19 empty stage flags')
+    names = {p.name for p in stages}
+    if (not (STAGES - RUNTIME_STAGES).issubset(names) or not names.issubset(STAGES)
+            or any(not stat.S_ISREG(p.lstat().st_mode) or p.stat().st_size for p in stages)):
+        raise ValueError('Expected completed pre-install flags and only optional runtime flags')
     queue = plan['selection']
     if queue['path'] != str(ROOT / 'root/packages.chroot'):
         raise ValueError('Unexpected queue path')
@@ -451,13 +508,15 @@ def main():
         quiescent()
         baseline = provenance(plan)
         before = inventory()
-        report['files'] = [dict(item, status='not-attempted') for item in plan['packages']]
+        selected = plan['packages'] + plan['local_archives']
+        report['files'] = [dict(item, status='not-attempted', delivery=('local-config-copy' if 'source_path' in item else 'local-http')) for item in selected]
         report['cache_before'] = before
         report_write(report, workspace)
         # Full bytes are hashed at import boundaries; cheap stable identities
         # are checked around each individual mutation to avoid O(files*indexes).
         unchanged_identities(baseline)
-        for item, record in zip(plan['packages'], report['files']):
+        publications = 0
+        for item, record in zip(selected, report['files']):
             destination = CACHE / item['filename']
             record['status'] = 'pending'
             if destination.exists() or destination.is_symlink():
@@ -469,7 +528,10 @@ def main():
                 fd, name = tempfile.mkstemp(prefix='archive-', suffix='.part', dir=staging)
                 temporary = Path(name)
                 with os.fdopen(fd, 'wb') as stream:
-                    length, digest, _ = receive('/package-cache/' + item['sha256'] + '.deb', item['size'], stream)
+                    if 'source_path' in item:
+                        length, digest, _ = copy_local(item, stream)
+                    else:
+                        length, digest, _ = receive('/package-cache/' + item['sha256'] + '.deb', item['size'], stream)
                     if (length, digest) != (item['size'], item['sha256']):
                         raise ValueError('Delivered archive size/SHA256 mismatch')
                     os.fchmod(stream.fileno(), 0o644)
@@ -492,11 +554,13 @@ def main():
                 ancestry(CACHE)
                 unchanged_identities(baseline)
                 record.update(status='published-verified', evidence=found)
-            report_write(report, workspace)
+                publications += 1
+                if publications % 25 == 0:
+                    report_write(report, workspace)
         after = inventory()
         if any(after.get(name) != entry for name, entry in before.items()):
             raise ValueError('Preexisting cache entry changed')
-        permitted = set(before) | {p['filename'] for p in plan['packages']}
+        permitted = set(before) | {p['filename'] for p in selected}
         if set(after) != permitted or provenance(plan) != baseline:
             raise ValueError('Unexpected cache or target state change')
         quiescent()

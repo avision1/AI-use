@@ -155,7 +155,15 @@ def provenance():
     return sorted(result + hook_links, key=lambda item: item['path'])
 
 
-def catalogs(workspace, env):
+def write_json_exclusive(path, result):
+    data = (json.dumps(result, sort_keys=True, separators=(',', ':')) + '\n').encode()
+    if len(data) > MAX:
+        raise ValueError('JSON export exceeds 2 MiB: ' + str(path))
+    with path.open('xb') as stream:
+        stream.write(data)
+
+
+def catalogs(workspace, env, nonce, source_provenance):
     lists = ROOT / 'var/lib/apt/lists'
     keyring = next((p for p in (Path('/usr/share/keyrings/debian-archive-keyring.pgp'),
                                 Path('/usr/share/keyrings/debian-archive-keyring.gpg')) if p.exists()), None)
@@ -166,26 +174,32 @@ def catalogs(workspace, env):
     if verifier is None:
         raise ValueError('Builder has neither gpgv nor sqv')
     verifier_evidence = evidence(verifier, 16 * 1024 * 1024)
-    verified, records = [], []
+    verified, records, releases, mismatches, errors = [], [], [], [], []
     release_paths = sorted(lists.glob('*_InRelease'))
     if not release_paths or len(release_paths) > 16:
         raise ValueError('Expected bounded retained signed InRelease catalogs')
-    matched = set()
+    # Verify ALL signatures before interpreting any catalog as authenticated.
     for number, release in enumerate(release_paths):
-        regular(release, 8 * 1024 * 1024)
-        clear = workspace / ('release-' + str(number))
-        command = [str(verifier), '--keyring', str(keyring), '--output', str(clear)]
-        command += (['--cleartext', str(release)] if verifier.name == 'sqv' else [str(release)])
-        run(command, workspace, 'signature-' + str(number), env=env)
-        fields = list(paragraphs(regular(clear, 8 * 1024 * 1024)))[0]
-        now = time.time()
-        for field in ('Date', 'Valid-Until'):
-            if field in fields:
-                stamp = email.utils.parsedate_to_datetime(fields[field]).timestamp()
-                if (field == 'Date' and stamp > now + 86400) or (field == 'Valid-Until' and stamp < now):
-                    raise ValueError('Signed catalog date invalid: ' + str(release))
-        if 'SHA256' not in fields:
-            raise ValueError('Signed release lacks SHA256')
+        try:
+            source = evidence(release, 8 * 1024 * 1024)
+            clear = workspace / ('release-' + str(number))
+            command = [str(verifier), '--keyring', str(keyring), '--output', str(clear)]
+            command += (['--cleartext', str(release)] if verifier.name == 'sqv' else [str(release)])
+            run(command, workspace, 'signature-' + str(number), env=env)
+            fields = list(paragraphs(regular(clear, 8 * 1024 * 1024)))[0]
+            for field in ('Date', 'Valid-Until'):
+                if field in fields:
+                    stamp = email.utils.parsedate_to_datetime(fields[field]).timestamp()
+                    if (field == 'Date' and stamp > time.time() + 86400) or (field == 'Valid-Until' and stamp < time.time()):
+                        raise ValueError('Signed catalog date invalid: ' + str(release))
+            if 'SHA256' not in fields:
+                raise ValueError('Signed release lacks SHA256')
+            releases.append((release, source, fields))
+        except (OSError, ValueError, IndexError, subprocess.SubprocessError) as error:
+            errors.append({'path': str(release), 'error': str(error)[:1500]})
+    signature_complete = len(releases) == len(release_paths)
+    matched = set()
+    for release, source, fields in releases:
         prefix = release.name[:-len('InRelease')]
         covered = []
         for line in fields['SHA256'].splitlines():
@@ -193,33 +207,68 @@ def catalogs(workspace, env):
             if len(parts) != 3 or not parts[2].endswith('/Packages'):
                 continue
             sha, length, relative = parts
-            if not re.fullmatch('[0-9a-f]{64}', sha) or not re.fullmatch(r'[A-Za-z0-9+./_-]+', relative) or '..' in relative:
-                raise ValueError('Unsafe release index identity')
+            if not re.fullmatch('[0-9a-f]{64}', sha) or not length.isdecimal() or not re.fullmatch(r'[A-Za-z0-9+./_-]+', relative) or '..' in relative:
+                errors.append({'path': str(release), 'error': 'Unsafe release index identity'})
+                continue
             name = prefix + relative.replace('/', '_')
             candidates = [p for p in (lists / name, lists / (name + '.lz4'), lists / (name + '.xz'), lists / (name + '.gz')) if p.exists()]
             if not candidates:
                 continue
             if len(candidates) != 1 or int(length) > 256 * 1024 * 1024:
-                raise ValueError('Ambiguous or oversized package index')
+                errors.append({'path': str(release), 'error': 'Ambiguous or oversized package index: ' + name})
+                continue
             p = candidates[0]
-            item = evidence(p, 256 * 1024 * 1024)
-            raw = run(['/usr/lib/apt/apt-helper', 'cat-file', str(p)], workspace,
-                      'index-' + str(len(matched)), 256 * 1024 * 1024, env=env)
-            if len(raw) != int(length) or digest(raw) != sha:
-                raise ValueError('Packages index does not match signed SHA256: ' + str(p))
-            for record in paragraphs(raw):
-                if all(k in record for k in ('Package', 'Version', 'Filename', 'Size', 'SHA256')):
-                    records.append({k: record[k] for k in ('Package', 'Version', 'Filename', 'Size', 'SHA256')})
-            item.update(uncompressed_sha256=sha, uncompressed_size=len(raw), release_path=relative)
-            covered.append(item)
             matched.add(p.name)
-        verified.append({'inrelease': evidence(release, 8 * 1024 * 1024), 'indexes': covered, 'verifier': verifier_evidence})
-    # Local unsigned file repository is explicitly excluded from remote trust.
+            try:
+                stored = regular(p, 256 * 1024 * 1024)
+                item = {'path': str(p), 'size': len(stored), 'sha256': digest(stored)}
+                raw = run(['/usr/lib/apt/apt-helper', 'cat-file', str(p)], workspace,
+                          'index-' + str(len(matched)), 256 * 1024 * 1024, env=env)
+                actual_sha = digest(raw)
+                item.update(uncompressed_sha256=actual_sha, uncompressed_size=len(raw), release_path=relative,
+                            expected_uncompressed_sha256=sha, expected_uncompressed_size=int(length),
+                            matches_signed_release=actual_sha == sha and len(raw) == int(length))
+                covered.append(item)
+                if not item['matches_signed_release']:
+                    mismatches.append({'path': str(p), 'expected_uncompressed_sha256': sha,
+                                       'expected_uncompressed_size': int(length),
+                                       'actual_uncompressed_sha256': actual_sha, 'actual_uncompressed_size': len(raw),
+                                       'stored_file_sha256': item['sha256'], 'stored_file_size': len(stored),
+                                       'header_prefix_hex64': stored[:32].hex(), 'inrelease': source,
+                                       'release_path': relative})
+                    continue
+                for record in paragraphs(raw):
+                    if all(k in record for k in ('Package', 'Version', 'Filename', 'Size', 'SHA256')):
+                        records.append({k: record[k] for k in ('Package', 'Version', 'Filename', 'Size', 'SHA256')})
+            except (OSError, ValueError, subprocess.SubprocessError) as error:
+                errors.append({'path': str(p), 'error': str(error)[:1500]})
+        verified.append({'inrelease': source, 'indexes': covered, 'verifier': verifier_evidence})
     unexpected = [p.name for p in lists.iterdir() if '_Packages' in p.name and p.name not in matched and not p.name.startswith('_packages_')]
     if unexpected or not matched:
-        raise ValueError('Unverified or absent remote package catalogs: ' + repr(unexpected))
+        errors.append({'path': str(lists), 'error': 'Unverified or absent remote package catalogs: ' + repr(unexpected)[:1500]})
     if evidence(keyring) != keyring_evidence or evidence(verifier, 16 * 1024 * 1024) != verifier_evidence:
-        raise ValueError('Builder signature trust inputs changed')
+        errors.append({'path': str(keyring), 'error': 'Builder signature trust inputs changed'})
+    for release in verified:
+        if evidence(release['inrelease']['path'], 8 * 1024 * 1024) != release['inrelease']:
+            errors.append({'path': release['inrelease']['path'], 'error': 'Release changed during audit'})
+        for index in release['indexes']:
+            current = evidence(index['path'], 256 * 1024 * 1024)
+            if any(current[k] != index[k] for k in current):
+                errors.append({'path': index['path'], 'error': 'Index changed during audit'})
+    audit = dict(schema=1, nonce=nonce, audit_only=True,
+                 signature_verification_completed=signature_complete,
+                 all_catalogs_match=signature_complete and not mismatches and not errors,
+                 mismatches=mismatches, errors=errors, signed_catalogs=verified,
+                 verification_keyring=keyring_evidence, verification_program=verifier_evidence,
+                 provenance=source_provenance)
+    write_json_exclusive(OUT / 'package-catalog-audit.json', audit)
+    if mismatches:
+        details = ['%s expected SHA256=%s size=%s; actual SHA256=%s size=%s' %
+                   (m['path'], m['expected_uncompressed_sha256'], m['expected_uncompressed_size'],
+                    m['actual_uncompressed_sha256'], m['actual_uncompressed_size']) for m in mismatches]
+        raise ValueError('Signed catalog mismatches (%d): %s' % (len(mismatches), '; '.join(details)))
+    if errors or not signature_complete:
+        raise ValueError('Catalog audit refused: ' + repr(errors)[:3000])
     return records, verified, keyring_evidence
 
 
@@ -256,7 +305,7 @@ def main():
         if regular(ROOT / 'root/packages.foreign-architectures', 4096).strip():
             raise ValueError('Unapplied foreign architectures require separate review')
     before = provenance()
-    records, signed, keyring = catalogs(workspace, env)
+    records, signed, keyring = catalogs(workspace, env, args.nonce, before)
     by_sha = {}
     for record in records:
         by_sha.setdefault(record['SHA256'], []).append(record)
@@ -269,12 +318,15 @@ def main():
         'DPkg::Pre-Invoke', 'DPkg::Post-Invoke', 'DPkg::Pre-Install-Pkgs',
         'APT::Get::Pre-Install-Pkgs', 'APT::Update::Pre-Invoke', 'APT::Update::Post-Invoke')) + '\n')
     env['APT_CONFIG'] = str(initial)
+    archives = workspace / 'archives'
+    archives.mkdir()
+    (archives / 'partial').mkdir()
     selections = {'Dir': str(ROOT), 'Dir::State': str(ROOT / 'var/lib/apt'),
                   'Dir::State::status': str(ROOT / 'var/lib/dpkg/status'),
                   'Dir::State::lists': str(ROOT / 'var/lib/apt/lists'),
                   'Dir::State::extended_states': str(ROOT / 'var/lib/apt/extended_states'),
-                  'Dir::Cache': str(ROOT / 'var/cache/apt'),
-                  'Dir::Cache::archives': str(ROOT / 'var/cache/apt/archives'),
+                  'Dir::Cache': str(workspace),
+                  'Dir::Cache::archives': str(archives),
                   'Dir::Cache::pkgcache': '', 'Dir::Cache::srcpkgcache': '',
                   'Dir::Etc': str(ROOT / 'etc/apt'), 'Debug::NoLocking': 'true',
                   'Acquire::ForceHash': 'SHA256', 'APT::Architecture': 'amd64',
@@ -286,7 +338,7 @@ def main():
         argv += ['-o', key + '=' + value]
     argv += ['--print-uris', '--no-remove', 'install', '--', *packages]
     printed = run(argv, workspace, 'print-uris', timeout=180, env=env).decode()
-    remote, local = [], []
+    remote, local, local_archives = [], [], []
     for directory in (BUILD / 'config/packages.chroot', BUILD / 'config/packages'):
         if directory.exists():
             for package_path in sorted(directory.glob('*.deb')):
@@ -301,7 +353,25 @@ def main():
         url, filename, size, sha = match.groups()
         uri = urlsplit(url)
         if uri.scheme == 'file':
-            local.append({'url': url, 'filename': filename, 'size': int(size), 'sha256': sha})
+            if uri.netloc or uri.query or uri.fragment:
+                raise ValueError('Unsupported local archive URI')
+            source = Path(unquote(uri.path))
+            if source.parent != Path('/packages') or source.name in ('', '.', '..'):
+                raise ValueError('Local archive outside reviewed target /packages repository')
+            target_source = ROOT / 'packages' / source.name
+            if any(p.is_symlink() for p in (target_source, *target_source.parents)):
+                raise ValueError('Local package source alias refused')
+            inputs = [p for p in local if p['sha256'] == sha and p['size'] == int(size)]
+            if not inputs:
+                raise ValueError('Local APT archive does not match exact config input: ' + filename)
+            present = target_source.exists()
+            if present:
+                actual = evidence(target_source, 64 * 1024 * 1024)
+                if actual['sha256'] != sha or actual['size'] != int(size):
+                    raise ValueError('Mounted local archive differs from exact config input')
+            local_archives.append(dict(filename=filename, size=int(size), sha256=sha,
+                                       source_path=inputs[0]['path'], target_source_path=str(target_source),
+                                       target_source_present=present))
             continue
         roots = {'deb.debian.org': ('/debian/pool/', '/debian-security/pool/'),
                  'security.debian.org': ('/debian-security/pool/', '/pool/updates/')}
@@ -316,7 +386,8 @@ def main():
             raise ValueError('URI does not identify one signed target package: ' + filename)
         package, version = identities.pop()
         remote.append(dict(url=url, filename=filename, size=int(size), sha256=sha, package=package, version=version))
-    if len(remote) > 4096 or len({p['filename'] for p in remote}) != len(remote):
+    selected_archives = remote + local_archives
+    if len(selected_archives) > 4096 or len({p['filename'] for p in selected_archives}) != len(selected_archives):
         raise ValueError('Oversized plan or duplicate archive basename')
     for release in signed:
         if evidence(release['inrelease']['path'], 8 * 1024 * 1024) != release['inrelease']:
@@ -325,14 +396,19 @@ def main():
             current = evidence(index['path'], 256 * 1024 * 1024)
             if any(current[k] != index[k] for k in current):
                 raise ValueError('Package index changed during planning')
+    for archive in local_archives:
+        actual = evidence(archive['source_path'], 64 * 1024 * 1024)
+        if actual['sha256'] != archive['sha256'] or actual['size'] != archive['size']:
+            raise ValueError('Local target archive changed during planning')
     if provenance() != before or evidence(queue, 128 * 1024)['sha256'] != digest(raw):
         raise ValueError('Target state changed during planning')
-    result = dict(schema=1, nonce=args.nonce, planning_only=True, packages=remote, local_packages=local,
+    result = dict(schema=1, nonce=args.nonce, planning_only=True, packages=remote, local_packages=local, local_archives=local_archives,
                   created_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                   selection=dict(path=str(queue), sha256=digest(raw), count=len(packages)),
-                  coverage=dict(remote_uri_count=len(remote), sha256_count=len(remote), local_input_count=len(local),
+                  coverage=dict(remote_uri_count=len(remote), sha256_count=len(remote), local_input_count=len(local), local_archive_count=len(local_archives),
                                 all_remote_uris_matched_signed_catalog=True,
-                                note='APT omits already cached archives; plan covers this print-uris transaction only.'),
+                                full_transaction=True, isolated_empty_archive_cache=True,
+                                note='All selected remote archives are planned using an empty isolated cache; retained target archives are untouched.'),
                   provenance=before, signed_catalogs=signed, verification_keyring=keyring,
                   apt_options=selections, print_uris_sha256=digest(printed.encode()))
     data = (json.dumps(result, sort_keys=True, separators=(',', ':')) + '\n').encode()

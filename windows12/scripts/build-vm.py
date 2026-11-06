@@ -24,12 +24,17 @@ def main():
  ap.add_argument('--prepare',action='store_true',help='Download checksum-verified official builder image only')
  ap.add_argument('--probe',action='store_true',help='Run QEMU TCG firmware for 10s with no disk/network')
  ap.add_argument('--resume',action='store_true',help='Resume an existing VM disk, not a new build')
+ ap.add_argument('--refresh-package-catalogs',action='store_true',help='Quarantine reproducible repository caches and run strict native metadata update only; no install/build')
  ap.add_argument('--package-stage',action='store_true',help='Select explicit security-upgraded package-stage profile for read-only inspection')
  ap.add_argument('--plan-package-downloads',action='store_true',help='Export exact signed-catalog package download plan from retained target; no install/build')
  ap.add_argument('--inspect-resume',action='store_true',help='Boot existing disk only for read-only build-state inventory; separate output, never ISO success')
  ap.add_argument('--continue-after-bootstrap',action='store_true',help='Explicit recovery boot: verify retained bootstrap and continue public stages, preserving frozen source')
  ap.add_argument('--refresh-target-indexes',action='store_true',help='Explicitly quarantine the two inspected bad APT indexes and regenerable binary caches; requires guarded continuation')
  args=ap.parse_args()
+ if sum(map(bool,(args.prepare,args.probe,args.inspect_resume,args.plan_package_downloads,args.refresh_package_catalogs,args.continue_after_bootstrap)))>1:ap.error('Choose only one build operation')
+ if args.refresh_package_catalogs:
+  if not args.resume:ap.error('--refresh-package-catalogs requires --resume')
+  OUT=bounded(ROOT/'artifacts'/('catalog-refresh-'+str(time.time_ns())))
  if args.package_stage and not args.inspect_resume:ap.error('--package-stage requires --resume --inspect-resume')
  if args.plan_package_downloads:
   if not args.resume or args.prepare or args.probe or args.inspect_resume or args.continue_after_bootstrap or args.refresh_target_indexes:ap.error('--plan-package-downloads requires --resume alone')
@@ -148,6 +153,7 @@ def main():
  if proxy.hostname in ['127.0.0.1','localhost'] and proxy.port:
   proxy_guest=f'http://10.0.2.2:{proxy.port}'
  with tarfile.open(checks) as tf:guest=tf.extractfile('build/guest-build.sh').read().decode()
+ catalog_refresh_hash=None;catalog_refresh_nonce=None
  planning_hash=None;planning_nonce=None
  inspection_hash=None;inspection_nonce=None
  recovery_hashes={};recovery_nonce=None;recovery_files=[]
@@ -171,6 +177,17 @@ def main():
   boundary='\nmkdir -p /root/windows12-checks\n'
   if guest.count(boundary)!=1 or 'WINDOWS12_PACKAGE_PLAN_PY' in planning:raise SystemExit('Frozen planning prefix/delimiter requires review')
   guest=guest.split(boundary,1)[0]+"\npython3 - --nonce "+planning_nonce+" <<'WINDOWS12_PACKAGE_PLAN_PY'\n"+planning+"\nWINDOWS12_PACKAGE_PLAN_PY\n"
+
+
+ if args.refresh_package_catalogs:
+  helper=bounded(ROOT/'build/refresh-package-catalogs.py')
+  if helper.is_symlink():raise SystemExit('Catalog refresh helper symlink refused')
+  refresh_bytes=helper.read_bytes();refresh=refresh_bytes.decode('utf-8')
+  if not refresh_bytes.endswith(b'\n') or refresh_bytes.endswith(b'\n\n') or b'\r' in refresh_bytes:raise SystemExit('Catalog refresh helper requires canonical LF source')
+  catalog_refresh_hash=hashlib.sha256(refresh_bytes).hexdigest();catalog_refresh_nonce=secrets.token_hex(16)
+  boundary='\nmkdir -p /root/windows12-checks\n'
+  if guest.count(boundary)!=1 or 'WINDOWS12_CATALOG_REFRESH_PY' in refresh:raise SystemExit('Frozen catalog refresh prefix/delimiter requires review')
+  guest=guest.split(boundary,1)[0]+"\ncd /root/windows12-build\npython3 - --nonce "+catalog_refresh_nonce+" <<'WINDOWS12_CATALOG_REFRESH_PY'\n"+refresh+"\nWINDOWS12_CATALOG_REFRESH_PY\n"
 
  if args.continue_after_bootstrap:
   recovery_nonce=secrets.token_hex(16)
@@ -201,7 +218,7 @@ def main():
  class Handler(http.server.BaseHTTPRequestHandler):
   def do_PUT(self):
    name=self.path.removeprefix('/output/')
-   allowed={'build.exit','guest-build.log','desktop-SHA256SUMS','windows12-amd64-preview.iso','windows12-amd64-preview.packages','SHA256SUMS','builder-inspection.json','builder-recovery.json','package-download-plan.json'}
+   allowed={'build.exit','guest-build.log','desktop-SHA256SUMS','windows12-amd64-preview.iso','windows12-amd64-preview.packages','SHA256SUMS','builder-inspection.json','builder-recovery.json','package-download-plan.json','package-catalog-audit.json','package-catalog-refresh.json','package-cache-import.json'}
    if not self.path.startswith('/output/') or (name not in allowed and not re.fullmatch(r'windows12-desktop_[A-Za-z0-9.+~_-]+_all\.deb',name)):
     self.send_error(403);return
    target=OUT/name;partial=OUT/(name+'.part')
@@ -209,7 +226,7 @@ def main():
     self.send_error(403);return
    try:length=int(self.headers['Content-Length'])
    except (TypeError,ValueError):self.send_error(411);return
-   if name=='package-download-plan.json' and length>2*1024**2:
+   if ((name in ('package-download-plan.json','package-catalog-audit.json') and length>2*1024**2) or (name=='package-catalog-refresh.json' and length>16*1024**2) or (name=='package-cache-import.json' and length>32*1024**2)):
     self.send_error(413);return
    if length<0 or length>12*1024**3 or shutil.disk_usage(OUT).free<length+256*1024**2:
     self.send_error(413);return
@@ -243,12 +260,19 @@ def main():
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
- output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'package_planning':args.plan_package_downloads,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'package_stage_inspection':args.package_stage,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
+ output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'package_planning':args.plan_package_downloads,'catalog_refresh':args.refresh_package_catalogs,'catalog_refresh_helper_sha256':catalog_refresh_hash,'catalog_refresh_nonce':catalog_refresh_nonce,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'package_stage_inspection':args.package_stage,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
  try:
   with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
  finally:server.shutdown()
  status=OUT/'build.exit'
  if not status.exists() or status.read_text().strip()!='0':raise SystemExit('Build/task incomplete or failed; inspect '+str(OUT/'serial.log')+' and guest-build.log')
+ if args.refresh_package_catalogs:
+  report=output_file(OUT/'package-catalog-refresh.json')
+  if not report.is_file() or not 0<report.stat().st_size<=16*1024**2:raise SystemExit('Missing/oversized catalog refresh report')
+  refresh_result=json.loads(report.read_text())
+  if not isinstance(refresh_result,dict) or refresh_result.get('schema')!=1 or refresh_result.get('nonce')!=catalog_refresh_nonce or refresh_result.get('refresh_completed') is not True:raise SystemExit('Catalog refresh report schema/freshness mismatch')
+  print('Catalog metadata refresh exported to',OUT,'; independent signature audit and install remain required.')
+  return
  if args.plan_package_downloads:
   report=output_file(OUT/'package-download-plan.json')
   if not report.is_file() or not 0<report.stat().st_size<=2*1024**2:raise SystemExit('Missing/oversized package plan')

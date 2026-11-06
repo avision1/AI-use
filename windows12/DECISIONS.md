@@ -47,3 +47,6 @@ The exact live-build bootstrap deliberately uses --no-rename for os-release.debo
 
 ## 2026-11-06 — Bounded prefetch after long-connection failure
 26570 stopped afterbulk403/toolnetworkapprovalcancelation; fresh normalHTTP/HTTPS request succeeded200. Cause remains unproven. Preserve disk/cache and export exactretained live-build queue fromverifiedsignedcatalogs; fetch missingarchives in short normalauthorizedHTTPSbatches withsize/SHA256, then deliveronlyverifiedbytes tocontainedVM for nativeAPT verification. No networkapproval/signature/TLS bypass. Wholepipeline notimplementeduntil delivery/newstatecontinuation reviewed. The oldsnapshotguard deliberatelyrefuses changedsecurity-upgraded state.
+
+## 2026-11-06 — Rebuild untrusted catalog cache; authenticate full archive set
+SQV foundadditionalretainedindexSHA mismatch afterprevious two-indexparsefix. PreservewholeoldAPTlists/generatedbinarycaches and regenerateonlymetadatawithnativeAPTstrictHTTPS/SignedBy, leavingstatus/config/trust/stage/payload unchanged. NativeAPT3.0.3 accepts existingarchivesbysize, notSHA: planning usesemptyisolatedcache; allselectedremote/localarchives mustindependentlymatchauthenticatedplanSHA immediatelybeforeinstallation. No oldcachetrustshortcut, signaturewaiver orclaimthat --no-download aloneverifiescachedbytes.
