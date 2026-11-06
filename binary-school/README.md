@@ -2,6 +2,8 @@
 
 A self-paced reverse engineering learning site that runs on localhost.
 
+Student ZIP users: follow `README.txt` to launch the site. The testing, rebuilding and packaging commands in this document are for maintainers using the full repository checkout; those development files are omitted from the student ZIP.
+
 - 137 lessons and activities across 13 modules.
 - An interactive downloadable flag lab for each course.
 - 26 guided/stripped Linux x64 flag binaries.
@@ -87,3 +89,5 @@ Maintainers can refresh integrity manifests with `python3 tools/update_checksums
 See `VERIFICATION.md` for tested behavior, independent-review results and explicit native Windows/assistive-technology limits. A captured desktop overview is in `docs/desktop-preview.png`.
 
 Maintainers can generate an ignored same-origin viewport fixture with `python3 tools/create_browser_qa.py`, open `/qa-browser.html` in the supported preview, and measure actual CSS viewport layouts. Use a disposable browser profile because frames share storage. The generated file is excluded from Git and integrity manifests; remove it after QA. Latest browser checks and evidence are recorded in `VERIFICATION.md`.
+
+To build a student ZIP from a verified checkout, run `python3 tools/package_localhost.py`. It writes `.qa/BinarySchool-Localhost.zip`, with a single folder containing launchers, lessons, labs, references and package checksums. No Node.js, development tools, tests or personal backups are included. The builder refuses mismatched source checksums; maintainers should review changes and refresh `SHA256SUMS.json` first. Extract the entire ZIP before starting.
