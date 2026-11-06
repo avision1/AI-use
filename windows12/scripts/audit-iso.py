@@ -28,6 +28,7 @@ CORE_PACKAGES = (
     'calamares', 'calamares-settings-debian', 'chromium', 'firefox-esr',
     'libreoffice-writer', 'libreoffice-calc', 'libreoffice-impress',
     'network-manager', 'plasma-nm', 'python3', 'xdg-utils', 'linux-image-amd64',
+    'util-linux-extra',  # Debian 13 provider of Calamares' hwclock command.
 )
 
 

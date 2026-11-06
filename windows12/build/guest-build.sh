@@ -72,8 +72,10 @@ lb config --cache false --mode debian --distribution trixie --architectures amd6
  --mirror-binary http://deb.debian.org/debian
 mkdir -p config/package-lists config/includes.chroot config/hooks/live config/packages.chroot
 cp "$package" config/packages.chroot/
+# Debian 13 supplies Calamares' hwclock (RTC write during installation) in util-linux-extra.
 cat > config/package-lists/windows12.list.chroot <<'PKGS'
 linux-image-amd64
+util-linux-extra
 live-boot
 live-config
 live-config-systemd

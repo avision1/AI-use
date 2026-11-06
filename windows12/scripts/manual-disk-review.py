@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Review a stopped BIOS live-harness disk through a new ISO-free child.
+"""Review a stopped live-harness disk through a new ISO-free child.
 
 This accepts only desktop-test.py provenance, never an arbitrary disk. It does
 not establish that a manual installation succeeded. Root, login and application
@@ -69,12 +69,12 @@ def manual_source(value):
     # must still demonstrate TCG. Never infer KVM from a missing field.
     prior_accelerator = report.get('accelerator', 'tcg')
     if (report['mode'] != 'live' or report['installed_source'] is not None
-            or report['firmware_profile'] != 'bios' or report.get('firmware') is not None
-            or run.get('firmware') is not None or prior_accelerator not in ('tcg', 'kvm')
+            or report['firmware_profile'] not in ('bios', 'uefi')
+            or prior_accelerator not in ('tcg', 'kvm')
             or report['network'] not in ('none', 'user')
             or report['cpu_profile'] not in DESKTOP['CPU_PROFILES']
             or report['video'] not in DESKTOP['VIDEO_PROFILES']):
-        raise ValueError('Only the fixed BIOS live-harness profiles are eligible')
+        raise ValueError('Only the fixed live-harness profiles are eligible')
     if (report.get('outcome') not in ('operator-stopped', 'guest-exited')
             or type(report.get('qemu_returncode')) is not int or report['qemu_returncode'] != 0
             or any(key in report for key in ('error', 'cleanup_error', 'qmp_close_error', 'baseline_error', 'firmware_error'))
@@ -101,7 +101,7 @@ def manual_source(value):
         raise ValueError('Prior live memory is outside the fixed range')
     qemu, _, firmware, datadir = tools(report['video'])
     previous_args = argparse.Namespace(memory=int(memory_argument[0]), cpu_profile=report['cpu_profile'],
-                                      video=report['video'], network=report['network'], firmware_profile='bios',
+                                      video=report['video'], network=report['network'], firmware_profile=report['firmware_profile'],
                                       accelerator=prior_accelerator)
     expected = DESKTOP['desktop_command'](previous_args, iso, qemu, firmware, datadir, prior, disk)
     expected += ['-qmp', 'pipe:' + str(prior / 'qmp')]
@@ -110,12 +110,56 @@ def manual_source(value):
     iso_seal = file_snapshot(iso, 'iso')
     if iso_seal['sha256'] != report['iso_sha256']:
         raise ValueError('Prior live ISO no longer matches its recorded hash')
+    firmware_source = manual_uefi_source(report, run, prior)
     baseline = file_snapshot(disk, 'qcow2')
-    return {'kind': 'manual-live-disk', 'result': result_provenance, 'run': run_provenance,
+    return {**firmware_source,'kind': 'manual-live-disk', 'result': result_provenance, 'run': run_provenance,
             'baseline': baseline, 'iso': str(iso), 'iso_sha256': iso_seal['sha256'],
             'iso_snapshot': iso_seal, 'prior_output': str(prior),
             'prior_outcome': report['outcome'], 'prior_accelerator': prior_accelerator,
             'manual_installation_certified': False}
+
+
+def manual_uefi_source(report, run, prior):
+    if report['firmware_profile'] == 'bios':
+        if report.get('firmware') is not None or run.get('firmware') is not None:
+            raise ValueError('BIOS run must not contain UEFI firmware')
+        return {'firmware_profile': 'bios'}
+    record = report.get('firmware')
+    if (not isinstance(record, dict) or record != run.get('firmware')
+            or record.get('profile') != 'uefi' or record.get('inputs_verified') is not True
+            or record.get('secure_boot_requested') is not False or record.get('required_smm') is not False
+            or report.get('firmware_inputs_unchanged') is not True or 'vars_source' in record):
+        raise ValueError('Prior live UEFI firmware verification is incomplete')
+    verification, verification_seal = read_evidence(prior / 'firmware-verification.json')
+    if verification != record:
+        raise ValueError('Prior firmware verification record disagrees')
+    inputs = record.get('inputs')
+    paths = DESKTOP['uefi_paths']()
+    if not isinstance(inputs, dict) or set(inputs) != set(paths):
+        raise ValueError('Prior firmware input set differs from fixed normal OVMF')
+    for key, path in paths.items():
+        if DESKTOP['binary_evidence'](path, 8 * 1024 ** 2)[1] != inputs[key]:
+            raise ValueError('Prior original firmware input changed')
+    lock, lock_seal = read_evidence(ROOT / 'build/firmware-tools-lock.json')
+    entry = lock.get('ovmf', {})
+    if lock_seal != record.get('lock') or not isinstance(entry, dict) or not isinstance(entry.get('Filename'), str):
+        raise ValueError('Prior firmware lock changed')
+    archive = ROOT / '.work/builder/debs' / Path(entry['Filename']).name
+    _, archive_seal = DESKTOP['binary_evidence'](archive, 32 * 1024 ** 2)
+    if (record.get('package') != {'version': entry.get('Version'), **archive_seal}
+            or archive_seal['sha256'] != entry.get('SHA256')):
+        raise ValueError('Prior cached firmware package changed')
+    initial = record.get('vars_copy_initial', {})
+    variables = prior / 'uefi-vars.fd'
+    if (not isinstance(initial, dict) or initial.get('path') != str(variables)
+            or initial.get('sha256') != inputs['template']['sha256']
+            or initial.get('bytes') != inputs['template']['bytes']):
+        raise ValueError('Prior live variable store did not start from authenticated template')
+    _, final = DESKTOP['binary_evidence'](variables, 8 * 1024 ** 2)
+    if final != report.get('uefi_vars_final') or final['bytes'] != inputs['template']['bytes']:
+        raise ValueError('Prior final variable store seal changed or has wrong size')
+    return {'firmware_profile': 'uefi', 'firmware': record,
+            'firmware_verification': verification_seal, 'uefi_vars_baseline': final}
 
 
 def review(args):
@@ -126,10 +170,11 @@ def review(args):
         raise ValueError('Unsupported manual-review deadline, memory or diagnostic profile')
     with DESKTOP['exclusive_runner']():
         profiles = argparse.Namespace(cpu_profile=args.cpu_profile, video=args.video,
-                                      firmware_profile='bios', accelerator=args.accelerator)
+                                      firmware_profile=getattr(args, 'firmware_profile', 'bios'), accelerator=args.accelerator)
         DESKTOP['diagnostic_profiles'](profiles)
         DESKTOP['require_accelerator'](profiles)
         source = manual_source(args.live_result)
+        DESKTOP['require_source_firmware'](profiles, source)
         output = fresh(args.output or ROOT / 'artifacts' / ('manual-disk-review-' + str(time.time_ns())))
         if output.is_relative_to(Path(source['prior_output'])):
             raise ValueError('New review output must not modify the prior live output directory')
@@ -141,7 +186,7 @@ def review(args):
         launch_args = argparse.Namespace(iso=Path(source['iso']), installed_result=None, disk_size=None,
                                          output=output, timeout=args.timeout, memory=args.memory,
                                          cpu_profile=args.cpu_profile, video=args.video,
-                                         firmware_profile='bios', network='none', accelerator=args.accelerator)
+                                         firmware_profile=profiles.firmware_profile, network='none', accelerator=args.accelerator)
         try:
             for key in ('result', 'run'):
                 if read_evidence(source[key]['path'])[1] != source[key]:
@@ -168,12 +213,13 @@ def review(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--live-result', type=Path, required=True, help='Clean stopped BIOS desktop-test result.json with its new disk')
+    parser.add_argument('--live-result', type=Path, required=True, help='Clean stopped desktop-test result.json with its new disk and matching firmware profile')
     parser.add_argument('--output', type=Path, help='New project-contained review directory')
     parser.add_argument('--timeout', type=int, default=1800)
     parser.add_argument('--memory', type=int, default=4096)
     parser.add_argument('--cpu-profile', choices=DESKTOP['CPU_PROFILES'], default='max')
     parser.add_argument('--accelerator', choices=('tcg', 'kvm'), default='tcg', help='KVM requires existing access to /dev/kvm')
+    parser.add_argument('--firmware-profile', choices=('bios', 'uefi'), default='bios')
     parser.add_argument('--video', choices=tuple(DESKTOP['VIDEO_PROFILES']), default='standard')
     args = parser.parse_args()
     if not sys.stdin.isatty():

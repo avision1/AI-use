@@ -328,7 +328,7 @@ def firmware_sources_unchanged(record):
             raise ValueError('Original UEFI firmware input changed')
 
 
-def prepare_uefi(output, env):
+def prepare_uefi(output, env, source=None):
     """Authenticate normal OVMF data, then copy only its writable varstore."""
     try:
         lock, lock_evidence = read_evidence(ROOT / 'build/firmware-tools-lock.json')
@@ -387,16 +387,32 @@ def prepare_uefi(output, env):
                 or not any(target.get('architecture') == 'x86_64' and 'pc-q35-*' in target.get('machines', [])
                            for target in descriptor.get('targets', []) if isinstance(target, dict))):
             raise ValueError('Expected normal non-Secure-Boot OVMF descriptor for q35 without required SMM')
+        variable_bytes = verified_bytes['template']
+        if source:
+            if source.get('kind') != 'manual-live-disk' or source.get('firmware_profile') != 'uefi':
+                raise ValueError('Only sealed manual UEFI sources may retain NVRAM')
+            prior = source['firmware']
+            if any(prior.get(key) != current for key, current in
+                   (('inputs', inputs), ('lock', lock_evidence),
+                    ('package', {'version': entry.get('Version'), **archive_evidence}))):
+                raise ValueError('Prior UEFI firmware authentication provenance changed')
+            manual_firmware_unchanged(source)
+            variable_bytes, seal = binary_evidence(source['uefi_vars_baseline']['path'], 8 * 1024 ** 2)
+            if seal != source['uefi_vars_baseline'] or len(variable_bytes) != len(verified_bytes['template']):
+                raise ValueError('Prior final UEFI variable store changed or has wrong size')
         variables = fresh(output / 'uefi-vars.fd')
         descriptor_fd = os.open(variables, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
         with os.fdopen(descriptor_fd, 'wb') as destination:
-            destination.write(verified_bytes['template'])
+            destination.write(variable_bytes)
             destination.flush()
             os.fsync(destination.fileno())
         record = {'profile': 'uefi', 'inputs_verified': True, 'lock': lock_evidence,
                   'package': {'version': entry.get('Version'), **archive_evidence}, 'inputs': inputs,
                   'vars_copy_initial': binary_evidence(variables, 8 * 1024 ** 2)[1],
                   'secure_boot_requested': False, 'required_smm': False}
+        if source:
+            record['vars_source'] = source['uefi_vars_baseline']
+            manual_firmware_unchanged(source)
         firmware_sources_unchanged(record)
         write_new(output / 'firmware-verification.json', record)
         return record
@@ -647,8 +663,7 @@ def desktop_command(args, iso, qemu, firmware, datadir, output, disk=None, sourc
     serial = output / 'serial.log'
     cpu_profile, (video_device, video_rom) = diagnostic_profiles(args)
     uefi = args.firmware_profile == 'uefi'
-    if uefi and source:
-        raise ValueError('UEFI profile is live-ISO-only; installed proof is BIOS-specific')
+    require_source_firmware(args, source)
     machine = ('q35' if uefi else 'pc') + ',accel=' + args.accelerator + ',smm=off'
     if uefi:
         machine += ',pflash0=uefi-code,pflash1=uefi-vars'
@@ -682,7 +697,36 @@ def desktop_command(args, iso, qemu, firmware, datadir, output, disk=None, sourc
     return command
 
 
+def require_source_firmware(args, source):
+    if not source:
+        return
+    manual = source.get('kind') == 'manual-live-disk'
+    profile = source.get('firmware_profile', 'bios') if manual else 'bios'
+    if args.firmware_profile != profile or (profile == 'uefi' and not manual):
+        raise ValueError('UEFI profile is live-ISO-only for D-I proof; manual firmware profile must match its source')
+    if profile == 'uefi' and not all(key in source for key in ('firmware', 'uefi_vars_baseline')):
+        raise ValueError('Manual UEFI source requires sealed firmware and final NVRAM')
+
+
+def manual_firmware_unchanged(source):
+    if source.get('kind') != 'manual-live-disk' or source.get('firmware_profile') != 'uefi':
+        return
+    firmware_sources_unchanged(source['firmware'])
+    prior = source['firmware']
+    if read_evidence(prior['lock']['path'])[1] != prior['lock']:
+        raise ValueError('Prior firmware lock changed')
+    package = prior['package']
+    if binary_evidence(package['path'], 32 * 1024 ** 2)[1] != {key: value for key, value in package.items() if key != 'version'}:
+        raise ValueError('Prior cached firmware package changed')
+    if binary_evidence(source['uefi_vars_baseline']['path'], 8 * 1024 ** 2)[1] != source['uefi_vars_baseline']:
+        raise ValueError('Prior final UEFI variable store changed')
+    for key in ('result', 'run', 'firmware_verification'):
+        if read_evidence(source[key]['path'])[1] != source[key]:
+            raise ValueError('Prior manual firmware provenance changed')
+
+
 def baseline_unchanged(source):
+    manual_firmware_unchanged(source)
     if file_snapshot(source['baseline']['path'], 'qcow2') != source['baseline']:
         raise ValueError('Installed baseline changed; retained child is not certified')
 
@@ -694,11 +738,10 @@ def session_mode(source):
 
 
 def launch(args, iso, qemu, qimg, firmware, datadir, output, source=None):
-    if source and args.firmware_profile != 'bios':
-        raise ValueError('UEFI profile is live-ISO-only; installed proof is BIOS-specific')
+    require_source_firmware(args, source)
     require_accelerator(args)
     env = environment(output)
-    uefi = prepare_uefi(output, env) if args.firmware_profile == 'uefi' else None
+    uefi = prepare_uefi(output, env, source) if args.firmware_profile == 'uefi' else None
     disk = None
     if source or args.disk_size:
         disk = fresh(output / ('installed-desktop.qcow2' if source else 'disposable-install.qcow2'))

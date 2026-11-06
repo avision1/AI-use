@@ -83,3 +83,8 @@ D043 (2026-11-06): Manual Calamares disk review must use distinct provenance rat
 ## D044 — Keep disk boot and graphical acceptance separate
 
 The actual passstdout installation and ISO-free disk boot both completed0 with matching root/package/configuration proofs and a sealed stopped baseline. This satisfies the BIOS D-I disk-boot gate only. Default live graphics, fresh installed-user layout, Calamares offline installation and UEFI behavior remain separate runtime gates; no GUI success follows from graphical.target/SDDM configuration. Expanded harness tests run in their own disposable VM only after installer shutdown.
+
+
+## D045 — Correct the actual Calamares RTC utility omission in a new candidate
+
+The real offline Calamares installation and ISO-free account/desktop/basicCalc review completed with unchanged baseline. Its log nevertheless shows hwclock command-not-found (exit127), not proof of an RTC hardware bug. Debian13 provides it in util-linux-extra. Add that explicit image package and core audit requirement for the next ISO; retain the old ISO and successful bounded evidence unchanged. Future UEFI continuation preserves sealed final VARS in a fresh copy; fresh builds must preserve legacy candidate paths and use existing KVM only, never host setup or weakened isolation.

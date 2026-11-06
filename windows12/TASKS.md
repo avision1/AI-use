@@ -1,5 +1,7 @@
 # Stable tasks
 
+Latest W12-040 BIOS evidence: actual offline Calamares completed all39jobs; ISO-free new-account/Wayland/root/sudo/basicXLSX observations passed. Review12720 stopped0 with unchangedbaseline; docs/CALAMARES_PREVIEW4.md. W12-005 remains open for clock-fixed NEW ISO, UEFI, broader workflow/reboot evidence. Missinghwclock future source fix implemented; new UEFI/fresh-builder code requires contained guest validation. No VM currently running; do not snapshot agent iso_media_review's partial implementation. Main before update1a72ec2f66677ac14f48bf51f37a965b616daabc.
+
 ## Current task checkpoint — overrides historical status rows below
 
 Main before this update: `24f9ad931c190e0b3309beabbcd76a0943c307af`, clean; project `/home/avision/gitclone/AI-use/windows12/`; approximately73GiB free at parent observation.

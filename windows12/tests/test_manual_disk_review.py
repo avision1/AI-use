@@ -100,6 +100,94 @@ class ManualDiskReviewTests(unittest.TestCase):
             spawn.assert_not_called()
         self.assertFalse(self.output.exists())
 
+    def uefi_source_fixture(self):
+        fw = self.root / 'firmware'
+        paths = {}
+        for name, relative in self.desktop['UEFI_MEMBERS'].items():
+            path = fw / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b'T' * 32 if name == 'template' else b'normal-' + name.encode())
+            paths[name] = path
+        archive = self.root / '.work/builder/debs/ovmf_fixture.deb'
+        archive.parent.mkdir(parents=True, exist_ok=True)
+        archive.write_bytes(b'!<arch>\nfixture')
+        lock = self.root / 'build/firmware-tools-lock.json'
+        lock.parent.mkdir()
+        lock.write_text(json.dumps({'ovmf': {'Version': 'fixture', 'Filename': 'pool/ovmf_fixture.deb',
+                                            'SHA256': hashlib.sha256(archive.read_bytes()).hexdigest()}}))
+        inputs = {name: self.desktop['binary_evidence'](path, 8 * 1024 ** 2)[1] for name, path in paths.items()}
+        variables = self.prior / 'uefi-vars.fd'
+        variables.write_bytes(b'T' * 32)
+        record = {'profile': 'uefi', 'inputs_verified': True, 'secure_boot_requested': False,
+                  'required_smm': False, 'inputs': inputs, 'lock': self.desktop['read_evidence'](lock)[1],
+                  'package': {'version': 'fixture', **self.desktop['binary_evidence'](archive, 32 * 1024 ** 2)[1]},
+                  'vars_copy_initial': self.desktop['binary_evidence'](variables, 8 * 1024 ** 2)[1]}
+        variables.write_bytes(b'BOOT_ENTRY_MARKER'.ljust(32, b'!'))
+        (self.prior / 'firmware-verification.json').write_text(json.dumps(record))
+        self.run.update(firmware_profile='uefi', firmware=record)
+        self.report.update(firmware_profile='uefi', firmware=record, firmware_inputs_unchanged=True,
+                           uefi_vars_final=self.desktop['binary_evidence'](variables, 8 * 1024 ** 2)[1])
+        previous = argparse.Namespace(memory=4096, cpu_profile='max', video='standard',
+                                      firmware_profile='uefi', network='none', accelerator='tcg')
+        qemu, _, bios, datadir = self.module['tools']('standard')
+        with patch.dict(self.desktop['uefi_paths'].__globals__, {'FIRMWARE_TOOLS': fw}):
+            self.run['command'] = self.desktop['desktop_command'](previous, self.iso, qemu, bios, datadir, self.prior, self.disk)
+        self.run['command'] += ['-qmp', 'pipe:' + str(self.prior / 'qmp')]
+        self.save()
+        return fw, variables
+
+    def test_stopped_manual_uefi_requires_exact_final_vars_and_explicit_profile(self):
+        fw, variables = self.uefi_source_fixture()
+        with patch.dict(self.desktop['uefi_paths'].__globals__, {'FIRMWARE_TOOLS': fw}), patch.dict(self.module['manual_uefi_source'].__globals__, {'ROOT': self.root}):
+            source = self.module['manual_source'](self.result_path)
+            self.assertEqual(source['uefi_vars_baseline'], self.report['uefi_vars_final'])
+            self.assertNotEqual(source['uefi_vars_baseline']['sha256'], source['firmware']['inputs']['template']['sha256'])
+            # BIOS default cannot silently adopt an EFI installation.
+            self.refuse()
+            self.args.firmware_profile = 'uefi'
+            self.desktop['require_source_firmware'](self.args, source)
+            variables.write_bytes(b'X' * 32)
+            self.refuse()
+
+    def test_manual_uefi_refuses_ambiguous_or_incomplete_firmware_seals(self):
+        fw, variables = self.uefi_source_fixture()
+        self.args.firmware_profile = 'uefi'
+        with patch.dict(self.desktop['uefi_paths'].__globals__, {'FIRMWARE_TOOLS': fw}), patch.dict(self.module['manual_uefi_source'].__globals__, {'ROOT': self.root}):
+            original = self.report['uefi_vars_final']
+            for bad in (None, {}, self.report['firmware']['vars_copy_initial']):
+                with self.subTest(bad=bad):
+                    self.report['uefi_vars_final'] = bad
+                    self.save()
+                    self.refuse()
+            self.report['uefi_vars_final'] = original
+            self.report['firmware_inputs_unchanged'] = False
+            self.save()
+            self.refuse()
+            self.report['firmware_inputs_unchanged'] = True
+            self.save()
+            variables.unlink()
+            variables.symlink_to(fw / self.desktop['UEFI_MEMBERS']['template'])
+            self.refuse()
+
+    def test_manual_uefi_refuses_changed_original_firmware(self):
+        fw, variables = self.uefi_source_fixture()
+        self.args.firmware_profile = 'uefi'
+        with patch.dict(self.desktop['uefi_paths'].__globals__, {'FIRMWARE_TOOLS': fw}), patch.dict(self.module['manual_uefi_source'].__globals__, {'ROOT': self.root}):
+            code = fw / self.desktop['UEFI_MEMBERS']['code']
+            original = code.read_bytes()
+            code.write_bytes(b'changed-original-code')
+            self.refuse()
+            code.write_bytes(original)
+            # Even restored bytes have changed identity/timestamps and remain refused.
+            self.refuse()
+
+    def test_manual_uefi_refuses_hardlinked_vars(self):
+        fw, variables = self.uefi_source_fixture()
+        self.args.firmware_profile = 'uefi'
+        with patch.dict(self.desktop['uefi_paths'].__globals__, {'FIRMWARE_TOOLS': fw}), patch.dict(self.module['manual_uefi_source'].__globals__, {'ROOT': self.root}):
+            os.link(variables, self.prior / 'vars-alias.fd')
+            self.refuse()
+
     def test_manual_provenance_is_separate_from_installed_proof(self):
         source = self.module['manual_source'](self.result_path)
         self.assertEqual(source['kind'], 'manual-live-disk')
