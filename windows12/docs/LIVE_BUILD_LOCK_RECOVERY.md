@@ -65,4 +65,29 @@ The guard rejects loader/auto-script/environment overrides, unknown stage flags,
 
 The sole recovery evidence file is bounded `/project-output/builder-recovery.json`, with schema1, matching `recovery_nonce`, before/after inventory digests/summaries and each quarantine path/stat/empty-file hash. `recovery_performed:true` is written only after successful guarded quarantine and all preservation checks. On a partial failure, moved files remain quarantined and the report stays false; reconcile rather than retry blindly. The helper never invokes lb, APT, mount, chroot or package repair. Parent owns the explicit public-stage continuation wrapper and must review before any recovery boot. No recovery has been performed at this checkpoint, and no successful image/resume claim follows from AST validation.
 
+## Parent-measured continuation and new APT failure
+
+Parent reports continuation99234 passed the nonce-bound recovery guard and preservation checks, quarantining exactly `.lock`; evidence `artifacts/vm-build/builder-recovery.json`. Public `lb chroot` preparation resumed, then target APT update failed cleanly with100 while parsing `deb.debian.org_debian_dists_trixie_main_i18n_Translation-en` and `security.debian.org_dists_trixie-security_contrib_binary-amd64_Packages`, reporting a corrupted package cache. Parent confirmed guest/supervisor exit1 and monitor24092 exit0. This is a failed build, not a completed resume or ISO. The above earlier no-execution statements describe their checkpoint; this paragraph records the later parent execution.
+
+Before selecting a repair, extend the read-only inventory to establish current target dpkg/stage/cache state. Do not assume the previously observed144-package status/hash and stage set survived unchanged. The inspector now inventories target `/var/lib/apt/lists` metadata, reads only the two exact reported index files through bounded64MiB no-follow regular-file reads, records their full SHA256/size and first64 bytes as hex, and records metadata/absence of `/var/cache/apt/pkgcache.bin` and `srcpkgcache.bin`. It performs no removal, rename, APT invocation or repair. Host AST validation only; parent owns a fresh inspection boot and report review.
+
+A possible next step is a separately reviewed exact-path quarantine of reproducible APT indexes/binary caches after actual inventory and preserved-dpkg/source checks, followed by ordinary signed APT index reacquisition through the public build stage. No such cleanup is implemented or authorized by this paragraph. Never disable APT signature verification, TLS verification or force package-state repair to suppress these parse errors.
+
+## APT cache semantics and proposed exact-path scope
+
+For source semantics only, this reviewer fetched official `apt_3.0.3.tar.xz` from https://deb.debian.org/debian/pool/main/a/apt/apt_3.0.3.tar.xz into `.work/lock-review/`. Observed SHA256 `5b5f6f6d26121742a83aa80d4ed0eb0c6ce9bea259518db412edefd95760e4ef`; no source-package signature was checked and none of its code was executed or installed. The earlier target inventory recorded APT3.0.3; fresh inventory must establish current state.
+
+`doc/apt.conf.5.xml750–767` distinguishes downloaded package lists (`Dir::State::lists`) from the dpkg status file and from reproducible binary `pkgcache`/`srcpkgcache` caches; it documents disabling generation of either binary cache. `apt-pkg/init.cc139–148` sets the default list/cache names. `doc/apt-get.8.xml44–53` describes ordinary update as fetching/resynchronizing package indexes from configured sources. `apt-pkg/pkgcachegen.cc1713 onward` checks cache validity and rebuilds invalid/missing caches from the available indexes/status. These are reasons an index/cache quarantine is potentially recoverable; they are not evidence that any particular current file is corrupt.
+
+The generic corrupted-cache error alone does not establish which persisted binary file exists or is bad: `apt-pkg/pkgcache.cc166–205` also rejects invalid/dirty cache state. Index parsing errors and fresh byte inventory must guide selection. An empty index can be legitimate for a repository section; a zero-byte file must not be labeled corrupted merely from size.
+
+After the fresh report is reviewed, the maximum proposed allowlist is these four exact paths under the retained target, with absent optional files skipped:
+
+- `/root/windows12-build/chroot/var/lib/apt/lists/deb.debian.org_debian_dists_trixie_main_i18n_Translation-en`
+- `/root/windows12-build/chroot/var/lib/apt/lists/security.debian.org_dists_trixie-security_contrib_binary-amd64_Packages`
+- `/root/windows12-build/chroot/var/cache/apt/pkgcache.bin`
+- `/root/windows12-build/chroot/var/cache/apt/srcpkgcache.bin`
+
+A future guard must bind a new approved source/config/status/stage snapshot, verify quiescence and each exact regular/non-symlink/single-link file's stat/hash, then rename selected files into a separate nonce quarantine with evidence and verify all unrelated target state unchanged. Never erase the lists directory, InRelease/Release/signature files, sources/trust configuration, package archives, dpkg database, completed stage flags or bootstrap cache. A following normal public-stage APT update must reacquire and validate required indexes with existing authentication intact; failure remains failure. Do not automatically grow the allowlist if another filename fails. No cleanup code for this new issue has been implemented; inventory review and explicit parent implementation remain pending.
+
 Parent integration adds fsync of report/quarantine parent directories and both directories involved in each rename before checkpoint export. This strengthens guest filesystem persistence; actual abrupt-host-loss durability is still unmeasured and must not be claimed from source. No cache/stage payload is altered by these directory flushes.

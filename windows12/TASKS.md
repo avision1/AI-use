@@ -33,6 +33,8 @@
 
 | W12-027 | Sequential post-build validation queue | 005,019,007,011 | lead/fixture_review_nov05 | source reviewed; waiting-cancel passed;77475 canceled before gates; requeue after resume | No concurrent guests; frozen source/ISO/controller identity; cooperative helper cleanup; distinct evidence flags; actual gates pending |
 
-| W12-028 | Stale live-build lock recovery | 010 | fixture_review_nov05/lead | actual inventory passed; guarded continuation source reviewed; runtime next | Preserve original/cache/stage flags; guarded guest-only stale lock cleanup; actual resumed build evidence |
+| W12-028 | Stale live-build lock recovery | 010 | fixture_review_nov05/lead | done for observed lock: actual guard/quarantine/preservation passed; public chroot resumed; APT-cache blocker030 | Preserve original/cache/stage flags; guarded guest-only stale lock cleanup; actual resumed build evidence |
 
 | W12-029 | Read-only stopped-builder inventory mode | 028 | lead/fixture_review_nov05/inspect_wrapper_review | done: inspection25448 exit0/fresh report/no errors; no cleanup or ISO claims | Separate nonce-bound report, no recipe/cleanup, guarded existing disk, no false ISO success |
+
+| W12-030 | Preserve/refresh corrupted target APT index cache | 028,029 | fixture_review_nov05/lead | read-only extension reviewed; fresh inspection next; cleanup not implemented | Actual cache evidence; bounded quarantine; target dpkg/stages preserved; signed refresh and resumed build |

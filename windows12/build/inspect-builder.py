@@ -122,6 +122,18 @@ def package_summary(path):
             'note': 'Database records only; no dpkg repair or application execution.'}
 
 
+def apt_index(path):
+    item = observe(path)
+    if not item['exists']:
+        return item
+    if item['type'] != 'regular':
+        raise ValueError('Unexpected target APT index type; not followed: ' + str(path))
+    raw = read_regular(path, 64 * 1024 * 1024)
+    item.update(sha256=hashlib.sha256(raw).hexdigest(), header_hex=raw[:64].hex(),
+                content_read_bound_bytes=64 * 1024 * 1024)
+    return item
+
+
 def processes():
     result = []
     unreadable = []
@@ -193,6 +205,17 @@ def main():
     report['target_apt_archives'] = attempt(report, 'target apt archives', lambda: entries(BUILD / 'chroot/var/cache/apt/archives', 256))
     report['target_apt_partial'] = attempt(report, 'target apt partial', lambda: entries(BUILD / 'chroot/var/cache/apt/archives/partial', 128))
     report['bootstrap_package_cache'] = attempt(report, 'bootstrap packages', lambda: entries(BUILD / 'cache/packages.bootstrap', 128))
+    report['target_apt_lists'] = attempt(report, 'target apt lists', lambda: entries(BUILD / 'chroot/var/lib/apt/lists', 128))
+    reported_indexes = ('deb.debian.org_debian_dists_trixie_main_i18n_Translation-en',
+                        'security.debian.org_dists_trixie-security_contrib_binary-amd64_Packages')
+    report['reported_apt_indexes'] = []
+    for name in reported_indexes:
+        path = BUILD / 'chroot/var/lib/apt/lists' / name
+        report['reported_apt_indexes'].append(attempt(report, str(path), lambda path=path: apt_index(path)))
+    report['target_apt_binary_caches'] = []
+    for name in ('pkgcache.bin', 'srcpkgcache.bin'):
+        path = BUILD / 'chroot/var/cache/apt' / name
+        report['target_apt_binary_caches'].append(attempt(report, str(path), lambda path=path: observe(path)))
     report['source_functions'] = []
     paths = [Path('/usr/share/live/build/functions') / name for name in ('lockfile.sh', 'exit.sh', 'cache.sh', 'stagefile.sh', 'configuration.sh')]
     paths += [Path('/usr/lib/live/build') / name for name in ('build', 'bootstrap', 'bootstrap_cache', 'chroot', 'chroot_prep', 'chroot_cache', 'chroot_tmpfs')]
