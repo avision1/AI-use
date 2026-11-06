@@ -1,0 +1,62 @@
+{
+  "final-cedar-guided-linux-x64": {
+    "original": "77e285cad85969a3ca32d180c2cf494425f50b24a87d4cfdf0f623832ea7016f",
+    "patched": "fc1b51c80da7b96e3b326bec1dc185431fc0c4edadf8a580b69b3891b6dee8db",
+    "offset": 12344
+  },
+  "final-cedar-independent-linux-x64": {
+    "original": "3724111978738b3841b6403005043325a6f78543726e4642d81ee229deec7e13",
+    "patched": "a20799e629cdbb8739da015c71a9701d7d5f237342f421f334c4e5e8cf02fe30",
+    "offset": 12344
+  },
+  "final-cedar-guided-mingw-x64.exe": {
+    "original": "75999f50ba4901ceebc6d40eec50563c21410566e363754c08a191af2bf56ecb",
+    "patched": "9d492ef3b630665e5493ed0fc9d8aedefbd7e5ab431a79be7ea4f1fbebc818be",
+    "offset": 30208
+  },
+  "final-cedar-independent-mingw-x64.exe": {
+    "original": "e5b4de7b9d4908811b14cd00f4bda77e88a55e828692fdcfca51738c820e8a7e",
+    "patched": "9a0d3862e2e9f7d9f9cf1e5270ede5fa241840d3caf30d2337e26fbe7faa4c8b",
+    "offset": 29696
+  },
+  "final-quartz-guided-linux-x64": {
+    "original": "f504860ddabcee0cb3449e440f819c94bc66e1ff8f662a9bdc72bd884a524c87",
+    "patched": "3402595d483ce7bad6f88caed283bc1b038a88cf9e5159353ef6884157cd1a7b",
+    "offset": 12344
+  },
+  "final-quartz-independent-linux-x64": {
+    "original": "050b10091bb80c989fc0907e39fde6b9829740757066bf9cca8460875e131b08",
+    "patched": "f41d2f80e2dae85ec4a44b207c048825b6d92994479268842825ad12b677695a",
+    "offset": 12344
+  },
+  "final-quartz-guided-mingw-x64.exe": {
+    "original": "c1acdeb8ec29830ec0d0eba652ceca84e21a4ee22c874a721f7f68549d55fa4b",
+    "patched": "f1da91adb336803e85642eed8c8c1cc6af98e9616373a25138ed7d80a032819f",
+    "offset": 30208
+  },
+  "final-quartz-independent-mingw-x64.exe": {
+    "original": "ede4f8af93cdd033803e5347bbaa3bafb90f3e5f59192918b3ffaa6c13b21453",
+    "patched": "2b4f6b60c2290c570f81598d25aefc671dc4fb751bbf9ef5f1e057e8fa64fe1b",
+    "offset": 29696
+  },
+  "final-willow-guided-linux-x64": {
+    "original": "a7bdec6d238d20b540e004938d4ffe01995156c2f1208ae3083e81bccdf7c929",
+    "patched": "2f39c675b7ae72fe2a8c87475ec7b37d10045dea6ff1f92c581275f06200dd5c",
+    "offset": 12344
+  },
+  "final-willow-independent-linux-x64": {
+    "original": "8fbdb28719e634174c7412b1fe8363023f33a03706d2ae0ceb58a46296005112",
+    "patched": "c47e178d0076cde5d40e394db1f710a1d3fe5f6741a53139d7d0c16c8402e75b",
+    "offset": 12344
+  },
+  "final-willow-guided-mingw-x64.exe": {
+    "original": "2b314fe341e2f79c9fe219728b54c1ca088d65f8a45f0c3ea9b79af0fe0364b7",
+    "patched": "328ff9435a80c2ad429188c1c6a8a251483dd5789ad1243f9a8b2719dc8cf9b9",
+    "offset": 30208
+  },
+  "final-willow-independent-mingw-x64.exe": {
+    "original": "2fa7660d37ace93abe29c831fc98b77957038816e2e0bfb32ce05775619d7bc7",
+    "patched": "716b44ffa7dc46f02e68bea10dfaa14c31543100b635855602e75ecb87c504e2",
+    "offset": 29696
+  }
+}

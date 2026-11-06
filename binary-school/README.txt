@@ -1,4 +1,4 @@
-BINARY SCHOOL — LOCALHOST EDITION 1.2
+BINARY SCHOOL — LOCALHOST EDITION 1.3
 ====================================
 
 QUICK START
@@ -42,7 +42,8 @@ Works without internet after extracting:
 * All 137 written lessons and interactive activities across 13 modules and the syllabus coverage map.
 * Fill-in-the-blank questions, checkpoints, worked solutions and self-review.
 * Search, notebook, completion tracking, and progress export/import.
-* Local downloads of C sources, assembly listings, scripts and Linux binaries.
+* Local downloads of C sources, assembly listings, scripts, Linux binaries,
+  and native Windows x64 PE practical/final binaries compiled by MinGW GCC.
 * Browser byte editor, executable patch validation, and completion certificate.
 
 Internet is needed for:
@@ -180,3 +181,32 @@ on your Windows installation; they were not executed on the Linux build host.
 Run the included tests from this folder:
   python3 -m unittest discover -s tests -v
 They use temporary loopback servers and do not alter your browser progress.
+
+HIGH-PRIORITY READINESS UPDATE (1.3)
+------------------------------------
+Start with Your first lab environment before assembly/flag challenges. It now
+includes Linux, Windows, Intel Mac and Apple Silicon routes and a local smoke
+test. ARM hosts need compatible x86 execution/emulation for supplied binaries.
+
+Notebook and practical evidence reports autosave while typing. Storage failure
+is reported in the page; notebook failure also prompts before closing. Export
+backups regularly. Import/export includes the new checkpoint/evidence records.
+
+The Practical readiness page separates self-reported completion, correct short
+checkpoints, flags, behavioral predictions and ungraded practical evidence.
+It does not infer past checkpoint success from older completion-only backups.
+
+Advanced flag lessons now include six deeper investigation programs (guided
+then stripped) for xrefs, structs, live state, native Windows APIs, encoded
+probes and complete C reconstruction. Windows files are genuine PE x64 built
+with MinGW-w64 GCC; they are NOT MSVC output. The original C and build scripts
+let Windows users rebuild with MSVC x86/x64 for compiler comparisons.
+
+Lesson94 has a fresh challenge-only pack with three variants. Keep the review
+pack closed until after the attempt; it contains source, answers, a rubric and
+a local behavioral repair verifier. The browser only compares the specified
+exported patch; it never executes uploads. These are ungraded rehearsals.
+
+Verification: new Linux guided/stripped practical behavior and final repairs
+were executed. PE architecture/imports were checked statically. Live Windows
+execution, MSVC builds, and visual browser QA remain unverified on this host.

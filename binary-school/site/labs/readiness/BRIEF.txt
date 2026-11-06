@@ -1,0 +1,43 @@
+BINARY SCHOOL: FRESH FOUR-PART REHEARSAL
+Choose ONE folder: cedar, quartz, or willow. Do not open the review pack yet.
+These are unfamiliar variants of one shared design, not secure randomized exams.
+
+Provided: guided (-O0) and stripped optimized (-O2) Linux x86-64 GCC ELF,
+and native Windows x64 MinGW-w64 GCC PE. PE is NOT MSVC output. Rebuild with
+MSVC after your blind attempt for the required compiler comparison.
+Linux ELF execution needs Linux x86-64 support; PE execution needs Windows.
+Ghidra can statically inspect both formats without executing them.
+
+Contract: program QUANTITY TOKEN PROBE
+QUANTITY is 0..8, PROBE is an integer -100..100, and TOKEN is a string.
+Parser errors exit 2; a blocked/unmatched token exits 3; accepted runs exit 0.
+Wrong argument counts and malformed numbers should be tested too.
+On Windows the PID changes across runs: do not compare that value exactly.
+
+A (25 min): Identify main, charge, unlock and the policy struct. Recover readable
+C including parsing bounds, array indexing/loop bounds, signedness and returns.
+Give addresses/instructions supporting each conclusion; predict five quantities
+before running them. Do not start by searching the supplied source.
+
+B (30 min): Analyze the Windows PE: imports, startup vs main, a UTF-16 string,
+argument locations and one struct access. Convert a backed string's RVA to disk
+offset using its containing section. Record compiler and target honestly.
+After the blind attempt, rebuild the source with MSVC x86 and x64 and compare.
+This portion is incomplete until you have native Windows evidence; static
+analysis alone is still useful if that environment is not available.
+
+C (25 min): Debug stripped ELF. Find the relevant functions without source names.
+Give reproducible breakpoints (use module-relative offsets if ASLR moves them),
+input, live registers/memory, and a test distinguishing two plausible algorithms.
+
+D (30 min): Recover the encoded token and toy probe. This is an explicit input
+model, NOT real debugger detection. Show both probe paths and a temporary bypass.
+Then persistently repair adjustment from 1 to 9 in a COPY of the program.
+Preserve token checking and input validation. Validate quantities 0,1,3,5,8 and
+negative/parser/probe cases. Changing a live register is not a persistent repair.
+The website can validate the narrow data patch. Alternative correct patches can
+be tested using verify-repair.py from the review pack after the attempt.
+
+Spend the remaining 10 minutes testing and recording uncertainty. Save your
+report before downloading the review pack. Use its rubric for diagnosis, not
+as a university grade or proof of mastery. Repeat another variant later.
