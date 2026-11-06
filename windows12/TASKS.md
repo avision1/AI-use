@@ -5,7 +5,7 @@
 | W12-002 | Architecture and compatibility research | 001 | research agent | done | Primary sources; supported/partial/alternative/unsupported; no untested claims |
 | W12-003 | Contained build feasibility and implementation | 001 | build agent | implemented; restored25 guest tests and package gates pass | Runnable tooling; image writes isolated; verified inputs; fail closed |
 | W12-004 | Desktop overlay and Office web integration | 002 | lead | preview2 guest unit/package checks pass; GUI pending | Runnable launchers, welcome/help, Windows-style desktop defaults |
-| W12-005 | Integrate, build and validate milestone image | 003,004 | lead/build agent | guarded resume11322 active; original preserved/new container check0; replay pending | Build logs/checksums; boot and install results or precise blockers |
+| W12-005 | Integrate, build and validate milestone image | 003,004 | lead/build agent | resume11322 clean failure1: stale bootstrap_cache lock; guest25 tests/package rerun pass; repair research | Build logs/checksums; boot and install results or precise blockers |
 | W12-006 | Release checkpoint and sync | 005 | lead | source checkpoints synchronized; release pending | Memory current; reviewed project-only commit synchronized |
 | W12-007 | BIOS ISO evidence capture harness | 003,005 | research agent | guard integrated; all25 guest tests pass; ISO capture pending | Real contained ISO, screenshots/logs, new disposable disk only; no false success claim |
 | W12-008 | Freeze release inputs and harden provenance | 005 | release_inputs/lead | cloud signature research complete (upstream missing); snapshots pending | Snapshot repositories/input authentication; reproducibility records and repeat build |
@@ -13,7 +13,7 @@
 | W12-010 | Reliable interrupted-builder resume | 003 | recovery agent/lead | metadata reboot passed; staged replay pending | Demonstrate interrupted long stage resumes with frozen source and refreshed proxy; current --resume is experimental |
 | W12-011 | Automated BIOS disposable-disk installation and reboot harness | 005,012 | research agent/lead | implemented; unexecuted | Real D-I install callback plus installed boot evidence; no host devices; no Calamares certification |
 | W12-012 | Verified project-local ISO inspection tools | 003 | build agent | done | Authenticated xorriso closure extracted to separate iso-tools; active QEMU files untouched |
-| W12-013 | Bound live-disk synchronization temporary storage | 003 | build agent/lead | sole monitor86299 active; old handles gone; pause branch untested | Exact-prefix age/inode audit, real disk preserved, measure bounded growth; no parallel exec polling |
+| W12-013 | Bound live-disk synchronization temporary storage | 003 | build agent/lead | monitor86299 stopped0 after guest failure; pause branch untested | Exact-prefix age/inode audit, real disk preserved, measure bounded growth; no parallel exec polling |
 | W12-014 | Restore execution access and reconcile original build | 001 | lead/infrastructure | done 2026-11-05: source restored; no old jobs/disks; new build active | Existing job/disk/output state established before any resume/new build; no duplicate VM |
 | W12-015 | Read-only I/O telemetry for stale console diagnosis | 003 | boot_guard/lead | done: two actual QMP snapshots, counter delta validated | Serialized query-blockstats, existing guest unchanged, measured counters and honest limits |
 | W12-016 | Conditional storage-backend feasibility | 013 | boot_guard/lead | research complete; prototype conditional, unimplemented | Primary sources, durability/test obligations; no current VM change; prototype only if sync blocks existing build |
@@ -32,3 +32,7 @@
 | W12-026 | Independent fixture-tool review | 025 | fixture_review_nov05/lead | done: reporting issue fixed; operational checks pass | Source review, bounded ownership, no false runtime claims |
 
 | W12-027 | Sequential post-build validation queue | 005,019,007,011 | lead/fixture_review_nov05 | source reviewed; waiting-cancel passed;77475 canceled before gates; requeue after resume | No concurrent guests; frozen source/ISO/controller identity; cooperative helper cleanup; distinct evidence flags; actual gates pending |
+
+| W12-028 | Stale live-build lock recovery | 010 | fixture_review_nov05/lead | exact-version source review active | Preserve original/cache/stage flags; guarded guest-only stale lock cleanup; actual resumed build evidence |
+
+| W12-029 | Read-only stopped-builder inventory mode | 028 | lead/fixture_review_nov05/inspect_wrapper_review | implemented/reviewed; AST/generated-shell/argument guard pass; actual VM pending | Separate nonce-bound report, no recipe/cleanup, guarded existing disk, no false ISO success |

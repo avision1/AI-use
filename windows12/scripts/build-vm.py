@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Build in a full TCG VM. No host mounts, chroot, package installs or block devices.
-Writable guest storage: .work/builder/build.qcow2 and artifacts/vm-build ONLY.
+Writable guest storage: project-contained .work/builder/build.qcow2;
+exports remain inside project artifacts/ (separate inspection runs).
 """
 from pathlib import Path
-import argparse, hashlib, http.server, json, os, shlex, shutil, subprocess, tarfile, threading, urllib.parse, time, socket, re, fcntl, select, stat, errno
+import argparse, hashlib, http.server, json, os, shlex, shutil, subprocess, tarfile, threading, urllib.parse, time, socket, re, fcntl, select, stat, errno, secrets
 ROOT=Path(__file__).resolve().parents[1]
 HOST_WRAPPER_SHA256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 def bounded(path):
@@ -18,11 +19,16 @@ TOOLS=WORK/'tools'
 OUT=bounded(ROOT/'artifacts/vm-build')
 
 def main():
+ global OUT
  ap=argparse.ArgumentParser(description=__doc__)
  ap.add_argument('--prepare',action='store_true',help='Download checksum-verified official builder image only')
  ap.add_argument('--probe',action='store_true',help='Run QEMU TCG firmware for 10s with no disk/network')
  ap.add_argument('--resume',action='store_true',help='Resume an existing VM disk, not a new build')
+ ap.add_argument('--inspect-resume',action='store_true',help='Boot existing disk only for read-only build-state inventory; separate output, never ISO success')
  args=ap.parse_args()
+ if args.inspect_resume:
+  if not args.resume or args.prepare or args.probe:ap.error('--inspect-resume requires --resume alone')
+  OUT=bounded(ROOT/'artifacts'/('builder-inspect-'+str(time.time_ns())))
  planned_dirs=[WORK,OUT]+[WORK/name for name in ['home','tmp','cache','config','data','state']]
  for p in planned_dirs:bounded(p)
  for p in planned_dirs:p.mkdir(parents=True,exist_ok=True)
@@ -132,6 +138,17 @@ def main():
  if proxy.hostname in ['127.0.0.1','localhost'] and proxy.port:
   proxy_guest=f'http://10.0.2.2:{proxy.port}'
  with tarfile.open(checks) as tf:guest=tf.extractfile('build/guest-build.sh').read().decode()
+ inspection_hash=None;inspection_nonce=None
+ if args.inspect_resume:
+  helper=bounded(ROOT/'build/inspect-builder.py')
+  if helper.is_symlink():raise SystemExit('Inspection helper symlink refused')
+  inspection_bytes=helper.read_bytes();inspection=inspection_bytes.decode('utf-8');inspection_hash=hashlib.sha256(inspection_bytes).hexdigest();inspection_nonce=secrets.token_hex(16)
+  boundary='\nmkdir -p /root/windows12-checks\n'
+  if guest.count(boundary)!=1 or 'WINDOWS12_INSPECTION_PY' in inspection:raise SystemExit('Frozen guest prefix/inspection delimiter requires review')
+  # Keep the frozen shell's host-refusal guard, tee, bounded export and shutdown.
+  # No packaging, apt or live-build recipe stage is executed in inspection mode.
+  guest=guest.split(boundary,1)[0]+"\npython3 - --nonce "+inspection_nonce+" <<'WINDOWS12_INSPECTION_PY'\n"+inspection+"\nWINDOWS12_INSPECTION_PY\n"
+
  user_data='#cloud-config\nwrite_files:\n  - path: /run/windows12-build-vm\n    content: "contained full VM build\\n"\n  - path: /root/build.sh\n    permissions: "0700"\n    content: |\n'+''.join('      '+line+'\n' for line in guest.splitlines())
  if proxy_guest:
   user_data+='  - path: /etc/apt/apt.conf.d/80windows12-build-proxy\n    content: |\n      Acquire::http::Proxy "'+proxy_guest+'";\n      Acquire::https::Proxy "'+proxy_guest+'";\n'
@@ -147,7 +164,7 @@ def main():
  class Handler(http.server.BaseHTTPRequestHandler):
   def do_PUT(self):
    name=self.path.removeprefix('/output/')
-   allowed={'build.exit','guest-build.log','desktop-SHA256SUMS','windows12-amd64-preview.iso','windows12-amd64-preview.packages','SHA256SUMS'}
+   allowed={'build.exit','guest-build.log','desktop-SHA256SUMS','windows12-amd64-preview.iso','windows12-amd64-preview.packages','SHA256SUMS','builder-inspection.json'}
    if not self.path.startswith('/output/') or (name not in allowed and not re.fullmatch(r'windows12-desktop_[A-Za-z0-9.+~_-]+_all\.deb',name)):
     self.send_error(403);return
    target=OUT/name;partial=OUT/(name+'.part')
@@ -187,12 +204,19 @@ def main():
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
- output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
+ output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'inspection':args.inspect_resume,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
  try:
   with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
  finally:server.shutdown()
  status=OUT/'build.exit'
  if not status.exists() or status.read_text().strip()!='0':raise SystemExit('Build incomplete/failed; inspect artifacts/vm-build/serial.log and guest-build.log')
+ if args.inspect_resume:
+  report=output_file(OUT/'builder-inspection.json')
+  if not report.is_file() or report.stat().st_size==0 or report.stat().st_size>256*1024:raise SystemExit('Missing/oversized inspection report')
+  inventory=json.loads(report.read_text())
+  if not isinstance(inventory,dict) or inventory.get('schema')!=1 or inventory.get('inspection_only') is not True or inventory.get('inspection_complete') is not True or inventory.get('inspection_nonce')!=inspection_nonce or inventory.get('cleanup_performed') is not False or inventory.get('resume_verified') is not False:raise SystemExit('Inspection report schema/freshness mismatch')
+  print('Builder inspection exported to',OUT,'; no build/ISO success certified.')
+  return
  iso=OUT/'windows12-amd64-preview.iso'
  if not iso.is_file() or iso.stat().st_size==0:raise SystemExit('Guest reported success without nonempty ISO; refusing success.')
  expected_iso=(OUT/'SHA256SUMS').read_text().split()[0]
