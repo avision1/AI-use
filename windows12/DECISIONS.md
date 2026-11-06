@@ -71,3 +71,8 @@ D041 (2026-11-06): Exact ISO in-target script sends stdout to syslog by default.
 
 D042 (2026-11-06): User reaffirmed standing authorization for nondestructive project work/reversal of own changes and reversible cleanup device-wide, with no routine permission questions. Project artifacts/writes remain contained; no unrelated device cleanup is presently needed (ample free storage). Existing /dev/kvm is accessible without host setup; add explicit KVM/host CPU options for subsequent contained tests, retaining TCG defaults and fail-closed access checks. Never infer KVM startup success from access metadata alone.
 D043 (2026-11-06): Manual Calamares disk review must use distinct provenance rather than fabricated D-I success. Accept only a clean stopped live-harness-created BIOS disk, validate original command/ISO/disk origin and stoppedness, seal it, expose a readonly baseline plus new child, omit ISO, and retain false automatic verification flags until separate actual review. LIVE-only normalUEFI retains a new variables copy and authenticated code/template; installed/manual UEFI admission is not added. New source reviewed/AST parsed, guest/runtime validation pending.
+
+
+## D044 — Keep disk boot and graphical acceptance separate
+
+The actual passstdout installation and ISO-free disk boot both completed0 with matching root/package/configuration proofs and a sealed stopped baseline. This satisfies the BIOS D-I disk-boot gate only. Default live graphics, fresh installed-user layout, Calamares offline installation and UEFI behavior remain separate runtime gates; no GUI success follows from graphical.target/SDDM configuration. Expanded harness tests run in their own disposable VM only after installer shutdown.

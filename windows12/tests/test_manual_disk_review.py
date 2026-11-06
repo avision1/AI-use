@@ -53,7 +53,9 @@ class ManualDiskReviewTests(unittest.TestCase):
         (self.toolroot / 'usr/share/qemu').mkdir(parents=True)
         self.tools_patch = patch.dict(self.desktop, {'TOOLS': self.toolroot})
         self.tools_patch.start()
-        self.lock_globals = self.desktop['exclusive_runner'].__globals__
+        # contextmanager's public wrapper lives in contextlib; patch the actual
+        # boot-helper generator so its real lock uses this isolated fixture.
+        self.lock_globals = self.desktop['exclusive_runner'].__wrapped__.__globals__
         self.lock_patch = patch.dict(self.lock_globals, {'ROOT': self.root})
         self.lock_patch.start()
         self.kill_patch = patch('os.kill', side_effect=ProcessLookupError)

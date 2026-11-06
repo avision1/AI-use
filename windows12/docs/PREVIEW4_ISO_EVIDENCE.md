@@ -22,7 +22,7 @@ The corrected controllers passed all52 tests in the disposable guest, determinis
 
 ## Remaining acceptance
 
-Fresh corrected D-I installation and ISO-free installed-root proof; live Plasma login/workflows; installed desktop login/workflows; separate Calamares installation; UEFI/Secure Boot and physical hardware coverage. Do not recommend replacing an existing computer OS based only on the successful content audit and boot menu. No physical disk operation has been performed.
+The corrected D-I installation and ISO-free installed-root proof have passed, as recorded below. Live default-session Plasma login/workflows, installed desktop login/workflows, separate Calamares installation, UEFI/Secure Boot and physical hardware coverage remain pending. The installed-root proof does not establish a usable graphical session or general device support. No physical disk operation has been performed.
 
 Keep the ISO, checksum manifest, original authenticated inputs, tool archives/locks, frozen source, package manifest and full logs independently preserved. Git preserves source/memory rather than these ignored generated artifacts.
 
@@ -36,18 +36,63 @@ The modified X11 session displayed a bottom panel (`screen-0019.ppm`), respondin
 
 Next diagnostic: a NEW unchanged-ISO guest using the explicit contained Nehalem/2D virtio-vga profile after guest tests. No inference about physical hardware, UEFI or graphics-driver support follows from these software-emulated failures or workarounds.
 
-The new diagnostic-profile controller passed55 guest tests, byte-identical preview4 packaging/dpkg checks and confirmed shutdown in `artifacts/overlay-check-c11fb30393c6f70b20f9472002912b2f/`. Ordinary-permission attempt af7aacea0e12491fe6b08b7615d9a464 failed before VM launch on loopback access; the approved network-enabled retry passed. Corrected installation session8231 is now active in `artifacts/install-serial20-001/`; its eventual result must be inspected, not presumed.
+The new diagnostic-profile controller passed55 guest tests, byte-identical preview4 packaging/dpkg checks and confirmed shutdown in `artifacts/overlay-check-c11fb30393c6f70b20f9472002912b2f/`. Ordinary-permission attempt af7aacea0e12491fe6b08b7615d9a464 failed before VM launch on loopback access; the approved network-enabled retry passed. At that checkpoint, corrected installation session8231 was active in `artifacts/install-serial20-001/`; its later late-command failure is recorded below.
 
 ## Hybrid structure and installation follow-up
 
 Authenticated xorriso metadata review in `.work/iso-media-review/` confirmed MBR isohybrid/GPT/APM structures,55aa MBR signature, bootable BIOS/UEFI ElTorito entries, and the embedded EFI partition with EFI/BOOT/BOOTX64.EFI and GRUBX64.EFI. File identity stayed unchanged. The report's GPT overlapping notation was retained, not diagnosed as corruption. PhysicalUSB and UEFI runtime remain untested.
 
-Corrected D-I installation8231 passed its exact guard, partitioned/formatted the new vda, and progressed beyond filesystem copying into installed-root configuration. One software-emulated guest watchdog warning during tar copy was retained in the serial log; copy progress continued. Completion callback and ISO-free proof are still pending.
+Corrected D-I installation8231 passed its exact guard, partitioned/formatted the new vda, and progressed beyond filesystem copying into installed-root configuration. One software-emulated guest watchdog warning during tar copy was retained in the serial log; copy progress continued. Completion callback and ISO-free proof were pending at that intermediate checkpoint; the subsequent late-command failure is recorded below.
 
 Actual Calamares configuration review used authenticated read-only unsquashfs data under `.work/calamares-review-001/` and002. Required gates include live-user pkexec launch, offline APT behavior, partition/account choices, GRUB installation, removal/autoremove preserving the desktop and overlay, ISO-free login/reboot, and independent session/render verification. It unpacks pristine SquashFS, so live RAM workarounds do not transfer to the target. This route needs its own runtime acceptance; the D-I harness cannot certify it.
 
 ## Late-verification correction
 
-The serial20 test reached root copy and GRUB, then failed the custom late command. Exact initrd in-target analysis confirmed stdout is suppressed unless --pass-stdout is first argument; the unchanged package-status grep therefore saw no text. The controller fix preserves the exact check and adds serial xtrace. Prior owned controller was cooperatively stopped130 after PID/argv verification; disk/logs remain preserved. New full installation93139 in artifacts/install-passstdout-001 is pending. These are harness corrections; the ISO hash/content remains unchanged and no success marker is synthesized.
+The serial20 test reached root copy and GRUB, then failed the custom late command. Exact initrd in-target analysis confirmed stdout is suppressed unless --pass-stdout is first argument; the unchanged package-status grep therefore saw no text. The controller fix preserves the exact check and adds serial xtrace. Prior owned controller was cooperatively stopped130 after PID/argv verification; disk/logs remain preserved. Fresh full installation93139 used `artifacts/install-passstdout-001/`; its eventual successful installed-root proof is recorded below. These are harness corrections; the ISO hash/content remains unchanged and no success marker is synthesized.
 
-The passstdout retry's traced late verification passed, and completion-callback.json was received. At the latest observation, D-I was still regenerating the installed target initramfs. Callback alone does not establish completed installation or ISO-free boot; all such flags remain pending. Expanded KVM/normalUEFI/manual-disk source is reviewed and syntax-checked, with actual firmware archive/input comparison passed, but expanded guest/runtime validation is queued behind this exact installer. No host setup or physical-disk action occurred.
+The passstdout retry's traced late verification passed, and `artifacts/install-passstdout-001/completion-callback.json` records the callback at Unix timestamp 1793981503.0225112. At an intermediate parent observation, installation session 93139 was still active at approximately 59 minutes elapsed, displaying 40% `remove-live-packages` after an earlier initramfs rebuild. At that moment the installation and disk-boot flags remained false: the callback did not establish completion. The installer subsequently completed cleanup and the separate ISO-free boot proof passed, as recorded below. No success marker was synthesized and no cleanup step was skipped.
+
+## Exact installer cleanup source review
+
+Read-only extraction from this ISO is retained under `.work/installer-cleanup-review-1793982496474838322/`, with the source ISO path/stat identity and archive hashes in `provenance.json`, and extraction output in `xorriso.log`. The project xorriso executable and its cached archive were compared against the authenticated tool lock before use. Only package data was inspected; no installer script was executed on the host. ISO size, inode and modification/change times remained unchanged.
+
+| Exact ISO input | SHA256 |
+|---|---|
+| `/pool-udeb/main/l/live-installer/live-installer_58_amd64.udeb` | `b60df57cd03c6a13b853ef78360ea563020cf7fe04d4de999e1465d38a954b72` |
+| `/pool-udeb/main/f/finish-install/finish-install_2.124_all.udeb` | `16580af7d2aca8db76485c58f750b2a7f9b466a2ecd4be68fe33f4dc22bee95c` |
+
+The live-installer archive contains `usr/lib/finish-install.d/14remove-live-packages`, SHA256 `be8b7fe176a12ad0edfa94112133531ef880b56c884b6b35f1af9e10f0fa724b`. The ISO tree has no `/live/filesystem.packages-remove`, so the script uses its manual removal branch: it checks for live-specific packages and invokes `in-target apt-get --yes purge` for those still present. The ISO manifest includes live-boot, live-boot-initramfs-tools, live-config, live-config-systemd and calamares-settings-debian. If removal occurred, the script then invokes `in-target update-initramfs -k all -u`, followed by `in-target apt-get --yes autoremove`. Package removal hooks can add initramfs work before that explicit rebuild.
+
+The finish-install archive also contains `usr/lib/finish-install.d/10update-initramfs`, SHA256 `804619a204e52220f893e81147acb2bba9897e833a483965869f0774102d913a`. It can request an earlier initramfs refresh for the cryptsetup/console-setup combination or loaded bochs/cirrus modules. Thus the transition from `update-initramfs` to `remove-live-packages` does not establish that all initramfs work has finished.
+
+There is no explicit question in `14remove-live-packages`, and its APT calls supply `--yes`. `in-target` still uses the debconf passthrough frontend, so that flag alone cannot exclude every possible package-script question. At review time, the serial log showed the cleanup label and clock updates, without a new question or error. The later `20final-message` uses `finish-install/reboot_in_progress`, which the harness already preseeds.
+
+These sources explained operations that could take time under TCG, without establishing a completion time. At that checkpoint, the parent's advancing write counters and busy QEMU process supported continued activity. The guest was preserved until cleanup and installer shutdown completed, followed by the separate ISO-free proof. Callback receipt was not substituted for either result.
+
+
+## Successful BIOS installation and ISO-free installed-root boot
+
+Owned controller session 93139 exited 0. `artifacts/install-passstdout-001/result.json` now records `outcome: installed-root-boot-proof-passed`, `completion_callback: true`, `install_verified: true` and `disk_boot_verified: true`. Both `install_run` and `boot_run` returned 0 without timing out. The result finished at Unix timestamp 1793983164.8832436, or 2026-11-06 16:39:24 UTC.
+
+The installation used the unchanged preview4 ISO and a new project-contained virtual disk. `artifacts/install-passstdout-001/installed-boot-run.json` records the second BIOS/TCG invocation with only that disk, `-boot order=c` and `-nic none`: no ISO, direct kernel/initrd or host share was attached. Its serial evidence is `artifacts/install-passstdout-001/installed-boot-serial.log`, including the matching one-shot token:
+
+```text
+WINDOWS12_INSTALLED_BOOT_OK:267337ed9a77d14b8f246bf4 root=/dev/vda1 package=0.1.0~preview4 proof_once=267337ed9a77d14b8f246bf4
+```
+
+The matching configuration marker and `configuration_audit` report `graphical.target`, `sddm.service`, `/usr/bin/sddm`, and absence of the known transient build CA and proxy entries. The proof also checked the installed desktop package and test account. `proof_service_one_shot` and `proof_stamp_reported` are true. These are installed-root/configuration checks, not evidence that SDDM or Plasma rendered or accepted a graphical login.
+
+The stopped standalone baseline is retained at `artifacts/install-passstdout-001/disposable-install.qcow2`:
+
+- File size: 9,391,964,160 bytes.
+- Sealed SHA256: `58bcaea9b07c88797ac80fd8aed126862a1459561d061763a94764fecf74ffad`.
+- Producer seal identity: device 66306, inode 10092574, mtime_ns 1793983146184567999.
+
+`gui_verified` and `configuration_audit.gui_runtime_verified` remain false. Default live/installed desktop workflows, Calamares installation, UEFI runtime, Secure Boot and hardware acceptance remain separate pending gates. The baseline must be preserved; later graphical review uses a fresh writable child above its explicit read-only graph.
+
+The expanded KVM/normal-UEFI/manual-disk controller suite is now running in a separate contained check VM, owner session 19616, log `.work/overlay-check.log`. Its result is pending at this checkpoint; source review and firmware input verification do not constitute its runtime pass. No host setup or physical-disk action occurred.
+
+
+## Expanded harness checks
+
+The first expanded run2e5f15f759bd4fbc5a770de8f78cd814 ran82 tests but stopped1 on two manual-review fixture failures. The fixture patched contextlib wrapper globals instead of exclusive_runner.__wrapped__.__globals__; no runtime lock was removed or mocked away. After correcting only the test fixture, artifacts/overlay-check-cab87aa07f654e7123fe1234a8e50838 passed all82 guest tests, deterministic9970-byte preview4 package/dpkg checks and confirmed QEMU shutdown. Source SHA256b5cab90cce74b440d596cb68636ccb4b0d8d26c9a5beed9032f10955ae838434; package hash remains cf4652f5ef2054388a6377e908c2673c78a7c003cee9362e003a9c61f4aa8075. Installed GUI session51793 is now active in artifacts/installed-desktop-virtio-001 using KVM/host/plain2Dvirtio and a NEW child over the sealed baseline; actual login/workflow evidence is pending.

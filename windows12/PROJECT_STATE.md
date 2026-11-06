@@ -1,5 +1,14 @@
 # Project state — 2026-11-06 UTC
 
+## Installed disk boot passed — 2026-11-06
+
+This supersedes older active-install checkpoints. Main before this update: 1fb50c2a67191b81c7b0030a97a4b6370dc749e2. Sole project remains /home/avision/gitclone/AI-use/windows12 on supported Mint22.3/Noble; approximately74GiB free. Installation session93139 has exited0: artifacts/install-passstdout-001/result.json reports installed-root-boot-proof-passed, install_verified=true and disk_boot_verified=true. Both installer and ISO-free boot returned0 without timeout. The real installed-root marker reports /dev/vda1 and windows12-desktop0.1.0~preview4; graphical.target, SDDM and absence of known build CA/proxy entries passed. GUI runtime remains unverified. The proof service disabled itself and reported its persistent one-shot stamp. Stopped baseline: disposable-install.qcow2,9391964160bytes, SHA25658bcaea9b07c88797ac80fd8aed126862a1459561d061763a94764fecf74ffad. Preserve it; graphical tests must use a new child above this sealed readonly baseline.
+
+Actual cleanup completed after multiple package hooks/initramfs rebuilds under TCG; no cleanup bypass was used. Exact-source review is documented in docs/PREVIEW4_ISO_EVIDENCE.md. ISO remains unchanged: SHA2567d36b5847fba7240ee2795bb42ff3ea841652569b7eb983cfec6ea96968ae11c. No physical disks, host packages or boot settings changed.
+
+Expanded guest suite passed82 tests, deterministic packaging/dpkg checks and confirmed shutdown in artifacts/overlay-check-cab87aa07f654e7123fe1234a8e50838/, source SHA256b5cab90cce74b440d596cb68636ccb4b0d8d26c9a5beed9032f10955ae838434. Prior run2e5f15f759bd4fbc5a770de8f78cd814 stopped1 with two fixture failures: contextmanager wrapper globals were patched instead of the real generator; tests now retain the real isolated locking checks. Actual ISO bytes unchanged. Installed graphical test now active, root session51793, artifacts/installed-desktop-virtio-001/. Do not launch another VM while it is active. Next command: poll51793, then send screenshot and inspect its actual capture. It was launched using `python3 -B scripts/desktop-test.py --installed-result artifacts/install-passstdout-001/result.json --output artifacts/installed-desktop-virtio-001 --accelerator kvm --cpu-profile host --video virtio --timeout 1800` in an authorized TTY with project-local HOME/TMPDIR/XDG variables. Require actual login, wallpaper/panel/menu and applications evidence, then separate normal Calamares/offline/account/reboot and UEFI testing. KVM uses only the existing accessible device; no host setup/fallback. Default live Wayland graphics remain an unresolved release gate, not repaired by a successful disk boot.
+
+
 ## Latest installation rerun checkpoint — 2026-11-06
 Current main before this checkpoint: dab9663c15a249a9a8199e3feb0d452b4415d718. Actual ISO and checksum/content audit remain unchanged; no image rebuild is needed for these host test-harness fixes.
 
