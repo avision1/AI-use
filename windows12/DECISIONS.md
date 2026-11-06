@@ -66,3 +66,5 @@ D038 (2026-11-06): After long quiet SquashFS output but advancing I/O, applied d
 D039 (2026-11-06): Actual D-I test failed closed before partitioning because27-byte test serial exceeds virtio-blk20-byte ID. Bound serial to W12+17hex; preserve full callback/proof token and exact guard. Update installed-source reader and fixture together. Corrected candidate52 guest tests/package/shutdown passed. No ISO change or test-success waiver.
 
 D040 (2026-11-06): Prepare normal UEFI firmware via a separate authenticated ovmf-only profile, keeping mapped VM tools unchanged. Preserve package/readme/descriptor and plain CODE4M + original empty VARS4M; future guests need readonly code and a new output-local vars copy. Actual UEFI tests pending; empty vars and smm=off must never be described as Secure Boot validation.
+
+D041 (2026-11-06): Exact ISO in-target script sends stdout to syslog by default. Use --pass-stdout for the package-status pipeline; keep grep exact. Route late-script xtrace to guest serial. Preserve failed installed disk; rerun full fresh installation rather than fabricating callback/proof. Owned-controller SIGINT cleanup verified.

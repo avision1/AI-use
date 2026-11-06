@@ -1,5 +1,17 @@
 # Windows12 restart handoff — 2026-11-06 UTC
 
+## Latest installation rerun checkpoint — 2026-11-06
+Current main before this checkpoint: dab9663c15a249a9a8199e3feb0d452b4415d718. Actual ISO and checksum/content audit remain unchanged; no image rebuild is needed for these host test-harness fixes.
+
+Installation8231 (`artifacts/install-serial20-001/`) passed the20-byte exact disk guard, partitioned/formatted its new virtual disk, copied the root filesystem, configured packages and installed GRUB. Its custom preseed late verification failed with exit1 before callback. Exact initrd inspection identified the cause: usr/bin/in-target redirects stdout through log-output unless --pass-stdout is first argument; the package-status pipe was empty. Exact initrd SHA2568de544ab627ab794504c530c82de621814386b5b67a492f1e3133390c47ea933; in-target SHA2561f48fddbcebfae9fe2d2a30e053f7fb3861b32ee0a3f60e99b4815b8b0e960da. This is a test-verification failure, not an installation pass.
+
+After verifying the recorded QEMU argv/PID and its exact controller parent/output, parent sent SIGINT to that owned controller107546. It completed cooperative cleanup; session8231 exited130 and result outcome interrupted. Its partially installed disk/logs remain unchanged for evidence. No second QMP client or broad process kill was used.
+
+Fixed late query to in-target --pass-stdout dpkg-query, retaining exact installed-package check; sh -x output now goes to guest ttyS0 for diagnosis. Syntax/diff checks passed. Current fresh full retry: owner root session **93139**, `artifacts/install-passstdout-001/`, log `.work/install-passstdout-001.log`, install timeout7200s based on measured slow TCG progress. NEW disposable disk; prior disks retained. Do not launch another VM while93139 holds runner.lock. Completion callback, stopped installation, ISO-free boot/config markers and sealed baseline remain mandatory; no install/GUI success claimed yet.
+
+Next: poll93139 and its result/serial logs. On proven success, start an ISO-free installed desktop child using `python3 -B scripts/desktop-test.py --installed-result artifacts/install-passstdout-001/result.json --output artifacts/installed-desktop-virtio-001 --cpu-profile Nehalem --video virtio --timeout 1800` in a TTY. Then require separate real graphical Calamares installation/account/reboot checks, plus normalUEFI validation as feasible. User requires2–3 state sentences on each continue, a blank line, then1–2 progress sentences; regular project-only main checkpoints and no permission questions. No physical installation or host-package/boot-setting changes.
+
+
 ## Actual ISO checkpoint — 2026-11-06
 Sole project `/home/avision/gitclone/AI-use/windows12/`; source main before this work `81b7db446a6457904ed94e02e9c5867a405cb7b6`. The existing builder completed0 and stopped. A real hybrid amd64 ISO exists: `artifacts/vm-build/windows12-amd64-preview.iso`, 3579805696bytes, SHA256 `7d36b5847fba7240ee2795bb42ff3ea841652569b7eb983cfec6ea96968ae11c`. Source archive SHA256 `027051ef7e6da1be12cabb3664a06ce5be0801a307acfc89bd7cb2dfa288b6e9`. Original logs/package manifest/checksums retained; do not rebuild or resume the completed builder. Approximately91GiB free at reconciliation. Prior builder9951, monitor79065 and queue65173 all terminated; they are not active jobs now.
 

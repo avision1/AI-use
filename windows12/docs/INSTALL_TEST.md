@@ -1,5 +1,7 @@
 # Disposable Debian live-installer test
 
+Actual preview4 runs: first stopped before partitioning on an overlong test serial; bounded20-byte serial fixed. Second reached complete root copy/GRUB but its custom late query failed because in-target redirected stdout. The exact ISO helper was inspected and --pass-stdout added; late-script tracing now goes to ttyS0. Both failures and disks are preserved. Fresh end-to-end retry93139 is active; no successful installed boot or graphical installer is certified yet. See PREVIEW4_ISO_EVIDENCE.md and current HANDOFF.
+
 `scripts/install-test.py` prepares an unattended **Debian Installer (D-I)** installation from this project's live ISO, then boots its new virtual disk without the ISO. This tests the ISO's D-I live-installer route. It does not exercise Calamares or certify a graphical login, Office, hardware, UEFI or Secure Boot.
 
 No execution is claimed here. The harness must wait for an actual ISO, and must not compete with an active source-build VM for resources. Read PROJECT_STATE.md and check running jobs first.

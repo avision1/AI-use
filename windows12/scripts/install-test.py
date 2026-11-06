@@ -324,7 +324,7 @@ def execute(args, iso, output):
 set -eu
 GUARD
 [ -f /target/etc/debian_version ]
-in-target dpkg-query -W -f='${db:Status-Status}' windows12-desktop | grep -qx installed
+in-target --pass-stdout dpkg-query -W -f='${db:Status-Status}' windows12-desktop | grep -qx installed
 mkdir -p /target/usr/local/sbin /target/etc/systemd/system/multi-user.target.wants
 cat > /target/usr/local/sbin/windows12-install-proof <<'PROOF'
 #!/bin/sh
@@ -444,7 +444,7 @@ d-i grub-installer/bootdev string /dev/vda
 d-i cdrom-detect/eject boolean false
 d-i finish-install/reboot_in_progress note
 d-i debian-installer/exit/poweroff boolean true
-d-i preseed/late_command string wget -O /tmp/windows12-late.sh {endpoint}/late-{token}.sh && sh /tmp/windows12-late.sh
+d-i preseed/late_command string wget -O /tmp/windows12-late.sh {endpoint}/late-{token}.sh && sh -x /tmp/windows12-late.sh >/dev/ttyS0 2>&1
 '''
         (output / 'preseed.cfg').write_text(preseed)
         (output / 'late-install.sh').write_text(late)
