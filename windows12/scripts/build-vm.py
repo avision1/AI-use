@@ -24,11 +24,13 @@ def main():
  ap.add_argument('--prepare',action='store_true',help='Download checksum-verified official builder image only')
  ap.add_argument('--probe',action='store_true',help='Run QEMU TCG firmware for 10s with no disk/network')
  ap.add_argument('--resume',action='store_true',help='Resume an existing VM disk, not a new build')
+ ap.add_argument('--package-stage',action='store_true',help='Select explicit security-upgraded package-stage profile for read-only inspection')
  ap.add_argument('--plan-package-downloads',action='store_true',help='Export exact signed-catalog package download plan from retained target; no install/build')
  ap.add_argument('--inspect-resume',action='store_true',help='Boot existing disk only for read-only build-state inventory; separate output, never ISO success')
  ap.add_argument('--continue-after-bootstrap',action='store_true',help='Explicit recovery boot: verify retained bootstrap and continue public stages, preserving frozen source')
  ap.add_argument('--refresh-target-indexes',action='store_true',help='Explicitly quarantine the two inspected bad APT indexes and regenerable binary caches; requires guarded continuation')
  args=ap.parse_args()
+ if args.package_stage and not args.inspect_resume:ap.error('--package-stage requires --resume --inspect-resume')
  if args.plan_package_downloads:
   if not args.resume or args.prepare or args.probe or args.inspect_resume or args.continue_after_bootstrap or args.refresh_target_indexes:ap.error('--plan-package-downloads requires --resume alone')
   OUT=bounded(ROOT/'artifacts'/('package-plan-'+str(time.time_ns())))
@@ -157,7 +159,7 @@ def main():
   if guest.count(boundary)!=1 or 'WINDOWS12_INSPECTION_PY' in inspection:raise SystemExit('Frozen guest prefix/inspection delimiter requires review')
   # Keep the frozen shell's host-refusal guard, tee, bounded export and shutdown.
   # No packaging, apt or live-build recipe stage is executed in inspection mode.
-  guest=guest.split(boundary,1)[0]+"\npython3 - --nonce "+inspection_nonce+" <<'WINDOWS12_INSPECTION_PY'\n"+inspection+"\nWINDOWS12_INSPECTION_PY\n"
+  guest=guest.split(boundary,1)[0]+"\npython3 - --nonce "+inspection_nonce+(' --package-stage' if args.package_stage else '')+" <<'WINDOWS12_INSPECTION_PY'\n"+inspection+"\nWINDOWS12_INSPECTION_PY\n"
 
 
  if args.plan_package_downloads:
@@ -241,7 +243,7 @@ def main():
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
- output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'package_planning':args.plan_package_downloads,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
+ output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'package_planning':args.plan_package_downloads,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'package_stage_inspection':args.package_stage,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
  try:
   with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
  finally:server.shutdown()

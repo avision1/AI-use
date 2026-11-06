@@ -157,7 +157,15 @@ def provenance():
 
 def catalogs(workspace, env):
     lists = ROOT / 'var/lib/apt/lists'
-    keyring = Path('/usr/share/keyrings/debian-archive-keyring.gpg')
+    keyring = next((p for p in (Path('/usr/share/keyrings/debian-archive-keyring.pgp'),
+                                Path('/usr/share/keyrings/debian-archive-keyring.gpg')) if p.exists()), None)
+    if keyring is None:
+        raise ValueError('Builder Debian archive keyring is absent')
+    keyring_evidence = evidence(keyring)
+    verifier = next((p for p in (Path('/usr/bin/gpgv'), Path('/usr/bin/sqv')) if p.exists()), None)
+    if verifier is None:
+        raise ValueError('Builder has neither gpgv nor sqv')
+    verifier_evidence = evidence(verifier, 16 * 1024 * 1024)
     verified, records = [], []
     release_paths = sorted(lists.glob('*_InRelease'))
     if not release_paths or len(release_paths) > 16:
@@ -166,8 +174,9 @@ def catalogs(workspace, env):
     for number, release in enumerate(release_paths):
         regular(release, 8 * 1024 * 1024)
         clear = workspace / ('release-' + str(number))
-        run(['/usr/bin/gpgv', '--keyring', str(keyring), '--output', str(clear), str(release)],
-            workspace, 'gpgv-' + str(number), env=env)
+        command = [str(verifier), '--keyring', str(keyring), '--output', str(clear)]
+        command += (['--cleartext', str(release)] if verifier.name == 'sqv' else [str(release)])
+        run(command, workspace, 'signature-' + str(number), env=env)
         fields = list(paragraphs(regular(clear, 8 * 1024 * 1024)))[0]
         now = time.time()
         for field in ('Date', 'Valid-Until'):
@@ -204,12 +213,14 @@ def catalogs(workspace, env):
             item.update(uncompressed_sha256=sha, uncompressed_size=len(raw), release_path=relative)
             covered.append(item)
             matched.add(p.name)
-        verified.append({'inrelease': evidence(release, 8 * 1024 * 1024), 'indexes': covered})
+        verified.append({'inrelease': evidence(release, 8 * 1024 * 1024), 'indexes': covered, 'verifier': verifier_evidence})
     # Local unsigned file repository is explicitly excluded from remote trust.
     unexpected = [p.name for p in lists.iterdir() if '_Packages' in p.name and p.name not in matched and not p.name.startswith('_packages_')]
     if unexpected or not matched:
         raise ValueError('Unverified or absent remote package catalogs: ' + repr(unexpected))
-    return records, verified, evidence(keyring)
+    if evidence(keyring) != keyring_evidence or evidence(verifier, 16 * 1024 * 1024) != verifier_evidence:
+        raise ValueError('Builder signature trust inputs changed')
+    return records, verified, keyring_evidence
 
 
 def main():

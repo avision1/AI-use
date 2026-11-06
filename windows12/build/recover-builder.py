@@ -24,6 +24,12 @@ EMPTY_SHA = hashlib.sha256(b'').hexdigest()
 RUNTIME = {'chroot_devpts', 'chroot_proc', 'chroot_selinuxfs', 'chroot_sysfs'}
 BASE_FLAGS = {'config', 'bootstrap', 'bootstrap_cache.save', 'chroot_apt', 'chroot_debianchroot',
               'chroot_dpkg', 'chroot_hostname', 'chroot_hosts', 'chroot_resolv', 'chroot_sysv-rc'}
+PACKAGE_STAGE_FLAGS = BASE_FLAGS | {
+    'chroot_archives', 'chroot_firmware', 'chroot_includes_before_packages',
+    'chroot_linux-image', 'chroot_package-lists.install', 'chroot_preseed'}
+PACKAGE_STAGE_STATUS_SHA = 'cf0bdc5bd7e2c0332cb2906f099c044077321f6583fc4eb45eac7d452b2c91e8'
+PACKAGE_STAGE_MD5_SHA = '1dfcd7999383a91e54e9cec6729910adcabde8b22f102c81294a239bcfc8bb76'
+PACKAGE_STAGE_PROFILE = 'temporary-live-build-security-upgraded-package-stage-os-release-diversion'
 CONFIG = {
     'common': '441614d494379408f1eae97f4aafacc67759dc774487250ac90d1a34c8fc45d6',
     'bootstrap': 'a4bce96a1a100177de14a56ce567484b1583f01315e5d1cc4a34fc4a1cc64397',
@@ -197,7 +203,7 @@ def preserved_list_hashes(inventory):
     return result
 
 
-def validate(inventory, nonce):
+def validate(inventory, nonce, package_stage=False):
     if (inventory.get('schema') != 1 or inventory.get('inspection_only') is not True
             or inventory.get('inspection_complete') is not True or inventory.get('inspection_nonce') != nonce
             or inventory.get('inspection_errors') or inventory.get('live_build_version') != VERSION
@@ -209,6 +215,14 @@ def validate(inventory, nonce):
     payload = inventory.get('target_payload_verification')
     if not isinstance(payload, dict) or payload.get('available_md5_no_unexplained_differences') is not True:
         raise ValueError('Unexplained target payload differences/unknown coverage require review before recovery')
+    if package_stage:
+        classification = payload.get('temporary_preparation_classification', {})
+        if (classification.get('accepted') is not True or classification.get('kind') != PACKAGE_STAGE_PROFILE
+                or payload.get('available_md5_no_reported_differences') is not False
+                or payload.get('stored_md5_file_count') != 144
+                or payload.get('stored_md5_metadata_bytes') != 450161
+                or payload.get('stored_md5_metadata_sha256') != PACKAGE_STAGE_MD5_SHA):
+            raise ValueError('Explicit reviewed security-upgraded package-stage payload profile required')
     overrides = inventory['live_build_overrides']
     if overrides.get('environment_set') or overrides.get('environment_value') is not None or any(
             overrides[name].get('exists') is not False for name in
@@ -239,14 +253,15 @@ def validate(inventory, nonce):
     if not stages.get('exists') or stages.get('truncated'):
         raise ValueError('Complete stage inventory required')
     flags = {Path(item['path']).name: item for item in stages['entries']}
-    if (len(flags) != stages['count'] or not BASE_FLAGS.issubset(flags)
-            or set(flags) - BASE_FLAGS - RUNTIME or not all(valid_empty(item) for item in flags.values())):
+    required_flags = PACKAGE_STAGE_FLAGS if package_stage else BASE_FLAGS
+    if (len(flags) != len(stages['entries']) or len(flags) != stages['count'] or not required_flags.issubset(flags)
+            or set(flags) - required_flags - RUNTIME or not all(valid_empty(item) for item in flags.values())):
         raise ValueError('Unexpected or unsafe stage state; do not fabricate completion flags')
     for name, item in flags.items():
         if item['path'] != str(BUILD / '.build' / name):
             raise ValueError('Unexpected stage path')
     database = inventory['chroot_dpkg']
-    if database.get('status_sha256') != STATUS_SHA or database.get('status_counts') != {'install ok installed': 144}:
+    if database.get('status_sha256') != (PACKAGE_STAGE_STATUS_SHA if package_stage else STATUS_SHA) or database.get('status_counts') != {'install ok installed': 144}:
         raise ValueError('Target package database differs from inspected intact base')
     for name in BASE_PACKAGES:
         records = database['selected_packages'].get(name, [])
@@ -286,7 +301,11 @@ def main():
     parser.add_argument('--inspection-sha256', required=True)
     parser.add_argument('--refresh-target-indexes', action='store_true',
                         help='Explicitly quarantine only the two pinned bad indexes and optional binary caches')
+    parser.add_argument('--package-stage', action='store_true',
+                        help='Explicitly quarantine stale lock/runtime flags for the reviewed security-upgraded package stage')
     args = parser.parse_args()
+    if args.package_stage and args.refresh_target_indexes:
+        parser.error('--package-stage cannot be combined with --refresh-target-indexes')
     if not re.fullmatch(r'[0-9a-f]{32}', args.nonce) or not re.fullmatch(r'[0-9a-f]{64}', args.inspection_sha256):
         parser.error('Expected nonce32hex and inspection-sha25664hex')
     no_alias(BUILD)
@@ -294,6 +313,7 @@ def main():
         raise SystemExit('Recovery must run from the fixed guest live-build directory')
     report = {'schema': 1, 'recovery_nonce': args.nonce, 'started': time.time(),
               'recovery_performed': False, 'refresh_target_indexes': args.refresh_target_indexes,
+              'package_stage': args.package_stage,
               'target_index_quarantine_performed': False, 'resume_verified': False,
               'outcome': 'preflight', 'quarantined': []}
     write_report(report)
@@ -307,15 +327,17 @@ def main():
             previous = sys.argv
             try:
                 sys.argv = [str(INSPECTOR), '--nonce', args.nonce]
+                if args.package_stage:
+                    sys.argv.append('--package-stage')
                 namespace['main']()
             finally:
                 sys.argv = previous
             raw = read_regular(OUT / 'builder-inspection.json', LIMIT)
             value = json.loads(raw)
-            validate(value, args.nonce)
+            validate(value, args.nonce, package_stage=args.package_stage)
             return value, hashlib.sha256(raw).hexdigest()
         before, before_sha = inspect()
-        flags = validate(before, args.nonce)
+        flags = validate(before, args.nonce, package_stage=args.package_stage)
         report.update(before=summary(before), before_inventory_sha256=before_sha,
                       inspection_helper_sha256=args.inspection_sha256)
         write_report(report)

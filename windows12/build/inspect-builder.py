@@ -259,13 +259,14 @@ def base_files_os_release_md5sums():
 
 
 
-def classify_payload(report):
+def classify_payload(report, package_stage=False):
     """Classify one source-proven construction state; never suppress raw output."""
     payload = report.get('target_payload_verification')
     if not isinstance(payload, dict):
         return
     payload['available_md5_no_unexplained_differences'] = payload['available_md5_no_reported_differences']
-    result = {'accepted': False, 'kind': 'temporary-live-build-os-release-diversion',
+    result = {'accepted': False, 'kind': ('temporary-live-build-security-upgraded-package-stage-os-release-diversion'
+                                            if package_stage else 'temporary-live-build-os-release-diversion'),
               'reason': 'No temporary-state exception established',
               'coverage': 'Available MD5 screen plus exact os-release evidence only; not all-file/security verification.'}
     payload['temporary_preparation_classification'] = result
@@ -287,7 +288,9 @@ def classify_payload(report):
                 and payload.get('stderr') == '' and payload.get('output_truncated') is False,
                 'Native verifier findings do not match the sole reviewed missing backup')
         require(payload.get('stored_md5_file_count') == 144 and payload.get('stored_md5_metadata_bytes') == 450161
-                and payload.get('stored_md5_metadata_sha256') == '7a8db8eeb27715739965b9ebab51089dcec46205552c2a7b816476cc9f630487',
+                and payload.get('stored_md5_metadata_sha256') == (
+                    '1dfcd7999383a91e54e9cec6729910adcabde8b22f102c81294a239bcfc8bb76' if package_stage else
+                    '7a8db8eeb27715739965b9ebab51089dcec46205552c2a7b816476cc9f630487'),
                 'Stored checksum metadata differs from the reviewed bootstrap')
         require(report.get('live_build_version') == '1:20250505+deb13u1', 'Unreviewed live-build version')
         sources = {item['path']: item['sha256'] for item in report['source_functions']}
@@ -295,16 +298,26 @@ def classify_payload(report):
                 and sources.get('/usr/lib/live/build/chroot_hacks') == '1dac3a0aee51d35119aa649cf3001faac31dbbe940cc847fe8d4695033607dc9',
                 'Installed preparation/cleanup source differs from reviewed source')
         packages = report['chroot_dpkg']
-        require(packages.get('status_sha256') == '2fe156f9c72673a5cf03773f7773789b77050012ebf4cf2c1c26b635444ad4a7'
+        require(packages.get('status_sha256') == (
+                    'cf0bdc5bd7e2c0332cb2906f099c044077321f6583fc4eb45eac7d452b2c91e8' if package_stage else
+                    '2fe156f9c72673a5cf03773f7773789b77050012ebf4cf2c1c26b635444ad4a7')
                 and packages.get('status_counts') == {'install ok installed': 144}
                 and packages['selected_packages']['base-files'] == [{'Package': 'base-files', 'Version': '13.8+deb13u7', 'Status': 'install ok installed'}],
                 'Target package database/version is not the approved bootstrap')
         stages = report['stage_flags']
         names = {'config', 'bootstrap', 'bootstrap_cache.save', 'chroot_apt', 'chroot_debianchroot',
                  'chroot_dpkg', 'chroot_hostname', 'chroot_hosts', 'chroot_resolv', 'chroot_sysv-rc'}
+        runtime = set()
+        if package_stage:
+            names |= {'chroot_archives', 'chroot_firmware', 'chroot_includes_before_packages',
+                      'chroot_linux-image', 'chroot_package-lists.install', 'chroot_preseed'}
+            runtime = {'chroot_devpts', 'chroot_proc', 'chroot_selinuxfs', 'chroot_sysfs'}
         flags = stages['entries']
-        require(stages.get('truncated') is False and stages.get('count') == len(names) == len(flags)
-                and {item['path'] for item in flags} == {str(BUILD / '.build' / name) for name in names}
+        paths = {item['path'] for item in flags}
+        required = {str(BUILD / '.build' / name) for name in names}
+        permitted = required | {str(BUILD / '.build' / name) for name in runtime}
+        require(stages.get('truncated') is False and stages.get('count') == len(paths) == len(flags)
+                and required.issubset(paths) and paths.issubset(permitted)
                 and all(regular(item) and item['bytes'] == 0 for item in flags),
                 'Temporary preparation is not the exact approved incomplete lifecycle')
         diversions = report['target_dpkg_diversions']
@@ -385,6 +398,8 @@ def main():
         raise SystemExit('Refusing host inspection: contained builder marker missing')
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--nonce', required=True)
+    parser.add_argument('--package-stage', action='store_true',
+                        help='Explicitly select the reviewed security-upgraded package-stage payload profile')
     args = parser.parse_args()
     if not re.fullmatch(r'[0-9a-f]{32}', args.nonce):
         parser.error('--nonce must be32 lowercase hexadecimal characters')
@@ -488,7 +503,7 @@ def main():
         return [line[:1024] for line in text.splitlines() if len(line.split()) > 4 and
                 line.split()[4].startswith(str(BUILD))][:128]
     report['build_mounts'] = attempt(report, 'mountinfo', numeric_mounts)
-    classify_payload(report)
+    classify_payload(report, package_stage=args.package_stage)
     report['finished'] = time.time()
     report['inspection_complete'] = not report['inspection_errors']
     payload = json.dumps(report, indent=2).encode() + b'\n'
