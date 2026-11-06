@@ -16,7 +16,7 @@ The user requested completion of all previously discussed tasks, regular commits
 
 ## Acceptance status
 
-See `VERIFICATION.md` for actual completed checks and limitations. Eleven Python tests and all six Node suites pass. Supported desktop-browser checks now pass; earlier unsupported-loopback preview failures are superseded. Native Windows/MSVC/debugger execution remains pending because this environment has no Windows runner. Live GDB inferior tracing is blocked by ptrace policy, while static disassembly works. No security settings were changed.
+See `VERIFICATION.md` for actual completed checks and limitations. Eleven Python tests and all eight Node suites pass. Supported desktop-browser checks now pass; earlier unsupported-loopback preview failures are superseded. Native Windows/MSVC/debugger execution remains pending because this environment has no Windows runner. Live GDB inferior tracing is blocked by ptrace policy, while static disassembly works. No security settings were changed.
 
 Do not claim Windows acceptance from expected observations or cross-compilation. On an available Windows host, run `site/labs/windows-acceptance/Verify-Windows.ps1` in matching x86/x64 Native Tools sessions and complete its manual checklist. Reports stay in ignored `.qa/` within this project. Screen-reader/mobile-device acceptance also remains pending.
 
@@ -33,3 +33,9 @@ A native file-chooser event call stalled in the browser tool and expired its tab
 ## Unsaved-progress safeguard checkpoint
 
 Failed storage writes now set a transient unsaved-progress guard, covering final explanation drafts and other records even outside lesson routes. Successful saves/imports clear it. Imports first preserve any original malformed startup text; if that cannot be archived, they leave current progress unchanged. Regression suites cover both cases. The user requested another independent syllabus-only subagent review; it is running against the current source. Finish/push this safeguard before reporting findings; continue resolving concrete issues within authorized scope.
+
+## Additional independent syllabus review completed
+
+All four concrete findings were resolved: invalid routes, Windows lesson 91 target mismatch, large exported backups, and lesson 129 missing translation-unit downloads. Eight Node suites and 11 Python tests pass. Live Chrome verified invalid lesson recovery followed by working navigation, and the corrected Windows lesson. Its screenshot is `docs/windows-review-fix.png`. Lesson 129 GCC source-pair build printed `result=28`.
+
+A native file picker selected the synthetic backup but the preview did not visibly update in this automation session; do not claim a live end-to-end import pass. Deterministic import suites cover preview, merge, replacement, recovery, large own-export restore, quota failures and stale reads. Native Windows/MSVC/debugger and full screen-reader acceptance remain blocked by unavailable environments; a separate environment reviewer found no native runner. No other project directories were changed.

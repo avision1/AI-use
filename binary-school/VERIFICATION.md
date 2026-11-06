@@ -3,7 +3,7 @@
 ## Completed in this environment
 
 - All 11 Python tests: local HTTP behavior, boundaries, curriculum/download contracts, real Linux guided/stripped program behavior, unfamiliar finals and persistent repair checks.
-- Six Node suites: all 137 lesson renders and 13 flag layers; backup preview/merge/replacement/recovery; study paths and diagnostics; expanded search; accessibility structure/focus flow; malformed progress recovery and truthful storage-failure handling; binary-only teaching/media/native-kit structure.
+- Eight Node suites: all 137 lesson renders and 13 flag layers; backup preview/merge/replacement/recovery; study paths and diagnostics; expanded search; accessibility structure/focus flow; malformed progress recovery and truthful storage-failure handling; binary-only teaching/media/native-kit structure.
 - JavaScript syntax, Git whitespace, download ZIP and SHA-256 integrity checks.
 - Supported live Chrome preview: home and syllabus/lesson rendering, heading focus after lesson navigation, keyboard skip-to-content without rerouting, section-content search, and notebook text retained after navigation and reload. Desktop overview captured in `docs/desktop-preview.png`.
 - All six existing video IDs resolved through YouTube's metadata service with matching titles/authors. Playback and captions were not exhaustively streamed.
@@ -32,3 +32,11 @@ The native file-chooser event test stalled in the browser tool and its tabs expi
 ## Unsaved-progress guard regressions
 
 The progress suite verifies a leave-page warning after a failed final-draft save even when no lesson notebook is active, and no warning after a successful retry. Import regressions verify that malformed startup text is archived before an import overwrites the main record, that archive failure aborts the import, and that successful import clears visit-only/unsaved status. These are deterministic browser-logic tests, not a native Windows acceptance run.
+
+## Additional independent syllabus review fixes
+
+A fresh reviewer given only the syllabus reference found four actionable issues: invalid lesson routes could stop navigation, lesson 91 linked the wrong Windows source, large own-exports could exceed the import limit, and lesson 129 omitted its required source downloads. All four now have fixes and regression coverage. Eight Node suites and all 11 Python tests pass. Large backups require confirmation before reading, then retain the normal non-mutating preview and explicit apply flow; storage failures remain truthful.
+
+Live Chrome loaded `#lesson/999`, displayed a focused missing-lesson recovery page, and successfully followed its learning-path link. The corrected lesson 91 rendered the Order investigation with native PE and MSVC source-kit links; see `docs/windows-review-fix.png`. The lesson 129 GCC translation-unit pair compiled and printed `result=28`.
+
+A native file-picker retry selected a synthetic JSON backup but produced no visible preview update in this browser automation session. It is not counted as live import acceptance; the eight passing suites include import, large-import and route-error regressions. A separate environment audit confirmed no native Windows or screen-reader runner.
