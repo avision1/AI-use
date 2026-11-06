@@ -61,3 +61,5 @@ If D-I asks for media, missing components, mirror access or confirmation, this i
 ## Primary basis
 
 Debian trixie's documented preseed settings and late-command mechanism were consulted on 2026-10-23: https://www.debian.org/releases/trixie/amd64/apbs04.en.html . The live-installer route copies the live filesystem instead of assembling a separate default package installation: https://live-team.pages.debian.net/live-manual/html/live-manual/customizing-installer.en.html . This harness's guard, callback and first-boot proof are project test code, not upstream certification.
+
+Explicit new hardware options (validation queued): `--accelerator kvm --cpu-profile host` uses only already available /dev/kvm access; both installation and ISO-free verification phases use the same selected hardware. Defaults stay TCG/max. Unsupported fragments, hostCPU underTCG and absent/inaccessible KVM refuse before writable output; no host setup or fallback is performed. Actual KVM startup has not yet been established.

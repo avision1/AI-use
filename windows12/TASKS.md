@@ -5,7 +5,7 @@
 | W12-002 | Architecture and compatibility research | 001 | research agent | done | Primary sources; supported/partial/alternative/unsupported; no untested claims |
 | W12-003 | Contained build feasibility and implementation | 001 | build agent | implemented; restored25 guest tests and package gates pass | Runnable tooling; image writes isolated; verified inputs; fail closed |
 | W12-004 | Desktop overlay and Office web integration | 002 | lead | preview4:36 guest tests/deterministic package pass; GUI pending | Runnable launchers, welcome/help, Windows-style desktop defaults |
-| W12-005 | Integrate, build and validate milestone image | 003,004 | lead | real3.4GiB ISO built/hash/content audit passed; BIOS menu seen; diagnostic harness55tests pass; default Wayland black, modified X11 partialGUI; D-I8231 reached GRUB then late test pipeline failed; pass-stdout fix, fresh install93139 active | Build logs/checksums; boot and install results or precise blockers |
+| W12-005 | Integrate, build and validate milestone image | 003,004 | lead | real3.4GiB ISO built/hash/content audit passed; BIOS menu seen; diagnostic harness55tests pass; default Wayland black, modified X11 partialGUI; D-I8231 reached GRUB then late test pipeline failed; pass-stdout query/callback passed; install93139 finishing cleanup; ISO-free proof pending | Build logs/checksums; boot and install results or precise blockers |
 | W12-006 | Release checkpoint and sync | 005 | lead | source checkpoints synchronized; release pending | Memory current; reviewed project-only commit synchronized |
 | W12-007 | BIOS ISO evidence capture harness | 003,005 | research agent | guard integrated; all25 guest tests pass; ISO capture pending | Real contained ISO, screenshots/logs, new disposable disk only; no false success claim |
 | W12-008 | Freeze release inputs and harden provenance | 005 | release_inputs/lead | cloud signature research complete (upstream missing); snapshots pending | Snapshot repositories/input authentication; reproducibility records and repeat build |
@@ -56,3 +56,8 @@
 
 | W12-039 | Contained normal UEFI validation | 012,020 | lead | authenticated separate OVMF tools prepared; firmware descriptor/readme reviewed; actual UEFI boot/install pending | Read-only code, new writable vars copy, no physical devices; measured UEFI boot/install; Secure Boot separate |
 | W12-040 | Actual graphical installer acceptance | 003,004,020 | lead | actual Calamares payload/config reviewed; offline live-user launch/partition/install/reboot pending | New disposable disk, normal account/admin/session, payload survives cleanup, ISO-free reboot and workflow evidence |
+
+| ID | Task | Depends | Owner | Status | Acceptance |
+|---|---|---|---|---|---|
+| W12-041 | Explicit available-KVM test profiles | 003,011,020 | lead | reviewed/AST parsed; existing device access confirmed; guest/runtime validation pending | No host setup/fallback, fixed CPU choices, contained devices, actual KVM startup/desktop evidence |
+| W12-042 | Honest manual installed-disk continuation | 020,040 | lead | BIOS-only wrapper and guest tests implemented/reviewed; runtime pending | Clean live provenance, stopped sealed baseline, readonly backing/new child, no ISO, distinct falseflags then reviewed boot/login/root evidence |

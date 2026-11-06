@@ -30,6 +30,26 @@ HELPERS = runpy.run_path(str(ROOT / 'scripts/boot-test.py'), run_name='install_t
 contained, QMP = HELPERS['contained'], HELPERS['QMP']
 TOOLS = ROOT / '.work/builder/tools'
 ISO_TOOLS = ROOT / '.work/builder/iso-tools'
+ACCELERATORS = ('tcg', 'kvm')
+CPU_PROFILES = ('max', 'Nehalem', 'host')
+KVM_DEVICE = Path('/dev/kvm')
+
+
+def require_accelerator(args):
+    """Validate explicit emulation choices before creating writable output."""
+    if args.accelerator not in ACCELERATORS or args.cpu_profile not in CPU_PROFILES:
+        raise ValueError('Unsupported accelerator or CPU profile')
+    if args.cpu_profile == 'host' and args.accelerator != 'kvm':
+        raise ValueError('CPU profile host requires --accelerator kvm')
+    if args.accelerator == 'kvm':
+        message = 'KVM requires an existing readable/writable /dev/kvm character device'
+        try:
+            device = KVM_DEVICE.lstat()
+        except OSError:
+            raise ValueError(message) from None
+        if not stat.S_ISCHR(device.st_mode) or not os.access(KVM_DEVICE, os.R_OK | os.W_OK):
+            raise ValueError(message)
+    return args.accelerator, args.cpu_profile
 
 
 def seal_installed_disk(value):
@@ -239,9 +259,12 @@ def main():
     parser.add_argument('--install-timeout', type=int, default=3600)
     parser.add_argument('--boot-timeout', type=int, default=600)
     parser.add_argument('--interval', type=int, default=60)
+    parser.add_argument('--accelerator', choices=ACCELERATORS, default='tcg', help='Explicit TCG or existing KVM acceleration; no automatic fallback')
+    parser.add_argument('--cpu-profile', choices=CPU_PROFILES, default='max', help='Fixed CPU profile; host requires KVM')
     args = parser.parse_args()
     if not re.fullmatch(r'[1-9][0-9]*G', args.disk_size) or min(args.install_timeout, args.boot_timeout, args.interval) < 1:
         parser.error('Positive timeouts/interval and disk size such as 24G required')
+    require_accelerator(args)
     iso = contained(args.iso)
     if not iso.is_file() or iso.suffix.lower() != '.iso':
         raise ValueError('Existing project-contained .iso required')
@@ -270,10 +293,12 @@ def main():
 
 
 def execute(args, iso, output):
+    accelerator, cpu_profile = require_accelerator(args)
     output.mkdir(parents=True, mode=0o700)
     env = environment(output, TOOLS)
     result = {'iso': str(iso), 'output': str(output), 'install_verified': False, 'disk_boot_verified': False,
-              'gui_verified': False, 'started_unix': time.time(), 'outcome': 'starting'}
+              'gui_verified': False, 'accelerator': accelerator, 'cpu_profile': cpu_profile,
+              'started_unix': time.time(), 'outcome': 'starting'}
     server = None
     try:
         (kernel, initrd), directory = installer_files(iso, output, args.installer_directory)
@@ -450,8 +475,8 @@ d-i preseed/late_command string wget -O /tmp/windows12-late.sh {endpoint}/late-{
         (output / 'late-install.sh').write_text(late)
         served['/preseed-' + token + '.cfg'] = preseed.encode()
         served['/late-' + token + '.sh'] = late.encode()
-        common = [str(TOOLS / 'usr/bin/qemu-system-x86_64'), '-machine', 'pc,accel=tcg,smm=off',
-                  '-cpu', 'max', '-smp', '2', '-m', '4096', '-bios', str(TOOLS / 'usr/share/seabios/bios-256k.bin'),
+        common = [str(TOOLS / 'usr/bin/qemu-system-x86_64'), '-machine', f'pc,accel={accelerator},smm=off',
+                  '-cpu', cpu_profile, '-smp', '2', '-m', '4096', '-bios', str(TOOLS / 'usr/share/seabios/bios-256k.bin'),
                   '-L', str(TOOLS / 'usr/share/qemu'), '-no-user-config', '-nodefaults', '-no-reboot',
                   '-display', 'none', '-monitor', 'none', '-device', 'VGA,romfile='+str(TOOLS/'usr/share/seabios/vgabios-stdvga.bin'),
                   '-blockdev', json.dumps({'driver': 'file', 'filename': str(disk), 'node-name': 'disk-file'}),
