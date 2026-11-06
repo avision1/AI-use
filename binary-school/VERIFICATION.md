@@ -20,3 +20,11 @@
 The host is Linux and provides no native Windows runner. Cross-compiled MinGW PE files, source review, expected-output tables and a prepared script do not establish a native Windows pass. The guarded kit at `site/labs/windows-acceptance/` emits automated build/program results and explicitly leaves manual debugger/repair acceptance pending. Its checklist describes the exact remaining observations.
 
 The implementation and teaching fixes are complete; these environment-dependent acceptance checks remain open. Do not convert pending items into pass claims in a release record.
+
+## Additional rendered-browser acceptance
+
+The same-origin viewport fixture in `tools/create_browser_qa.py` exercised the overview, environment lesson, flag lesson, resources, patch practice and study-path pages at 375, 768 and 1280 CSS pixels. It found actual overview overflow at 768px. The narrow-layout breakpoint and grid minimums were corrected; all 18 page/width combinations then fit without document-level horizontal overflow. Lesson outlines defaulted collapsed at 375/768 and expanded at 1280; Enter expanded the 375px outline. Recorded measurements for five detailed routes are in `docs/responsive-measurements.json`; the overview was also measured before and after the fix. This is CSS-viewport evidence, not a physical-mobile-device pass.
+
+A live Chrome run loaded the original 15,952-byte ELF, applied the requested 14-byte output patch, and passed validation with the null terminator and remaining bytes intact. The pass survived reload. That check exposed a missing restored explanation in the form; final explanations now restore and autosave drafts before validation. Reload verified draft persistence. The resulting UI is captured in `docs/patch-acceptance.png`. No uploaded executable was run.
+
+The native file-chooser event test stalled in the browser tool and its tabs expired; import acceptance was not counted as a live-browser pass. Backup preview/merge/replace/recovery remains covered by its passing Node suite. Native Windows, full screen-reader and physical-device acceptance remain open as stated above.

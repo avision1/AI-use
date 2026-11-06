@@ -85,3 +85,5 @@ The native Windows acceptance kit is at `site/labs/windows-acceptance/`. It buil
 Maintainers can refresh integrity manifests with `python3 tools/update_checksums.py`, or add `--packages` after editing flag/full/Windows-acceptance downloads. Readiness packs use `tools/package_readiness.py`.
 
 See `VERIFICATION.md` for tested behavior, independent-review results and explicit native Windows/assistive-technology limits. A captured desktop overview is in `docs/desktop-preview.png`.
+
+Maintainers can generate an ignored same-origin viewport fixture with `python3 tools/create_browser_qa.py`, open `/qa-browser.html` in the supported preview, and measure actual CSS viewport layouts. Use a disposable browser profile because frames share storage. The generated file is excluded from Git and integrity manifests; remove it after QA. Latest browser checks and evidence are recorded in `VERIFICATION.md`.

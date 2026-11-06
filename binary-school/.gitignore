@@ -8,3 +8,5 @@ binary-school-progress*.json
 .build-tools/
 
 .qa/
+
+/site/qa-browser.html
