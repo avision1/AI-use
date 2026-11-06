@@ -93,3 +93,8 @@ The real offline Calamares installation and ISO-free account/desktop/basicCalc r
 ## D046 — Preserve validated candidates through fixed fresh-run namespaces
 
 A new full builder may use only a strict new slug under .work/builder/runs and artifacts/vm-build-<slug>, retaining authenticated tools/cloud and sharedrunner/QMP at the fixed base. Nondefault KVM/host requires this explicit fresh mode, existing device access and no fallback/host setup; resume and defaults stay unchanged. Active descriptor pins monitor/cleanup/validator selection, and QMP validates the pin under the same client lock used for publication, so an old exit marker or replaced run cannot control a new guest. Combined guest validation is required before launch.
+
+
+## D047 — Keep useful caches, retire superseded disposable storage
+
+User requests cleanup without repeated downloads. Preserve native tools, signed archives/indexes, pinned cloud and inputs useful to the next build. Delete only reviewed unused disposable disks/derived duplicates after reconciling actual open files and backing dependencies, record removals and retain logs/provenance. Parent reclaimed10.34GiB from11files during clockfix build, preserving the only active disk and backing image. Old completedbuilder/accepted baselines are temporary fallback evidence until corrected-image acceptance; explicitly schedule retirement rather than accumulating them indefinitely.

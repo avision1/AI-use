@@ -2,13 +2,13 @@
 
 An independent installable Linux distribution project for everyday Windows-style workflows. The first implementation targets Debian 13 amd64 and KDE Plasma, with a familiar taskbar, file manager, settings, Office web launchers and an offline office alternative. It is not a Microsoft product.
 
-**Development status:** desktop source and build tooling are being implemented. No release ISO, successful installer test, or Windows application compatibility certification is available yet. See [PROJECT_STATE.md](PROJECT_STATE.md) for the current verified state.
+**Development status:** a real hybrid preview ISO has passed a content audit, offline BIOS installation through Debian Installer and Calamares, and installed-disk boots without the ISO. Reviewed VM evidence includes the default Wayland desktop and basic DOCX/XLSX save/reopen workflows. Normal UEFI live boot also passed; UEFI installation, broader everyday workflows and hardware coverage remain pending. A replacement ISO containing the missing clock-utility fix is being built and must pass its own validation. See [PROJECT_STATE.md](PROJECT_STATE.md), [Calamares evidence](docs/CALAMARES_PREVIEW4.md) and [UEFI evidence](docs/UEFI_PREVIEW4.md). This is a development preview, without Windows application compatibility certification.
 
 ## Start or resume engineering
 
 Read [AGENTS.md](AGENTS.md), [HANDOFF.md](HANDOFF.md) and [RUNBOOK.md](RUNBOOK.md). All project writes—including VM disks, caches, downloaded dependencies, temporary files and build logs—must stay within this `windows12/` folder. Only ordinary repository Git metadata is excepted. Never run the target installer or package installation against the host.
 
-The build approach uses a full QEMU software-emulated VM, with dependencies extracted locally. Guest writes stay in a project-contained virtual disk and allowlisted local HTTP artifact exports. The builder must pass its execution probe before an OS build is attempted. No fallback to privileged host chroot or global package installation is permitted.
+The build approach uses a contained QEMU VM, with authenticated dependencies extracted locally. Software emulation remains the default; explicit KVM profiles use only an already available device and perform no host setup. Guest writes stay in project-contained virtual disks and allowlisted local HTTP artifact exports. Fresh candidate paths preserve previous images and frozen source. No fallback to privileged host chroot or global package installation is permitted.
 
 ## Source map
 
