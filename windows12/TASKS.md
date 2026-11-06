@@ -37,4 +37,4 @@
 
 | W12-029 | Read-only stopped-builder inventory mode | 028 | lead/fixture_review_nov05/inspect_wrapper_review | done: inspection25448 exit0/fresh report/no errors; no cleanup or ISO claims | Separate nonce-bound report, no recipe/cleanup, guarded existing disk, no false ISO success |
 
-| W12-030 | Preserve/refresh corrupted target APT index cache | 028,029 | fixture_review_nov05/lead | guarded26570 passed exact4cache quarantine/preservation; public APT stage active; signed refresh pending | Actual cache evidence; bounded quarantine; target dpkg/stages preserved; signed refresh and resumed build |
+| W12-030 | Preserve/refresh corrupted target APT index cache | 028,029 | fixture_review_nov05/lead | done for observed snapshot: exact4cache quarantine/preservation and signed APT refresh advanced to9package upgrade; fullISO005active | Actual cache evidence; bounded quarantine; target dpkg/stages preserved; signed refresh and resumed build |
