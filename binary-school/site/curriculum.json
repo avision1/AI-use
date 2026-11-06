@@ -699,6 +699,11 @@
       "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "sections": [
         {
+          "title": "Create the working folder before running the commands",
+          "text": "Download storage.c and driver.c using the links below and place both in one empty working folder. Run the commands from that folder. storage.c defines exercise; driver.c supplies main and command-line parsing. Linking both creates the complete executable. On Windows, use the casebook MSVC script from a matching Native Tools prompt, or compile the same pair as shown.",
+          "code": "# Linux / WSL:\ngcc -g -O0 storage.c driver.c -o storage-local\n./storage-local 4\n\n# Native Windows developer prompt:\ncl /nologo /TC /Od /Zi /Fe:storage-local.exe storage.c driver.c\nstorage-local.exe 4"
+        },
+        {
           "title": "Artifact checklist",
           "table": [
             [
@@ -736,7 +741,21 @@
       ],
       "references": [],
       "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words.",
-      "videoRole": "background"
+      "videoRole": "background",
+      "downloads": [
+        [
+          "Casebook source · storage.c",
+          "labs/casebook/storage.c"
+        ],
+        [
+          "Matching command-line driver · driver.c",
+          "labs/casebook/driver.c"
+        ],
+        [
+          "Complete comparative casebook and MSVC build kit",
+          "labs/comparative-casebook.zip"
+        ]
+      ]
     },
     {
       "id": 109,
@@ -4886,14 +4905,15 @@
       "id": 91,
       "course": "workshop",
       "title": "08 · Native Windows PE investigation",
-      "body": "Build with MSVC on Windows, import the result into Ghidra, and debug it with matching-bitness x64dbg or WinDbg. Identify startup versus main, locate two imports, distinguish a narrow string from a UTF-16 string, and calculate a backed string’s file offset from its RVA.",
-      "code": "Download the full lab pack from Resources.\nAttempt the investigation before opening the worked solution.\nRecord evidence in your notebook; the short check below is only a checkpoint.",
+      "body": "Use the native Windows Order investigation below. Build its source with MSVC on Windows, import the result into Ghidra, and debug it with matching-bitness x64dbg or WinDbg. Recover the Order fields and quote function, identify startup versus main, trace Windows imports, distinguish narrow and UTF-16 strings, and calculate a backed string file offset from its RVA. Start with the guided build, then repeat the stripped build after explaining the first.",
+      "code": "Download the native PE practical or source kit below.\nSource-kit build: build-msvc-readiness.bat from matching\nx86/x64 Native Tools prompts. Analyze the windows.exe output.\nRun with: LAB 4\nRecord compiler, bitness, hashes and evidence before self-review.",
       "walkthrough": [
-        "Record compiler version, bitness, flags, and hashes.",
-        "Trace one API call’s parameters and return.",
-        "Show both normal and debugger-dependent paths in the training executable."
+        "Prepare a matching Windows environment; use the Order practical and source kit linked below, and record compiler/version, bitness, flags and hashes.",
+        "Recover the label, quantity and unit_price fields and the quote function; predict and test quantities 0,2,3,4.",
+        "Trace API call parameters and returns; calculate one backed RVA-to-file offset using your actual PE sections.",
+        "Observe the debugger-dependent exit, restart and make a temporary post-call return override, then distinguish it from a persistent file patch."
       ],
-      "solution": "GetCurrentProcessId changes between runs; do not demand a fixed value. IsDebuggerPresent controls the diagnostic path. File offsets and runtime virtual addresses must be recorded separately.",
+      "solution": "In the Order practical, label begins at offset0, quantity at8 and unit_price at12 for the usual supplied layout; verify against your actual build. quote is quantity*7 plus5 for quantities below3, so quantities0,2,3,4 produce5,19,21,28. The UTF-16 string has length10. PID varies. IsDebuggerPresent selects the diagnostic early return under a debugger; inspect/bypass it before tracing lstrcmpA later in main. Compute backed file offsets using rawPointer+(RVA-sectionVA), not by assuming RVA equals file offset.",
       "task": "Is an RVA generally identical to a disk file offset? Answer yes or no.",
       "answer": "no",
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
@@ -4910,16 +4930,63 @@
           "https://sourceware.org/gdb/current/onlinedocs/gdb/"
         ]
       ],
-      "lab": "windows_lab.c",
       "review": [
-        "Can you explain each conclusion using addresses, instructions, or observed state?",
-        "Did you include boundary and negative cases, not just the success case?",
-        "Could another student reproduce your steps from your report?",
-        "Did you disclose uncertainty and separate analysis metadata from file changes?"
+        "I recovered the Order fields, stride and quote computation from actual instructions.",
+        "I recorded imported-call arguments and return state with the correct x86/x64 convention.",
+        "I calculated a backed RVA-to-file offset from actual section values.",
+        "I compared normal and debugger-dependent paths and explained a temporary override.",
+        "I recorded native MSVC compiler/build details and any unverified portions honestly."
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
       "optional_completion": true,
-      "videoRole": "background"
+      "videoRole": "background",
+      "practical": {
+        "title": "Native Windows full investigation · Order and API evidence",
+        "brief": "Download a genuine PE with Windows API imports, a UTF-16 string and an Order struct. It is compiled by MinGW-w64 GCC, not MSVC. Use the same C kit to build native MSVC x86/x64 versions; note which compiler generated each instruction pattern.",
+        "downloads": [
+          [
+            "Guided native Windows PE x64 · MinGW GCC",
+            "labs/readiness/windows-guided-mingw-x64.exe"
+          ],
+          [
+            "Stripped native Windows PE x64 · MinGW GCC",
+            "labs/readiness/windows-independent-mingw-x64.exe"
+          ],
+          [
+            "Practical self-review guide (attempt first)",
+            "labs/readiness/PRACTICAL-REVIEW.txt"
+          ],
+          [
+            "MSVC x86/x64 build kit + original C",
+            "labs/readiness/practical-source-kit.zip"
+          ]
+        ],
+        "start": "Windows x64:\nwindows-guided-mingw-x64.exe LAB 4\nOpen the PE in Ghidra; debug with matching x64dbg/WinDbg.\nFor MSVC output: extract source kit, run build-msvc-readiness.bat\nfrom an x64 or x86 Native Tools prompt. Do not use Linux GDB for this PE.",
+        "prompts": [
+          "Identify GetCurrentProcessId, lstrlenW, lstrcmpA and IsDebuggerPresent in the import table. Trace parameters and return values at a call site.",
+          "Recover Order label, quantity and unit_price offsets; calculate one backed string file offset using section RVA and raw offset. Compare quantity 0,2,3,4.",
+          "Run outside a debugger, then inside matching x64dbg/WinDbg or Visual Studio. Explain the debugger-dependent return; override the return locally in the debugger and continue. A live-state override is not a persistent file patch.",
+          "Rebuild with MSVC using an x64 developer prompt and repeat in an x86 developer prompt. Compare x64 register arguments with x86 stack arguments. Record compiler/version/flags and limitations."
+        ],
+        "checks": [
+          [
+            "Wide string length",
+            "10"
+          ],
+          [
+            "Quantity 2 quote",
+            "19"
+          ],
+          [
+            "Quantity 3 quote",
+            "21"
+          ],
+          [
+            "Quantity 4 quote",
+            "28"
+          ]
+        ]
+      }
     },
     {
       "id": 92,

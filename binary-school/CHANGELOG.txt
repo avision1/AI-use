@@ -1,3 +1,9 @@
+1.7.2 — Independent syllabus review fixes
+- Recover from missing lesson/course links and rendering errors without trapping navigation.
+- Allow large own-export backups after explicit read confirmation; retain safe preview/cancel.
+- Match the Windows investigation to the Order PE practical and native MSVC source kit.
+- Supply both translation-unit source downloads and build directions in lesson 129.
+
 1.7.1 — Guard all unsaved progress and preserve startup recovery during import
 - Warn before leaving after any failed progress save, including final drafts.
 - Clear the transient guard only after a successful save or import.

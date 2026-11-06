@@ -79,7 +79,8 @@ To move from the hosted Binary School or another laptop:
 7. Confirm that your completed lessons and notebook entries appear.
 Existing lesson IDs are preserved. Older 42-lesson backups import into the
 expanded curriculum; new lessons start incomplete. Unsupported fields and
-unknown lesson IDs are ignored. Files must be valid JSON, no larger than5 MB.
+unknown lesson IDs are ignored. Files must be valid JSON. Backups larger than 5 MB require confirmation before
+reading and previewing; available browser memory and storage still limit imports.
 Do not place personal backups in site/ if you do not want them served locally.
 The server does not scan or execute progress backups or uploaded binaries.
 
