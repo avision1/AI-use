@@ -16,6 +16,8 @@ The existing authenticated project QEMU/SeaBIOS toolset must be prepared already
 
 Optional flags:
 
+- `--cpu-profile max|Nehalem` selects one fixed TCG CPU model (default `max`). `--video standard|virtio` selects standard VGA or plain 2D virtio-vga (default `standard`), with the corresponding authenticated project-local VGA ROM. No GL renderer, host GPU, passthrough or arbitrary QEMU fragment is accepted. These diagnostic options apply to both live and installed-child modes and are recorded in provenance. They do not change ISO bytes or imply that any selected combination passed a desktop test. A planned clean-ISO test uses `--cpu-profile Nehalem --video virtio`; review its actual captures before claiming success.
+
 - `--disk-size 24G` creates a **new** `disposable-install.qcow2` within the new live-ISO output directory. Sizes8G–128G are accepted. The disk is retained after shutdown. This does not automate or certify installation; installed mode uses the separate proof-based path below.
 - `--network user` explicitly enables QEMU user-mode NAT with one emulated NIC. Default is `--network none`. There are no forwards, host filesystem shares, clipboard or authentication integration. NAT does not import this environment's managed proxy or CA configuration, so Internet access may still fail in a restricted environment. Never disable TLS checks to make a web test pass.
 - `--memory` accepts1024–8192MiB. `--timeout` accepts1–7200seconds, default1800. The guest-session deadline includes QMP handshake and interaction; cleanup has additional bounded QMP/process waits. Initial ISO hashing occurs before the guest starts.

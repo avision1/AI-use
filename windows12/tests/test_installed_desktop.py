@@ -74,7 +74,8 @@ class InstalledDesktopTests(unittest.TestCase):
         self.kill_patch = patch('os.kill', side_effect=ProcessLookupError)
         self.kill_mock = self.kill_patch.start()
         self.args = argparse.Namespace(iso=None, installed_result=self.result_path, output=self.output,
-                                       disk_size=None, memory=4096, network='none', timeout=1800)
+                                       disk_size=None, memory=4096, network='none', timeout=1800,
+                                       cpu_profile='max', video='standard')
 
     def tearDown(self):
         self.kill_patch.stop()
@@ -237,8 +238,62 @@ class InstalledDesktopTests(unittest.TestCase):
         self.assertIs(nodes[1]['read-only'], True)
         self.assertNotIn('backing', nodes[-1])
 
+    def test_diagnostic_profiles_preserve_live_and_installed_block_graphs(self):
+        source = self.source()
+        firmware = self.root / 'firmware/bios-256k.bin'
+        for source_mode in (None, source):
+            child = self.output / ('installed-desktop.qcow2' if source_mode else 'disposable-install.qcow2')
+            default = self.module['desktop_command'](self.args, self.iso, 'qemu', firmware, 'data', self.output, child, source_mode)
+            default_nodes = [json.loads(default[index + 1]) for index, arg in enumerate(default) if arg == '-blockdev']
+            for cpu in ('max', 'Nehalem'):
+                for video, device, rom in (('standard', 'VGA', 'vgabios-stdvga.bin'),
+                                            ('virtio', 'virtio-vga', 'vgabios-virtio.bin')):
+                    with self.subTest(installed=bool(source_mode), cpu=cpu, video=video):
+                        self.args.cpu_profile, self.args.video = cpu, video
+                        command = self.module['desktop_command'](self.args, self.iso, 'qemu', firmware, 'data', self.output, child, source_mode)
+                        self.assertEqual(command[command.index('-cpu') + 1], cpu)
+                        self.assertIn(device + ',romfile=' + str(firmware.parent / rom), command)
+                        self.assertEqual(command[command.index('-machine') + 1], 'pc,accel=tcg,smm=off')
+                        self.assertEqual([json.loads(command[index + 1]) for index, arg in enumerate(command) if arg == '-blockdev'], default_nodes)
+                        self.assertFalse(any('gl=on' in arg or 'virtio-vga-gl' in arg or '/dev/dri' in arg for arg in command))
+            self.args.cpu_profile, self.args.video = 'max', 'standard'
+
+    def test_invalid_diagnostic_profiles_refused_before_runtime_work(self):
+        main = self.module['main']
+        for option, value in (('--cpu-profile', 'host'), ('--cpu-profile', 'max,+avx'),
+                              ('--video', 'virtio-vga-gl'), ('--video', 'virtio,gl=on')):
+            with self.subTest(option=option, value=value), patch.dict(main.__globals__, {'run': Mock()}) as globals_, patch.object(sys, 'argv', ['desktop-test.py', str(self.iso), option, value]):
+                with self.assertRaises(SystemExit) as stopped:
+                    main()
+                self.assertEqual(stopped.exception.code, 2)
+                globals_['run'].assert_not_called()
+        self.assertFalse(self.output.exists())
+
+    def test_selected_video_firmware_missing_or_aliased_refused_before_output(self):
+        toolroot = self.root / 'tools'
+        for leaf in ('usr/bin/qemu-system-x86_64', 'usr/share/seabios/bios-256k.bin',
+                     'usr/share/seabios/vgabios-stdvga.bin'):
+            target = toolroot / leaf
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(b'parser-only tool fixture')
+        (toolroot / 'usr/share/qemu').mkdir()
+        self.args.installed_result, self.args.iso = None, self.iso
+        self.args.video = 'virtio'
+        execute = self.module['run']
+        with patch.dict(execute.__globals__, {'TOOLS': toolroot}), patch('subprocess.Popen') as spawn, patch('subprocess.run') as run_process:
+            with self.assertRaisesRegex(ValueError, 'tools are missing'):
+                execute(self.args)
+            selected = toolroot / 'usr/share/seabios/vgabios-virtio.bin'
+            selected.symlink_to(toolroot / 'usr/share/seabios/vgabios-stdvga.bin')
+            with self.assertRaisesRegex(ValueError, 'Symlinked runtime paths'):
+                execute(self.args)
+            spawn.assert_not_called()
+            run_process.assert_not_called()
+        self.assertFalse(self.output.exists())
+
     def test_mocked_launch_creates_child_and_records_false_guest_verification(self):
         source = self.source()
+        self.args.cpu_profile, self.args.video = 'Nehalem', 'virtio'
         self.output.mkdir()
         child = self.output / 'installed-desktop.qcow2'
         launch = self.module['launch']
@@ -265,6 +320,10 @@ class InstalledDesktopTests(unittest.TestCase):
         self.assertEqual(startup['disposable_disk'], str(child))
         self.assertEqual(startup['installed_source'], source)
         self.assertEqual(startup['command'], spawn.call_args.args[0])
+        self.assertEqual(startup['cpu_profile'], 'Nehalem')
+        self.assertEqual(startup['video'], 'virtio')
+        self.assertEqual(startup['command'][startup['command'].index('-cpu') + 1], 'Nehalem')
+        self.assertIn('virtio-vga,romfile=vgabios-virtio.bin', startup['command'])
         self.assertFalse(any(str(self.iso) in arg for arg in startup['command']))
         self.assertEqual(result['mode'], 'installed')
         self.assertIs(result['baseline_unchanged'], True)

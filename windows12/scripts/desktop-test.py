@@ -22,6 +22,11 @@ ROOT = Path(__file__).resolve().parents[1]
 HELPERS = runpy.run_path(str(ROOT / 'scripts/boot-test.py'), run_name='desktop_test_helpers')
 contained, QMP, exclusive_runner = (HELPERS[name] for name in ('contained', 'QMP', 'exclusive_runner'))
 TOOLS = ROOT / '.work/builder/tools'
+CPU_PROFILES = ('max', 'Nehalem')
+VIDEO_PROFILES = {
+    'standard': ('VGA', 'vgabios-stdvga.bin'),
+    'virtio': ('virtio-vga', 'vgabios-virtio.bin'),
+}
 QKEYS = set('abcdefghijklmnopqrstuvwxyz0123456789') | {
     'shift', 'shift_r', 'ctrl', 'ctrl_r', 'alt', 'alt_r', 'meta_l', 'meta_r',
     'esc', 'ret', 'tab', 'spc', 'backspace', 'insert', 'delete', 'home', 'end',
@@ -463,6 +468,7 @@ class DesktopSession:
 
 def run(args):
     # Preflight all fixed paths before creating output or launching anything.
+    _, (_, video_rom) = diagnostic_profiles(args)
     source = installed_source(args.installed_result) if args.installed_result else None
     iso, tools = strict_path(source['iso'] if source else args.iso), strict_path(TOOLS)
     output = fresh(args.output or ROOT / 'artifacts' / f'desktop-test-{time.time_ns()}')
@@ -474,7 +480,7 @@ def run(args):
             raise ValueError('Input lacks the ISO9660 signature')
     qemu, firmware, datadir = (strict_path(tools / leaf) for leaf in
                               ('usr/bin/qemu-system-x86_64', 'usr/share/seabios/bios-256k.bin', 'usr/share/qemu'))
-    vgabios = strict_path(firmware.parent/'vgabios-stdvga.bin')
+    vgabios = strict_path(firmware.parent / video_rom)
     if not qemu.is_file() or not firmware.is_file() or not vgabios.is_file() or not datadir.is_dir():
         raise ValueError('Prepared project QEMU/SeaBIOS tools are missing')
     qimg = strict_path(tools / 'usr/bin/qemu-img')
@@ -503,12 +509,21 @@ def run(args):
         raise
 
 
+def diagnostic_profiles(args):
+    """Select only fixed contained emulation profiles; never accept QEMU fragments."""
+    if args.cpu_profile not in CPU_PROFILES or args.video not in VIDEO_PROFILES:
+        raise ValueError('Unsupported CPU or video diagnostic profile')
+    return args.cpu_profile, VIDEO_PROFILES[args.video]
+
+
 def desktop_command(args, iso, qemu, firmware, datadir, output, disk=None, source=None):
     serial = output / 'serial.log'
-    command = [str(qemu), '-machine', 'pc,accel=tcg,smm=off', '-cpu', 'max', '-smp', '2',
+    cpu_profile, (video_device, video_rom) = diagnostic_profiles(args)
+    command = [str(qemu), '-machine', 'pc,accel=tcg,smm=off', '-cpu', cpu_profile, '-smp', '2',
                '-m', str(args.memory), '-bios', str(firmware), '-L', str(datadir),
                '-no-user-config', '-nodefaults', '-display', 'none', '-monitor', 'none', '-no-reboot',
-               '-device', 'VGA,romfile='+str(Path(firmware).parent/'vgabios-stdvga.bin'), '-device', 'qemu-xhci,id=usb', '-device', 'usb-tablet,bus=usb.0',
+               '-device', video_device + ',romfile=' + str(Path(firmware).parent / video_rom),
+               '-device', 'qemu-xhci,id=usb', '-device', 'usb-tablet,bus=usb.0',
                '-boot', 'order=c,menu=off' if source else 'order=d,menu=off',
                '-D', str(output / 'qemu-debug.log'), '-serial', 'file:' + str(serial)]
     if not source:
@@ -556,6 +571,7 @@ def launch(args, iso, qemu, qimg, firmware, datadir, output, source=None):
               'mode': 'installed' if source else 'live', 'installed_source': source,
               'baseline_unchanged': False if source else None,
               'disposable_disk': str(disk) if disk else None, 'network': args.network,
+              'cpu_profile': args.cpu_profile, 'video': args.video,
               'started_unix': time.time(), 'captures': [], 'boot_verified': False,
               'login_verified': False, 'install_verified': False, 'workflows_verified': False,
               'outcome': 'starting', 'timeout_seconds': args.timeout}
@@ -620,6 +636,8 @@ def main():
     parser.add_argument('--output', type=Path, help='New project-contained directory; never reused')
     parser.add_argument('--timeout', type=int, default=1800, help='1–7200seconds, default1800')
     parser.add_argument('--memory', type=int, default=4096, help='1024–8192MiB')
+    parser.add_argument('--cpu-profile', choices=CPU_PROFILES, default='max', help='Contained TCG CPU diagnostic profile; default max')
+    parser.add_argument('--video', choices=tuple(VIDEO_PROFILES), default='standard', help='Standard VGA or 2D virtio-vga; no host GPU access')
     parser.add_argument('--disk-size', help='Optional NEW disposable qcow2, 8G–128G; no existing disk accepted')
     parser.add_argument('--network', choices=('none', 'user'), default='none', help='No networking, or optional user NAT without forwards/shares')
     args = parser.parse_args()

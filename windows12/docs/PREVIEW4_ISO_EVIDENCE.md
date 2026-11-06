@@ -25,3 +25,15 @@ The corrected controllers passed all52 tests in the disposable guest, determinis
 Fresh corrected D-I installation and ISO-free installed-root proof; live Plasma login/workflows; installed desktop login/workflows; separate Calamares installation; UEFI/Secure Boot and physical hardware coverage. Do not recommend replacing an existing computer OS based only on the successful content audit and boot menu. No physical disk operation has been performed.
 
 Keep the ISO, checksum manifest, original authenticated inputs, tool archives/locks, frozen source, package manifest and full logs independently preserved. Git preserves source/memory rather than these ignored generated artifacts.
+
+## First actual live desktop review
+
+`artifacts/live-desktop-001/` was booted from the unchanged ISO with TCG/max/standard VGA, no writable disk and no network. It reached systemd startup, live-user automatic login, and a black default Plasma Wayland screen. TTY3 worked. `screen-0008.ppm` shows llvmpipe thread faults; `screen-0009.ppm` shows SDDM successful user authentication and startplasma-wayland. Thread fault messages alone do not identify a causal CPU defect.
+
+Transient changes existed only in the disposable live RAM overlay: GALLIUM_DRIVER=softpipe in /etc/environment; then Autologin Session=plasmax11.desktop in /etc/sddm.conf (a drop-in alone was overridden by that file); then user plasma-workspace/env/w12-test.sh exporting QT_QUICK_BACKEND=software and KWIN_COMPOSE=Q. The softpipe Wayland attempt logged a DRM framebuffer Invalid argument (`screen-0011.ppm`); X11 launch/process and renderer environment are shown in `screen-0017.ppm`.
+
+The modified X11 session displayed a bottom panel (`screen-0019.ppm`), responding launcher/menu (`screen-0022.ppm`) and Dolphin home (`screen-0024.ppm`). Rendering remained degraded (black wallpaper/window decoration issues); no file-operation or general workflow pass is claimed. This is partial modified-session evidence, not a default ISO GUI pass. Operator stopped the owned VM; return0 and outcome operator-stopped are recorded in result.json. The temporary changes were not added to the ISO or source overlay.
+
+Next diagnostic: a NEW unchanged-ISO guest using the explicit contained Nehalem/2D virtio-vga profile after guest tests. No inference about physical hardware, UEFI or graphics-driver support follows from these software-emulated failures or workarounds.
+
+The new diagnostic-profile controller passed55 guest tests, byte-identical preview4 packaging/dpkg checks and confirmed shutdown in `artifacts/overlay-check-c11fb30393c6f70b20f9472002912b2f/`. Ordinary-permission attempt af7aacea0e12491fe6b08b7615d9a464 failed before VM launch on loopback access; the approved network-enabled retry passed. Corrected installation session8231 is now active in `artifacts/install-serial20-001/`; its eventual result must be inspected, not presumed.
