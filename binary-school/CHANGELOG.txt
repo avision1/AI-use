@@ -1,3 +1,12 @@
+1.6 — Source-free debugging and native-tool teaching
+- Give all 13 flag lessons a binary-only GDB route, with optional source steps.
+- Explain missing source, stripped symbols and managed ptrace restrictions.
+- Move unrelated general videos into a six-video background library; verify metadata.
+- Add original Windows call/return/branch diagrams and precise tool walkthroughs.
+- Add a bounded native MSVC handled-exception exercise and acceptance kit.
+- Separate compiler and linker PDB paths in native MSVC scripts.
+- Keep native execution/manual verification explicitly pending without a Windows host.
+
 1.5 — Progress recovery and truthful persistence feedback
 - Validate/migrate stored progress before rendering; recover valid fields.
 - Preserve malformed original text and offer recovery downloads without wiping it.
