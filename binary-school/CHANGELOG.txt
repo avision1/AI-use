@@ -1,3 +1,11 @@
+1.4.1 — Keyboard and mobile learning navigation
+- Add skip-to-content and route-only heading focus without hijacking hash routing.
+- Label course progress and current navigation/lesson links.
+- Make the mobile lesson list a native collapsible disclosure.
+- Use a keyboard-accessible backup chooser button and restore focus after actions.
+- Preserve natural control tab order and add visible keyboard focus styling.
+- Add structural and focus-flow regressions; live assistive-technology QA pending.
+
 1.4 — Syllabus learning paths and discoverability
 - Add a prerequisite diagnostic and selectable foundation/revision routes.
 - Keep diagnostic results separate from course credit; preserve all existing IDs.

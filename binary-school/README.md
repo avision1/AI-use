@@ -56,6 +56,7 @@ python3 -m unittest discover -s tests -v
 node tests/test_course.cjs
 node tests/test_import.cjs
 node tests/test_paths.cjs
+node tests/test_accessibility.cjs
 node --check site/app.js
 ```
 
@@ -70,3 +71,5 @@ Lesson 94 uses a separate challenge-only pack with cedar, quartz and willow vari
 Notebook and practical-report drafts save as you type. Storage failures display a message; a failed notebook save also prompts before leaving the page. Browser storage can still be cleared, so continue exporting backups.
 
 Maintainers can rebuild the new binaries with `python3 tools/build_readiness.py` using GCC plus MinGW-w64 GCC/binutils; `--mingw-cc` selects the cross compiler. `python3 tools/package_readiness.py` refreshes their ZIPs and lab checksums without rebuilding. Neither tool nor Node.js is needed by students.
+
+Keyboard support includes a skip link, route-heading focus, current-page labels, a native mobile lesson-list disclosure, and a real button for the backup chooser. Structural/focus-flow regressions pass; live keyboard, screen-reader and mobile visual acceptance remain to be performed.

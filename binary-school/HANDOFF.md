@@ -10,10 +10,14 @@ Current checkpoint: prerequisite diagnostic, foundation and focused syllabus-rev
 
 ## Authorized next work
 
-The user authorized taking on the next tasks, with subagents reviewing the website and regular commits/pushes. Remaining tasks: accessibility/navigation/mobile lesson selection, accurately scoped video support, and native Windows/MSVC validation. Use a fresh syllabus-only reviewer on a pushed checkpoint, finish the active issue, then report findings and ask for next steps.
+The user authorized taking on the next tasks, with subagents reviewing the website and regular commits/pushes. Accessibility checkpoint completed: skip navigation, route-heading focus, current-page/progress labels, mobile lesson disclosure, keyboard backup chooser, and post-action focus. Structural/focus-flow regressions pass; live assistive-technology QA remains pending. Remaining tasks include accurately scoped video support and native Windows/MSVC validation. Use a fresh syllabus-only reviewer on a pushed checkpoint, finish the active issue, then report findings and ask for next steps.
 
 ## Checks and limits
 
-Run all Python tests, `node tests/test_course.cjs`, `node tests/test_import.cjs`, `node tests/test_paths.cjs`, and `node --check site/app.js`. Keep checksum manifests current.
+Run all Python tests, `node tests/test_course.cjs`, `node tests/test_import.cjs`, `node tests/test_paths.cjs`, `node tests/test_accessibility.cjs`, and `node --check site/app.js`. Keep checksum manifests current.
 
 Linux binaries and automated HTTP/frontend tests are verified. Live Windows/MSVC and rendered browser/keyboard/mobile behavior remain unverified. Supplied native PE downloads are MinGW GCC, not MSVC output; the native MSVC scripts require Windows.
+
+## Fresh review returned
+
+A fresh syllabus-only reviewer examined main `8a51658ea21d211a44b24db842d7ed27afb881e9`. It found no critical curriculum contradiction. It reported six P2 items: keyboard-inaccessible backup chooser; route focus/skip navigation; source-free GDB instructions incorrectly relying on unavailable C; successful interactions ignoring failed persistence; malformed valid stored JSON preventing startup; native Windows acceptance still unverified. The first two are addressed in the current accessibility checkpoint. Other findings remain pending. Finish/push this issue, report the review and ask the user for next steps before beginning another issue.
