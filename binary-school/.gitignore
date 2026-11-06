@@ -6,3 +6,5 @@ binary-school-progress*.json
 .DS_Store
 
 .build-tools/
+
+.qa/

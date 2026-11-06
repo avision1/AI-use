@@ -117,7 +117,7 @@
       "code": "Download lab.c below and follow the smoke-test instructions for your platform. After setup, open the Assembly course from the Learning path.",
       "level": "Guided",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "sections": [
         {
           "title": "Choose the host and execution target",
@@ -187,7 +187,8 @@
           "GNU GDB documentation",
           "https://sourceware.org/gdb/documentation/"
         ]
-      ]
+      ],
+      "videoRole": "overview"
     },
     {
       "id": 26,
@@ -204,7 +205,8 @@
       ],
       "level": "Guided",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 27,
@@ -221,7 +223,8 @@
       ],
       "level": "Guided",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 28,
@@ -238,7 +241,8 @@
       ],
       "level": "Guided",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 29,
@@ -255,7 +259,8 @@
       ],
       "level": "Guided",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 30,
@@ -272,7 +277,8 @@
       ],
       "level": "Guided",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 31,
@@ -289,7 +295,8 @@
       ],
       "level": "Guided",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 32,
@@ -306,7 +313,8 @@
       ],
       "level": "Guided",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 33,
@@ -323,7 +331,8 @@
       ],
       "level": "Guided",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 34,
@@ -340,7 +349,8 @@
       ],
       "level": "Practice",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 35,
@@ -357,7 +367,8 @@
       ],
       "level": "Practice",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 36,
@@ -375,7 +386,8 @@
       ],
       "level": "Practice",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 37,
@@ -392,7 +404,8 @@
       ],
       "level": "Practice",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 38,
@@ -410,7 +423,8 @@
       ],
       "level": "Practice",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 39,
@@ -427,7 +441,8 @@
       ],
       "level": "Independent",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 40,
@@ -445,7 +460,8 @@
       ],
       "level": "Independent",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 41,
@@ -465,14 +481,15 @@
       ],
       "level": "Independent",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction"
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "videoRole": "overview"
     },
     {
       "id": 108,
       "course": "assembly",
       "title": "Interactive binary lab · Registers and addition",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Use the visible arithmetic in gate to compute the expected integer. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x assembly-guided-linux-x64\n./assembly-guided-linux-x64 0\ngdb ./assembly-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x assembly-guided-linux-x64\ngdb -q ./assembly-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Use the visible arithmetic in gate to compute the expected integer.",
@@ -484,7 +501,7 @@
       "hint": "Use the visible arithmetic in gate to compute the expected integer.",
       "level": "Interactive flag lab",
       "video": "PxiMLtsuGO0",
-      "teacher": "YouTube · Learn Assembly For Beginners — x86-64 introduction",
+      "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
       "references": [
         [
           "Ghidra beginner guide",
@@ -517,7 +534,23 @@
         "I recovered and explained the input predicate.",
         "I found or observed the flag using Ghidra or a debugger.",
         "I compared success and failure behavior and recorded the steps."
-      ]
+      ],
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download assembly.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 1,
@@ -530,7 +563,8 @@
       "code": "int twice(int x) { return x * 2; }",
       "level": "Guided",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 2,
@@ -543,7 +577,8 @@
       "code": "int add(int a, int b) { return a + b; }",
       "level": "Guided",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 3,
@@ -556,7 +591,8 @@
       "code": "mov eax, 5\nadd eax, 7\nret",
       "level": "Guided",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 4,
@@ -569,7 +605,8 @@
       "code": "int check(int x) {\n  if (x == 9) return 1;\n  return 0;\n}",
       "level": "Guided",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 5,
@@ -582,7 +619,8 @@
       "code": "int a[3] = {2, 4, 6};\nint sum = 0;\nfor (int i=0; i<3; ++i) sum += a[i];",
       "level": "Guided",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 6,
@@ -595,7 +633,8 @@
       "code": "int next_value(int x) { return x + 1; }",
       "level": "Practice",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 7,
@@ -608,7 +647,8 @@
       "code": "int square(int x) { int y = x * x; return y; }",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 95,
@@ -627,7 +667,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "GNU GDB breakpoint reference",
@@ -635,7 +675,8 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 129,
@@ -655,7 +696,7 @@
       "level": "Deepening lesson",
       "optional_completion": true,
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "sections": [
         {
           "title": "Artifact checklist",
@@ -694,14 +735,15 @@
         }
       ],
       "references": [],
-      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words."
+      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words.",
+      "videoRole": "background"
     },
     {
       "id": 109,
       "course": "foundations",
       "title": "Interactive binary lab · C expression recovery",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Recover the arithmetic expression in gate; compare to a tiny C function on Godbolt. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x foundations-guided-linux-x64\n./foundations-guided-linux-x64 0\ngdb ./foundations-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x foundations-guided-linux-x64\ngdb -q ./foundations-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Recover the arithmetic expression in gate; compare to a tiny C function on Godbolt.",
@@ -713,7 +755,7 @@
       "hint": "Recover the arithmetic expression in gate; compare to a tiny C function on Godbolt.",
       "level": "Interactive flag lab",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Ghidra beginner guide",
@@ -746,7 +788,23 @@
         "I recovered and explained the input predicate.",
         "I found or observed the flag using Ghidra or a debugger.",
         "I compared success and failure behavior and recorded the steps."
-      ]
+      ],
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download foundations.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 42,
@@ -765,7 +823,7 @@
       "hint": "Two groups: 2 times 16, plus 10.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Intel architecture manuals",
@@ -774,7 +832,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 43,
@@ -793,7 +852,7 @@
       "hint": "A 32-bit write clears the high 32 bits.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Intel architecture manuals",
@@ -802,7 +861,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 44,
@@ -821,7 +881,7 @@
       "hint": "Signed less is jl; unsigned below is jb.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Intel architecture manuals",
@@ -830,7 +890,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 45,
@@ -849,7 +910,7 @@
       "hint": "Keep only the low four bits.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Intel architecture manuals",
@@ -858,7 +919,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 46,
@@ -877,7 +939,7 @@
       "hint": "Use a quotient of -3.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Intel architecture manuals",
@@ -886,7 +948,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 47,
@@ -905,7 +968,7 @@
       "hint": "Each int occupies four bytes on our targets.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Intel architecture manuals",
@@ -914,7 +977,8 @@
       ],
       "lab": "leaf.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 96,
@@ -933,7 +997,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Intel instruction reference",
@@ -941,7 +1005,8 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 97,
@@ -960,7 +1025,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Intel instruction reference",
@@ -972,7 +1037,8 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 122,
@@ -990,7 +1056,7 @@
       "answer": "-5",
       "hint": "Trace the stated input through the source model, then check the actual binary.",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "level": "Worked case study",
       "optional_completion": true,
       "references": [
@@ -1070,7 +1136,8 @@
           "Full comparative casebook + MSVC build kit",
           "labs/comparative-casebook.zip"
         ]
-      ]
+      ],
+      "videoRole": "background"
     },
     {
       "id": 130,
@@ -1090,7 +1157,7 @@
       "level": "Deepening lesson",
       "optional_completion": true,
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "sections": [],
       "references": [
         [
@@ -1098,7 +1165,8 @@
           "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html"
         ]
       ],
-      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words."
+      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words.",
+      "videoRole": "background"
     },
     {
       "id": 131,
@@ -1118,7 +1186,7 @@
       "level": "Deepening lesson",
       "optional_completion": true,
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "sections": [
         {
           "title": "A notation check before every trace",
@@ -1152,14 +1220,15 @@
           "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html"
         ]
       ],
-      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words."
+      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words.",
+      "videoRole": "background"
     },
     {
       "id": 110,
       "course": "machine",
       "title": "Interactive binary lab · Bit operations",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Track the unsigned shift and XOR before comparing input. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x machine-guided-linux-x64\n./machine-guided-linux-x64 0\ngdb ./machine-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x machine-guided-linux-x64\ngdb -q ./machine-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Track the unsigned shift and XOR before comparing input.",
@@ -1171,7 +1240,7 @@
       "hint": "Track the unsigned shift and XOR before comparing input.",
       "level": "Interactive flag lab",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Ghidra beginner guide",
@@ -1204,7 +1273,23 @@
         "I recovered and explained the input predicate.",
         "I found or observed the flag using Ghidra or a debugger.",
         "I compared success and failure behavior and recorded the steps."
-      ]
+      ],
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download machine.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 48,
@@ -1223,7 +1308,7 @@
       "hint": "global_count stays 3; visits becomes 2.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -1232,7 +1317,8 @@
       ],
       "lab": "constructs.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 49,
@@ -1251,7 +1337,7 @@
       "hint": "Both pointers reference the same object.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -1260,7 +1346,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 50,
@@ -1279,7 +1366,7 @@
       "hint": "Five times three, plus two.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Intel architecture manuals",
@@ -1288,7 +1375,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 51,
@@ -1307,7 +1395,7 @@
       "hint": "The left side is false, so && skips the right side.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Intel architecture manuals",
@@ -1316,7 +1404,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 52,
@@ -1335,7 +1424,7 @@
       "hint": "The loop stops before adding seven.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Intel architecture manuals",
@@ -1344,7 +1433,8 @@
       ],
       "lab": "constructs.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 53,
@@ -1363,7 +1453,7 @@
       "hint": "Subtract the smallest case value.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Intel architecture manuals",
@@ -1372,7 +1462,8 @@
       ],
       "lab": "constructs.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 54,
@@ -1391,7 +1482,7 @@
       "hint": "Index five times four bytes.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Intel architecture manuals",
@@ -1400,7 +1491,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 99,
@@ -1419,7 +1511,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Ghidra beginner guide",
@@ -1427,7 +1519,8 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 100,
@@ -1446,7 +1539,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Intel instruction reference",
@@ -1454,7 +1547,8 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 121,
@@ -1472,7 +1566,7 @@
       "answer": "30",
       "hint": "Trace the stated input through the source model, then check the actual binary.",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "level": "Worked case study",
       "optional_completion": true,
       "references": [
@@ -1544,7 +1638,8 @@
           "Full comparative casebook + MSVC build kit",
           "labs/comparative-casebook.zip"
         ]
-      ]
+      ],
+      "videoRole": "background"
     },
     {
       "id": 123,
@@ -1562,7 +1657,7 @@
       "answer": "2",
       "hint": "Trace the stated input through the source model, then check the actual binary.",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "level": "Worked case study",
       "optional_completion": true,
       "references": [
@@ -1638,7 +1733,8 @@
       "diagram": {
         "path": "diagrams/decision-paths.svg",
         "alt": "Original nested-decision graph showing three return paths and the conditions selecting them."
-      }
+      },
+      "videoRole": "background"
     },
     {
       "id": 124,
@@ -1656,7 +1752,7 @@
       "answer": "14",
       "hint": "Trace the stated input through the source model, then check the actual binary.",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "level": "Worked case study",
       "optional_completion": true,
       "references": [
@@ -1738,7 +1834,8 @@
           "Full comparative casebook + MSVC build kit",
           "labs/comparative-casebook.zip"
         ]
-      ]
+      ],
+      "videoRole": "background"
     },
     {
       "id": 126,
@@ -1756,7 +1853,7 @@
       "answer": "13",
       "hint": "Trace the stated input through the source model, then check the actual binary.",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "level": "Worked case study",
       "optional_completion": true,
       "references": [
@@ -1843,14 +1940,15 @@
           "Full comparative casebook + MSVC build kit",
           "labs/comparative-casebook.zip"
         ]
-      ]
+      ],
+      "videoRole": "background"
     },
     {
       "id": 111,
       "course": "patterns",
       "title": "Interactive binary lab · Switch reconstruction",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Recover selection’s cases and find which input produces the expected value. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x patterns-guided-linux-x64\n./patterns-guided-linux-x64 0\ngdb ./patterns-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x patterns-guided-linux-x64\ngdb -q ./patterns-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Recover selection’s cases and find which input produces the expected value.",
@@ -1862,7 +1960,7 @@
       "hint": "Recover selection’s cases and find which input produces the expected value.",
       "level": "Interactive flag lab",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 2",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Ghidra beginner guide",
@@ -1895,7 +1993,23 @@
         "I recovered and explained the input predicate.",
         "I found or observed the flag using Ghidra or a debugger.",
         "I compared success and failure behavior and recorded the steps."
-      ]
+      ],
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download patterns.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 55,
@@ -1914,7 +2028,7 @@
       "hint": "The immediate is a byte count.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Microsoft __cdecl",
@@ -1923,7 +2037,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 56,
@@ -1942,7 +2057,7 @@
       "hint": "Look after call.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Microsoft __cdecl",
@@ -1951,7 +2066,8 @@
       ],
       "lab": "calls.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 57,
@@ -1970,7 +2086,7 @@
       "hint": "Follow edi, esi, edx, then ecx.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "GNU GDB manual",
@@ -1979,7 +2095,8 @@
       ],
       "lab": "calls.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 58,
@@ -1998,7 +2115,7 @@
       "hint": "Four eight-byte register home slots.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Microsoft x64 calling convention",
@@ -2007,7 +2124,8 @@
       ],
       "lab": "calls.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 59,
@@ -2026,7 +2144,7 @@
       "hint": "4*3*2*1.",
       "level": "Practice",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Microsoft x64 calling convention",
@@ -2039,7 +2157,8 @@
       ],
       "lab": "calls.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 98,
@@ -2058,7 +2177,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Intel instruction reference",
@@ -2066,7 +2185,8 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 125,
@@ -2084,7 +2204,7 @@
       "answer": "50",
       "hint": "Trace the stated input through the source model, then check the actual binary.",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "level": "Worked case study",
       "optional_completion": true,
       "references": [
@@ -2171,7 +2291,8 @@
           "Full comparative casebook + MSVC build kit",
           "labs/comparative-casebook.zip"
         ]
-      ]
+      ],
+      "videoRole": "background"
     },
     {
       "id": 132,
@@ -2191,7 +2312,7 @@
       "level": "Deepening lesson",
       "optional_completion": true,
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "sections": [],
       "references": [
         [
@@ -2203,14 +2324,15 @@
           "https://learn.microsoft.com/en-us/cpp/build/x64-calling-convention"
         ]
       ],
-      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words."
+      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words.",
+      "videoRole": "background"
     },
     {
       "id": 112,
       "course": "calls",
       "title": "Interactive binary lab · Calling conventions",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Follow the call to combine; recover argument order and result. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x calls-guided-linux-x64\n./calls-guided-linux-x64 0\ngdb ./calls-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x calls-guided-linux-x64\ngdb -q ./calls-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Follow the call to combine; recover argument order and result.",
@@ -2222,7 +2344,7 @@
       "hint": "Follow the call to combine; recover argument order and result.",
       "level": "Interactive flag lab",
       "video": "H4Z0S9ZbC0g",
-      "teacher": "OpenSecurityTraining2 · Introductory Intel x86, Day 1 Part 1",
+      "teacher": "OpenSecurityTraining2 · Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
       "references": [
         [
           "Ghidra beginner guide",
@@ -2255,7 +2377,23 @@
         "I recovered and explained the input predicate.",
         "I found or observed the flag using Ghidra or a debugger.",
         "I compared success and failure behavior and recorded the steps."
-      ]
+      ],
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download calls.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 8,
@@ -2268,7 +2406,8 @@
       "code": "",
       "level": "Guided",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 9,
@@ -2281,7 +2420,8 @@
       "code": "Search → For Strings\nSelect BINARY_SCHOOL\nReferences → Show References to Address",
       "level": "Guided",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 10,
@@ -2294,7 +2434,8 @@
       "code": "int transform(int x) { return x * 3 + 7; }",
       "level": "Guided",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 11,
@@ -2307,7 +2448,8 @@
       "code": "",
       "level": "Practice",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 12,
@@ -2320,7 +2462,8 @@
       "code": "",
       "level": "Practice",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 13,
@@ -2333,7 +2476,8 @@
       "code": "",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 14,
@@ -2346,7 +2490,8 @@
       "code": "",
       "level": "Practice",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 15,
@@ -2359,7 +2504,8 @@
       "code": "",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 101,
@@ -2378,7 +2524,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Ghidra beginner guide",
@@ -2386,14 +2532,15 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "overview"
     },
     {
       "id": 113,
       "course": "ghidra",
       "title": "Interactive binary lab · Cross-reference investigation",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Follow references from accepted to its controlling comparison. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x ghidra-guided-linux-x64\n./ghidra-guided-linux-x64 0\ngdb ./ghidra-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x ghidra-guided-linux-x64\ngdb -q ./ghidra-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Follow references from accepted to its controlling comparison.",
@@ -2405,7 +2552,7 @@
       "hint": "Follow references from accepted to its controlling comparison.",
       "level": "Interactive flag lab",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Ghidra beginner guide",
@@ -2492,7 +2639,23 @@
             "-1"
           ]
         ]
-      }
+      },
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download ghidra.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "overview"
     },
     {
       "id": 60,
@@ -2511,7 +2674,7 @@
       "hint": "int alignment leaves padding after the char.",
       "level": "Practice",
       "video": "RFG5FuqY0CE",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 3",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 3",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -2520,7 +2683,8 @@
       ],
       "lab": "records.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 61,
@@ -2539,7 +2703,7 @@
       "hint": "Two strides of 12, plus 4.",
       "level": "Practice",
       "video": "RFG5FuqY0CE",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 3",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 3",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -2548,7 +2712,8 @@
       ],
       "lab": "records.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 62,
@@ -2567,7 +2732,7 @@
       "hint": "The pointer needs eight-byte alignment.",
       "level": "Practice",
       "video": "RFG5FuqY0CE",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 3",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 3",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -2576,7 +2741,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 63,
@@ -2595,7 +2761,7 @@
       "hint": "Observable behavior and supported structure matter.",
       "level": "Practice",
       "video": "RFG5FuqY0CE",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 3",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 3",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -2604,7 +2770,8 @@
       ],
       "lab": "constructs.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 64,
@@ -2623,7 +2790,7 @@
       "hint": "Tests support a conclusion over their tested cases.",
       "level": "Practice",
       "video": "RFG5FuqY0CE",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 3",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 3",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -2632,7 +2799,8 @@
       ],
       "lab": "compare.py",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 102,
@@ -2651,7 +2819,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "RFG5FuqY0CE",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 3",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 3",
       "references": [
         [
           "Ghidra beginner guide",
@@ -2659,7 +2827,8 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 127,
@@ -2677,7 +2846,7 @@
       "answer": "11",
       "hint": "Trace the stated input through the source model, then check the actual binary.",
       "video": "RFG5FuqY0CE",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 3",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 3",
       "level": "Worked case study",
       "optional_completion": true,
       "references": [
@@ -2754,7 +2923,8 @@
           "Full comparative casebook + MSVC build kit",
           "labs/comparative-casebook.zip"
         ]
-      ]
+      ],
+      "videoRole": "background"
     },
     {
       "id": 128,
@@ -2772,7 +2942,7 @@
       "answer": "2",
       "hint": "Trace the stated input through the source model, then check the actual binary.",
       "video": "RFG5FuqY0CE",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 3",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 3",
       "level": "Worked case study",
       "optional_completion": true,
       "references": [
@@ -2854,14 +3024,15 @@
           "Full comparative casebook + MSVC build kit",
           "labs/comparative-casebook.zip"
         ]
-      ]
+      ],
+      "videoRole": "background"
     },
     {
       "id": 114,
       "course": "types",
       "title": "Interactive binary lab · Struct data flow",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Recover Record field offsets and the expression that reads them. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x types-guided-linux-x64\n./types-guided-linux-x64 0\ngdb ./types-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x types-guided-linux-x64\ngdb -q ./types-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Recover Record field offsets and the expression that reads them.",
@@ -2873,7 +3044,7 @@
       "hint": "Recover Record field offsets and the expression that reads them.",
       "level": "Interactive flag lab",
       "video": "RFG5FuqY0CE",
-      "teacher": "HackadayU · Reverse Engineering with Ghidra, Class 3",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 3",
       "references": [
         [
           "Ghidra beginner guide",
@@ -2960,7 +3131,23 @@
             "14"
           ]
         ]
-      }
+      },
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download types.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 16,
@@ -2973,7 +3160,8 @@
       "code": "gcc -g -O0 -o lab lab.c\ngdb ./lab",
       "level": "Guided",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction"
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
+      "videoRole": "overview"
     },
     {
       "id": 17,
@@ -2986,7 +3174,8 @@
       "code": "(gdb) break main\n(gdb) run 23\n(gdb) list",
       "level": "Guided",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction"
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
+      "videoRole": "overview"
     },
     {
       "id": 18,
@@ -2999,7 +3188,8 @@
       "code": "(gdb) break transform\n(gdb) run 4\n(gdb) print x\n(gdb) next",
       "level": "Guided",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction"
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
+      "videoRole": "overview"
     },
     {
       "id": 19,
@@ -3012,7 +3202,8 @@
       "code": "(gdb) break transform\n(gdb) run 9\n(gdb) print x",
       "level": "Guided",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction"
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
+      "videoRole": "overview"
     },
     {
       "id": 20,
@@ -3025,7 +3216,8 @@
       "code": "(gdb) set disassembly-flavor intel\n(gdb) disassemble /m transform\n(gdb) info registers",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction"
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
+      "videoRole": "overview"
     },
     {
       "id": 21,
@@ -3038,7 +3230,8 @@
       "code": "(gdb) break array_total\n(gdb) run\n(gdb) next\n(gdb) watch sum\n(gdb) continue",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction"
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
+      "videoRole": "overview"
     },
     {
       "id": 22,
@@ -3051,7 +3244,8 @@
       "code": "(gdb) backtrace\n(gdb) up\n(gdb) info locals",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction"
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
+      "videoRole": "overview"
     },
     {
       "id": 23,
@@ -3064,7 +3258,8 @@
       "code": "(gdb) set variable x = 5\n(gdb) finish\n(gdb) print $eax",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction"
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
+      "videoRole": "overview"
     },
     {
       "id": 24,
@@ -3077,7 +3272,8 @@
       "code": "cl /nologo /TC /Od /Zi /Fe:lab.exe lab.c",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 25,
@@ -3090,14 +3286,15 @@
       "code": "",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Matthew Alt"
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
+      "videoRole": "overview"
     },
     {
       "id": 115,
       "course": "debug",
       "title": "Interactive binary lab · Debugger inspection",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Break in gate and inspect target after initialization, or step the multiplication. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x debug-guided-linux-x64\n./debug-guided-linux-x64 0\ngdb ./debug-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x debug-guided-linux-x64\ngdb -q ./debug-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Break in gate and inspect target after initialization, or step the multiplication.",
@@ -3109,7 +3306,7 @@
       "hint": "Break in gate and inspect target after initialization, or step the multiplication.",
       "level": "Interactive flag lab",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "Ghidra beginner guide",
@@ -3196,7 +3393,23 @@
             "25"
           ]
         ]
-      }
+      },
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download debug.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 65,
@@ -3215,7 +3428,7 @@
       "hint": "Four units, each four bytes.",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "GNU GDB manual",
@@ -3224,7 +3437,8 @@
       ],
       "lab": "constructs.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 66,
@@ -3243,7 +3457,7 @@
       "hint": "The short form is c.",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "GNU GDB manual",
@@ -3252,7 +3466,8 @@
       ],
       "lab": "constructs.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 67,
@@ -3271,7 +3486,7 @@
       "hint": "Add the relative offset to the image base.",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "GNU GDB manual",
@@ -3284,7 +3499,8 @@
       ],
       "lab": "constructs.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 68,
@@ -3303,7 +3519,7 @@
       "hint": "Length minus one.",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "GNU GDB manual",
@@ -3316,7 +3532,8 @@
       ],
       "lab": "audit.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 69,
@@ -3335,7 +3552,7 @@
       "hint": "4*3+9.",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "GNU GDB manual",
@@ -3348,7 +3565,8 @@
       ],
       "lab": "patch_logic.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 104,
@@ -3367,7 +3585,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "GNU GDB breakpoint reference",
@@ -3379,14 +3597,15 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 116,
       "course": "dynamic",
       "title": "Interactive binary lab · Stripped-binary tracing",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Trace the accumulation in a debugger or recover the stripped loop statically. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x dynamic-guided-linux-x64\n./dynamic-guided-linux-x64 0\ngdb ./dynamic-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x dynamic-guided-linux-x64\ngdb -q ./dynamic-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Trace the accumulation in a debugger or recover the stripped loop statically.",
@@ -3398,7 +3617,7 @@
       "hint": "Trace the accumulation in a debugger or recover the stripped loop statically.",
       "level": "Interactive flag lab",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "Ghidra beginner guide",
@@ -3485,7 +3704,23 @@
             "1"
           ]
         ]
-      }
+      },
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download dynamic.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 70,
@@ -3504,7 +3739,7 @@
       "hint": "Debug metadata and optimization are separate settings.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Microsoft x64 calling convention",
@@ -3517,7 +3752,8 @@
       ],
       "lab": "build-msvc-all.bat",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 71,
@@ -3536,7 +3772,7 @@
       "hint": "Subtract 0x1000, then add 0x400.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Microsoft PE specification",
@@ -3545,7 +3781,8 @@
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 72,
@@ -3564,7 +3801,7 @@
       "hint": "W means the wide-character variant.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Microsoft PE specification",
@@ -3577,7 +3814,8 @@
       ],
       "lab": "windows_lab.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 73,
@@ -3596,7 +3834,7 @@
       "hint": "Match the debugger to target bitness.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "x64dbg documentation",
@@ -3605,11 +3843,66 @@
         [
           "Microsoft x64 calling convention",
           "https://learn.microsoft.com/en-us/cpp/build/x64-calling-convention"
+        ],
+        [
+          "x64dbg official run/step and exception controls",
+          "https://help.x64dbg.com/en/latest/gui/menus/Debug.html"
         ]
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background",
+      "sections": [
+        {
+          "title": "x64dbg walkthrough · one import call, two paths",
+          "text": "Use the native windows practical from lesson 117. These are expected observations and an original schematic, not a captured debugger session. Open the x64 PE in x64dbg; use x32dbg for an x86 MSVC build. Set the command line to LAB 4, locate main through symbols or string cross-references, and break at the call site of IsDebuggerPresent. The initial stop may be the system breakpoint or CRT startup rather than main.",
+          "table": [
+            [
+              "Step",
+              "Inspect",
+              "Expected evidence to record"
+            ],
+            [
+              "Before the API call",
+              "Call target and instruction address",
+              "Import/thunk resolves to IsDebuggerPresent; it has no arguments."
+            ],
+            [
+              "Step over the call",
+              "EAX and following test/branch",
+              "Under a debugger a nonzero result selects DEBUG_PATH and exit 3."
+            ],
+            [
+              "Restart and repeat",
+              "Temporary EAX=0 immediately after the call",
+              "The altered run proceeds to the label/quantity checks and quote. This changes live state only."
+            ],
+            [
+              "Run without a debugger",
+              "LAB 4 stdout and exit status",
+              "quote=28 and the practical flag, exit 0; PID varies."
+            ],
+            [
+              "Inspect lstrcmpA call site",
+              "RCX/RDX on Windows x64, or x86 stack arguments",
+              "Show the two string pointers and dump LAB; do not confuse the call site with CRT startup."
+            ]
+          ]
+        },
+        {
+          "title": "Keep the original and the patched copy distinct",
+          "text": "Record original hash, debugger version and module-relative call offset. Restarting clears a register-only change. A persistent repair needs an exported file and multiple-input tests. Prefer the separate final adjustment patch for a controlled repair; do not suppress unrelated exceptions or patch system libraries."
+        },
+        {
+          "title": "Make the temporary override at the right stop",
+          "text": "In the CPU view, select the application call instruction and toggle a breakpoint there. Run until it stops, then use Step Over to return from the API call. Before executing the following test/branch, edit EAX (or the low part of RAX) to zero in the Registers view. Continue and compare against a fresh unmodified run. Editing the register after the branch has already executed does not undo the branch."
+        }
+      ],
+      "diagram": {
+        "path": "images/debugger-evidence.svg",
+        "alt": "Original schematic: identify the call, inspect its return, explain the branch, then test a copy; this is not a screenshot of a verified Windows session."
+      }
     },
     {
       "id": 74,
@@ -3628,16 +3921,66 @@
       "hint": "A single-letter command.",
       "level": "Practice",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "WinDbg getting started",
           "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/getting-started-with-windbg"
+        ],
+        [
+          "Microsoft WinDbg user-mode tutorial",
+          "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/getting-started-with-windbg"
+        ],
+        [
+          "Microsoft video: WinDbg basic commands (symbols at 10:16; register/stack context at 20:13)",
+          "https://learn.microsoft.com/en-us/shows/defrag-tools/20-windbg-basic-commands"
         ]
       ],
       "lab": null,
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background",
+      "sections": [
+        {
+          "title": "WinDbg walkthrough · symbols and a concrete stop",
+          "text": "Build the readiness windows.c with native MSVC /Od /Zi and keep its EXE and PDB together. Launch that EXE with LAB 4. Obtain its actual module name from lm; the commands below use windows as the example name. If the module name differs, substitute it. MinGW GCC debug information is not an MSVC PDB, so use the MSVC build for this symbol-based route. The observations are a reproducible plan pending native Windows verification.",
+          "code": ".symfix\n.sympath+ C:\\path\\to\\msvc-x64\n.reload /f\nlm\nx windows!*main*\nbu windows!main\ng\nr\nk\nu @rip L12\n# Set a breakpoint at the actual imported-call site you identified.\n# Use p to step over the call, then r eax to inspect the result."
+        },
+        {
+          "title": "Read the stopped state before changing it",
+          "text": "At a known call site, record arguments before the call and return value immediately after it. Windows x64 uses RCX/RDX/R8/R9 for the first four integer/pointer arguments, with ECX for a 32-bit int. In an x86 target, inspect the actual stack-based or register convention instead. Use da for narrow strings and du for UTF-16 pointers. Verify the pointer belongs to readable memory before interpreting it.",
+          "table": [
+            [
+              "Question",
+              "Evidence"
+            ],
+            [
+              "Did symbols load?",
+              "lm, module path and x module!*main* output; include PDB location."
+            ],
+            [
+              "Are you at the intended code?",
+              "Instruction address and module-relative offset; show the surrounding call and branch."
+            ],
+            [
+              "What changed after a call?",
+              "Before/after register or memory values tied to the C/API contract."
+            ],
+            [
+              "Did the application handle an exception?",
+              "First-chance stop, dispatch/handler path and final exit behavior; a debugger stop alone is not a crash."
+            ]
+          ]
+        },
+        {
+          "title": "Temporary BOOL return override in WinDbg",
+          "code": "# Immediately after stepping over IsDebuggerPresent, before its test/branch:\nr eax\nr eax=0\ng\n# Restart for a clean comparison. This does not modify the executable."
+        }
+      ],
+      "diagram": {
+        "path": "images/debugger-evidence.svg",
+        "alt": "Original schematic: identify the call, inspect its return, explain the branch, then test a copy; this is not a screenshot of a verified Windows session."
+      }
     },
     {
       "id": 103,
@@ -3656,7 +3999,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Windows data types",
@@ -3664,7 +4007,8 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 105,
@@ -3683,15 +4027,34 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Windows debugger exception handling",
           "https://learn.microsoft.com/en-us/windows/win32/debug/debugger-exception-handling"
+        ],
+        [
+          "Original MSVC handled-exception C source",
+          "labs/windows-acceptance/exception_lab.c"
+        ],
+        [
+          "Windows acceptance checklist",
+          "labs/windows-acceptance/WINDOWS-ACCEPTANCE.md"
+        ],
+        [
+          "Microsoft exception-handler syntax",
+          "https://learn.microsoft.com/en-us/windows/win32/debug/exception-handler-syntax"
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background",
+      "sections": [
+        {
+          "title": "A concrete handled-exception lab for native MSVC",
+          "text": "Download exception_lab.c from the reference below and compile with cl /nologo /TC /Od /Zi /Fe:exception_lab.exe exception_lab.c. Without a debugger it should print handled=1 and exit0. In WinDbg break on the custom code 0xE0421001, inspect the first-chance stop, then use gn to pass it to the application handler. Record the final output and explain why a first-chance stop is not itself an application crash. This MSVC structured-exception example requires native Windows verification; it is not a GCC/Linux program."
+        }
+      ]
     },
     {
       "id": 133,
@@ -3711,7 +4074,7 @@
       "level": "Deepening lesson",
       "optional_completion": true,
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "sections": [],
       "references": [
         [
@@ -3723,7 +4086,8 @@
           "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile"
         ]
       ],
-      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words."
+      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words.",
+      "videoRole": "background"
     },
     {
       "id": 134,
@@ -3743,7 +4107,7 @@
       "level": "Deepening lesson",
       "optional_completion": true,
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "sections": [],
       "references": [
         [
@@ -3751,7 +4115,8 @@
           "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress"
         ]
       ],
-      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words."
+      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words.",
+      "videoRole": "background"
     },
     {
       "id": 135,
@@ -3771,7 +4136,7 @@
       "level": "Deepening lesson",
       "optional_completion": true,
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "sections": [],
       "references": [
         [
@@ -3783,7 +4148,8 @@
           "https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry"
         ]
       ],
-      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words."
+      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words.",
+      "videoRole": "background"
     },
     {
       "id": 136,
@@ -3803,7 +4169,7 @@
       "level": "Deepening lesson",
       "optional_completion": true,
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "sections": [],
       "references": [
         [
@@ -3811,14 +4177,15 @@
           "https://learn.microsoft.com/en-us/windows/win32/procthread/processes-and-threads"
         ]
       ],
-      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words."
+      "reflection": "This assignment is ungraded. Record a prediction, evidence, a counterexample, and a conclusion in your own words.",
+      "videoRole": "background"
     },
     {
       "id": 117,
       "course": "windows",
       "title": "Interactive binary lab · Cross-platform type widths",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Track the fixed-width integer computation. Build the same C with MSVC for the native Windows ABI comparison. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x windows-guided-linux-x64\n./windows-guided-linux-x64 0\ngdb ./windows-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x windows-guided-linux-x64\ngdb -q ./windows-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Track the fixed-width integer computation. Build the same C with MSVC for the native Windows ABI comparison.",
@@ -3830,7 +4197,7 @@
       "hint": "Track the fixed-width integer computation. Build the same C with MSVC for the native Windows ABI comparison.",
       "level": "Interactive flag lab",
       "video": "uyWVztMHWtk",
-      "teacher": "HackadayU · Ghidra Class 2 — imports and function signatures",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 2",
       "references": [
         [
           "Ghidra beginner guide",
@@ -3910,7 +4277,23 @@
             "28"
           ]
         ]
-      }
+      },
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download windows.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 75,
@@ -3929,7 +4312,7 @@
       "hint": "Optimizers also produce surprising code.",
       "level": "Practice",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -3938,7 +4321,8 @@
       ],
       "lab": "obfuscation.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 76,
@@ -3957,7 +4341,7 @@
       "hint": "0x4F is the ASCII character O.",
       "level": "Practice",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -3970,7 +4354,8 @@
       ],
       "lab": "obfuscation.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 77,
@@ -3990,7 +4375,7 @@
       "hint": "Multiply by three, then add seven.",
       "level": "Practice",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -3999,7 +4384,8 @@
       ],
       "lab": "obfuscation.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 78,
@@ -4018,7 +4404,7 @@
       "hint": "The API reports debugging with a nonzero value.",
       "level": "Practice",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "IsDebuggerPresent API",
@@ -4031,7 +4417,14 @@
       ],
       "lab": "windows_lab.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background",
+      "sections": [
+        {
+          "title": "From modeled probes to an actual debugger-dependent path",
+          "text": "First explain the explicit probe input in the encoded toy; it is not real debugger detection. Then analyze windows.c from lesson 117, whose IsDebuggerPresent return controls an actual debugger-dependent branch. Compare normal and debugged execution, locate the decision, record the return value and perform a temporary post-call override. Confirm that restarting removes the override. For a fresh transfer task use the unknown final variant and its separate evidence rubric. Do not generalize the toy or this single API call into a claim that all anti-analysis has been defeated."
+        }
+      ]
     },
     {
       "id": 79,
@@ -4050,7 +4443,7 @@
       "hint": "Compressed resources can also have high entropy.",
       "level": "Practice",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Microsoft PE specification",
@@ -4063,7 +4456,8 @@
       ],
       "lab": "obfuscation.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 106,
@@ -4082,7 +4476,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Ghidra beginner guide",
@@ -4090,14 +4484,15 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 118,
       "course": "anti",
       "title": "Interactive binary lab · Encoded data analysis",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Recover the encoded comparison constant, then follow the separate flag decoder. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x anti-guided-linux-x64\n./anti-guided-linux-x64 0\ngdb ./anti-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x anti-guided-linux-x64\ngdb -q ./anti-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Recover the encoded comparison constant, then follow the separate flag decoder.",
@@ -4109,7 +4504,7 @@
       "hint": "Recover the encoded comparison constant, then follow the separate flag decoder.",
       "level": "Interactive flag lab",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Ghidra beginner guide",
@@ -4196,7 +4591,23 @@
             "0"
           ]
         ]
-      }
+      },
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download anti.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 84,
@@ -4215,7 +4626,7 @@
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4234,7 +4645,8 @@
         "Did you disclose uncertainty and separate analysis metadata from file changes?"
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 85,
@@ -4253,7 +4665,7 @@
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4272,7 +4684,8 @@
         "Did you disclose uncertainty and separate analysis metadata from file changes?"
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 86,
@@ -4291,7 +4704,7 @@
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4310,7 +4723,8 @@
         "Did you disclose uncertainty and separate analysis metadata from file changes?"
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 87,
@@ -4329,7 +4743,7 @@
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4348,7 +4762,8 @@
         "Did you disclose uncertainty and separate analysis metadata from file changes?"
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 88,
@@ -4367,7 +4782,7 @@
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4386,7 +4801,8 @@
         "Did you disclose uncertainty and separate analysis metadata from file changes?"
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 89,
@@ -4405,7 +4821,7 @@
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4424,7 +4840,8 @@
         "Did you disclose uncertainty and separate analysis metadata from file changes?"
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 90,
@@ -4443,7 +4860,7 @@
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4462,7 +4879,8 @@
         "Did you disclose uncertainty and separate analysis metadata from file changes?"
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 91,
@@ -4481,7 +4899,7 @@
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4500,7 +4918,8 @@
         "Did you disclose uncertainty and separate analysis metadata from file changes?"
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 92,
@@ -4519,7 +4938,7 @@
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4538,7 +4957,8 @@
         "Did you disclose uncertainty and separate analysis metadata from file changes?"
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 93,
@@ -4557,7 +4977,7 @@
       "hint": "Use the relevant core module and compare your evidence against the worked solution after attempting the lab.",
       "level": "Independent",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4576,7 +4996,8 @@
         "Did you disclose uncertainty and separate analysis metadata from file changes?"
       ],
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 94,
@@ -4595,7 +5016,7 @@
       "hint": "A debugger register edit disappears when the process restarts.",
       "level": "Self-assessment",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Official Ghidra beginner guide",
@@ -4641,7 +5062,8 @@
           "Anti-analysis and repair: explain decoded data and probe control; persist adjustment=9 and test at least five quantities plus failures."
         ],
         "checks": []
-      }
+      },
+      "videoRole": "background"
     },
     {
       "id": 107,
@@ -4660,7 +5082,7 @@
       "hint": "Trace the concrete example before consulting the worked solution.",
       "level": "Guided investigation",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Ghidra beginner guide",
@@ -4672,14 +5094,15 @@
         ]
       ],
       "optional_completion": true,
-      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading."
+      "reflection": "Attempt the steps, explain the evidence, and use the solution for self-review. This learning assignment is not submitted for grading.",
+      "videoRole": "background"
     },
     {
       "id": 119,
       "course": "workshop",
       "title": "Interactive binary lab · Independent reconstruction",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Reconstruct the equation and validate it dynamically before explaining the success path. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x workshop-guided-linux-x64\n./workshop-guided-linux-x64 0\ngdb ./workshop-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x workshop-guided-linux-x64\ngdb -q ./workshop-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Reconstruct the equation and validate it dynamically before explaining the success path.",
@@ -4691,7 +5114,7 @@
       "hint": "Reconstruct the equation and validate it dynamically before explaining the success path.",
       "level": "Interactive flag lab",
       "video": "d4Pgi5XML8E",
-      "teacher": "HackadayU · Ghidra foundational workflow",
+      "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
       "references": [
         [
           "Ghidra beginner guide",
@@ -4782,7 +5205,23 @@
             "25"
           ]
         ]
-      }
+      },
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download workshop.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     },
     {
       "id": 80,
@@ -4801,7 +5240,7 @@
       "hint": "A negative value is still less than four.",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "GCC instrumentation reference",
@@ -4810,7 +5249,8 @@
       ],
       "lab": "audit.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 81,
@@ -4829,7 +5269,7 @@
       "hint": "Address randomization is a mitigation, not input validation.",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "GCC instrumentation reference",
@@ -4838,7 +5278,8 @@
       ],
       "lab": "audit.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 82,
@@ -4857,7 +5298,7 @@
       "hint": "Only executed and instrumented behavior was checked.",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "GCC instrumentation reference",
@@ -4866,7 +5307,8 @@
       ],
       "lab": "audit.c",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 83,
@@ -4885,7 +5327,7 @@
       "hint": "Its fixed bounded input set does not depend on coverage.",
       "level": "Practice",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "LLVM libFuzzer guide",
@@ -4898,14 +5340,15 @@
       ],
       "lab": "fuzz_indices.py",
       "reflection": "Explain the method in your own words, attach locations or commands as text, and record the cases you tested. The checkpoint alone does not demonstrate mastery.",
-      "optional_completion": true
+      "optional_completion": true,
+      "videoRole": "background"
     },
     {
       "id": 120,
       "course": "secure",
       "title": "Interactive binary lab · Bounds and validation",
       "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Prove the index bounds and identify the valid element satisfying the predicate. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL:\nchmod +x secure-guided-linux-x64\n./secure-guided-linux-x64 0\ngdb ./secure-guided-linux-x64\n\nGDB starting point:\nbreak gate\nrun 0\nlist\nnext\ninfo locals\n\nWindows: build the flag source with the included MSVC script.\nUse matching x86/x64 debugger and inspect the same gate.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x secure-guided-linux-x64\ngdb -q ./secure-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Prove the index bounds and identify the valid element satisfying the predicate.",
@@ -4917,7 +5360,7 @@
       "hint": "Prove the index bounds and identify the valid element satisfying the predicate.",
       "level": "Interactive flag lab",
       "video": "Dq8l1_-QgAc",
-      "teacher": "Low Level · GDB introduction",
+      "teacher": "Low Level · GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
       "references": [
         [
           "Ghidra beginner guide",
@@ -4950,7 +5393,23 @@
         "I recovered and explained the input predicate.",
         "I found or observed the flag using Ghidra or a debugger.",
         "I compared success and failure behavior and recorded the steps."
-      ]
+      ],
+      "sections": [
+        {
+          "title": "Choose binary-only or source-level debugging deliberately",
+          "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."
+        },
+        {
+          "title": "Optional source-level route · after the binary-only attempt",
+          "text": "Download secure.c from this lesson into your working folder. In GDB, directory /absolute/path/to/that/folder adds a source search directory. Then list gate, next and info locals can use the source and debug metadata. Optimized builds may eliminate or move variables; do not interpret unavailable locals as proof that no value exists. Source is a self-review aid, not required for the binary-only route.",
+          "code": "directory /absolute/path/to/source-folder\nlist gate\nbreak gate\nrun 0\nnext\ninfo locals"
+        },
+        {
+          "title": "When a debugger cannot start a process",
+          "text": "A container or managed machine may forbid process tracing and report ptrace: Operation not permitted. Static disassembly can still work. Perform the live-state exercise in your own permitted local Linux/WSL training environment, or ask the administrator for a supported lab. Do not claim a dynamic observation if the process never ran."
+        }
+      ],
+      "videoRole": "background"
     }
   ],
   "syllabus": [
@@ -5303,5 +5762,43 @@
         "explain": "break main (or b main) sets a breakpoint; run starts the process."
       }
     ]
-  }
+  },
+  "videoLibrary": [
+    {
+      "id": "Dq8l1_-QgAc",
+      "title": "GDB is REALLY easy! Find Bugs in Your Code with Only A Few Commands",
+      "author": "Low Level",
+      "objective": "Basic source-level GDB commands; use the separate binary-only route for source-free labs."
+    },
+    {
+      "id": "H4Z0S9ZbC0g",
+      "title": "Day 1 Part 1: Introductory Intel x86: Architecture, Assembly, Applications",
+      "author": "OpenSecurityTraining2",
+      "objective": "x86 architecture foundations; not a recording of the Windows practical."
+    },
+    {
+      "id": "PxiMLtsuGO0",
+      "title": "Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
+      "author": "Mxy",
+      "objective": "Introductory x86-64 assembly terminology and instructions."
+    },
+    {
+      "id": "RFG5FuqY0CE",
+      "title": "HackadayU: Reverse Engineering with Ghidra Class 3",
+      "author": "HACKADAY",
+      "objective": "Further Ghidra interpretation; compare against the specific written task."
+    },
+    {
+      "id": "d4Pgi5XML8E",
+      "title": "HackadayU: Reverse Engineering with Ghidra Class 1",
+      "author": "HACKADAY",
+      "objective": "First Ghidra project, import and analysis workflow."
+    },
+    {
+      "id": "uyWVztMHWtk",
+      "title": "HackadayU: Reverse Engineering with Ghidra Class 2",
+      "author": "HACKADAY",
+      "objective": "Ghidra foundations and analysis; not x64dbg or WinDbg instruction."
+    }
+  ]
 }

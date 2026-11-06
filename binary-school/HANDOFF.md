@@ -25,3 +25,11 @@ A fresh syllabus-only reviewer examined main `8a51658ea21d211a44b24db842d7ed27af
 ## Completion authorization and reliability checkpoint
 
 The user now explicitly requests finishing all previously discussed tasks; this supersedes the earlier pause-and-ask checkpoint. Progress startup recovery and truthful storage-failure feedback are implemented and tested. Continue through source-free GDB teaching, appropriately scoped media/walkthroughs, Windows acceptance tooling, supported browser QA, and a final independent review. Do not claim native Windows execution without actually running it. Keep pushing checkpoints.
+
+## Final content/verification checkpoint
+
+All discussed implementation fixes are now implemented: startup recovery, truthful persistence feedback, source-free flag workflows, scoped/metadata-verified videos, original native-debugger walkthroughs and diagram, a handled-exception source, and reproducible native Windows acceptance tooling. A focused subagent checked the Windows kit; its ordering and evidence-recording issues were corrected. A fresh syllabus-only final site review is running.
+
+The supported managed preview now works through `sites-preview`; actual browser tests confirmed heading focus, keyboard skip navigation, section search and notebook survival across navigation/reload. Prior cloud-loopback failures are superseded for this supported preview. Live GDB execution remains blocked by host ptrace policy; static disassembly works. Native MSVC/x86/x64 debugger execution still requires a Windows host. Do not mark those manual acceptance items passed.
+
+Run all six `tests/test_*.cjs` suites, the 11 Python tests and JS syntax checks. Commit/push this checkpoint, resolve any concrete final-review errors, and provide a candid completion report without another permission gate.

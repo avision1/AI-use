@@ -27,3 +27,19 @@ produce ARM assembly instead.
 
 The full lab pack also contains separate guided reconstruction exercises.
 Keep source hidden while attempting a binary-only challenge if desired.
+
+BINARY-ONLY GDB ROUTE
+Symbols/debug metadata do not include source text. Without C files use:
+  set disassembly-flavor intel
+  disassemble /r gate
+  break gate
+  run 0
+  x/6i $pc
+  info registers
+  stepi
+  nexti
+Use list/next/info locals only for the optional source-level route after
+downloading the matching C and adding its folder using directory in GDB.
+For stripped builds recover an address rather than relying on the gate symbol.
+Managed containers may forbid ptrace; perform live debugging in a permitted
+local training environment. Static disassembly alone is not a dynamic test.

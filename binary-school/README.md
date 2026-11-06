@@ -58,6 +58,7 @@ node tests/test_import.cjs
 node tests/test_paths.cjs
 node tests/test_accessibility.cjs
 node tests/test_progress.cjs
+node tests/test_teaching.cjs
 node --check site/app.js
 ```
 
@@ -76,3 +77,9 @@ Maintainers can rebuild the new binaries with `python3 tools/build_readiness.py`
 Keyboard support includes a skip link, route-heading focus, current-page labels, a native mobile lesson-list disclosure, and a real button for the backup chooser. Structural/focus-flow regressions pass; live keyboard, screen-reader and mobile visual acceptance remain to be performed.
 
 Malformed stored progress is recovered before the interface starts. The original text is preserved and downloadable from the recovery banner or Resources. If saving fails, results remain available for the current visit and an export control stays visible. Do not close the page before exporting when that warning appears.
+
+Flag-lab starters now work without C source: disassemble functions and use instruction stepping/registers; optional source-level directions explain source-file placement. General videos are collected as background for advanced topics, with tool-specific written Windows walkthroughs and an original evidence diagram. All six existing video titles/authors were verified using YouTube metadata; playback/captions remain externally controlled.
+
+The native Windows acceptance kit is at `site/labs/windows-acceptance/`. It builds/tests the original programs with MSVC from x86/x64 Native Tools sessions and emits project-local logs and JSON evidence, while leaving manual debugger/repair acceptance pending. The Linux host cannot establish a native Windows pass. Compiler and linker PDB paths are separate.
+
+Maintainers can refresh integrity manifests with `python3 tools/update_checksums.py`, or add `--packages` after editing flag/full/Windows-acceptance downloads. Readiness packs use `tools/package_readiness.py`.
