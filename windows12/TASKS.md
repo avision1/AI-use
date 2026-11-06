@@ -13,7 +13,7 @@
 | W12-010 | Reliable interrupted-builder resume | 003 | recovery agent/lead | frozen reboot, stale-lock/cache recovery and public chroot progress passed; full stages pending | Demonstrate interrupted long stage resumes with frozen source and refreshed proxy; current --resume is experimental |
 | W12-011 | Automated BIOS disposable-disk installation and reboot harness | 005,012 | research agent/lead | implemented; unexecuted | Real D-I install callback plus installed boot evidence; no host devices; no Calamares certification |
 | W12-012 | Verified project-local ISO inspection tools | 003 | build agent | done | Authenticated xorriso closure extracted to separate iso-tools; active QEMU files untouched |
-| W12-013 | Bound live-disk synchronization temporary storage | 003 | build agent/lead | current18459 observes no copies/~60GBfree; pause branch untested | Exact-prefix age/inode audit, real disk preserved, measure bounded growth; no parallel exec polling |
+| W12-013 | Bound live-disk synchronization temporary storage | 003 | build agent/lead | 18459 stopped0 afternetworkinterruption; no sync copies observed; pause branch untested | Exact-prefix age/inode audit, real disk preserved, measure bounded growth; no parallel exec polling |
 | W12-014 | Restore execution access and reconcile original build | 001 | lead/infrastructure | done 2026-11-05: source restored; no old jobs/disks; new build active | Existing job/disk/output state established before any resume/new build; no duplicate VM |
 | W12-015 | Read-only I/O telemetry for stale console diagnosis | 003 | boot_guard/lead | done: two actual QMP snapshots, counter delta validated | Serialized query-blockstats, existing guest unchanged, measured counters and honest limits |
 | W12-016 | Conditional storage-backend feasibility | 013 | boot_guard/lead | research complete; prototype conditional, unimplemented | Primary sources, durability/test obligations; no current VM change; prototype only if sync blocks existing build |
@@ -31,7 +31,7 @@
 
 | W12-026 | Independent fixture-tool review | 025 | fixture_review_nov05/lead | done: reporting issue fixed; operational checks pass | Source review, bounded ownership, no false runtime claims |
 
-| W12-027 | Sequential post-build validation queue | 005,019,007,011 | lead/fixture_review_nov05 | source reviewed; waiting-cancel passed;44581 waiting on current26570; actual gates pending | No concurrent guests; frozen source/ISO/controller identity; cooperative helper cleanup; distinct evidence flags; actual gates pending |
+| W12-027 | Sequential post-build validation queue | 005,019,007,011 | lead/fixture_review_nov05 | source reviewed; waiting-cancel passed;44581 canceled130 afternetworkstop; actual gates pending | No concurrent guests; frozen source/ISO/controller identity; cooperative helper cleanup; distinct evidence flags; actual gates pending |
 
 | W12-028 | Stale live-build lock recovery | 010 | fixture_review_nov05/lead | done for observed lock: actual guard/quarantine/preservation passed; public chroot resumed; APT-cache030 recovered | Preserve original/cache/stage flags; guarded guest-only stale lock cleanup; actual resumed build evidence |
 
@@ -39,4 +39,6 @@
 
 | W12-030 | Preserve/refresh corrupted target APT index cache | 028,029 | fixture_review_nov05/lead | done for observed snapshot: exact4cache quarantine/preservation and signed APT refresh advanced to9package upgrade; fullISO005active | Actual cache evidence; bounded quarantine; target dpkg/stages preserved; signed refresh and resumed build |
 
-| W12-031 | Public Office workflow QA corpus | 005,009 | office_qa_fixtures_nov06/lead | source implementation active during package download | Deterministic runnable project-contained DOCX/XLSX/PPTX generator; public text/table/formulas/slides and expected values; actual open/edit/save/export/roundtrip in contained apps before compatibility claims |
+| W12-031 | Public Office workflow QA corpus | 005,009 | office_qa_fixtures_nov06/lead | done: realdeterministicgenerationtwice/ZIPCRC/XMLvalid; appworkflows pending | Deterministic runnable project-contained DOCX/XLSX/PPTX generator; public text/table/formulas/slides and expected values; actual open/edit/save/export/roundtrip in contained apps before compatibility claims |
+
+| W12-032 | Bounded verified dependency prefetch and delivery | 005,030 | lead/package_plan_nov06/package_prefetch_nov06/guard_review_nov06 | exporter/consumer/wrapper source reviewed/fixed; firstexport pending; delivery/resume incomplete | Actual signedcatalogSHA plan, bounded authorized batches, verified cache and nativeAPT verification after reviewed delivery; no signatures/TLS/permission bypass; actual resumed ISO build |

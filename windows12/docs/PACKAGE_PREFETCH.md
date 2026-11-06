@@ -1,0 +1,36 @@
+# Retained package download planning
+
+`build/export-package-plan.py` runs only as root inside the contained builder VM with `/run/windows12-build-vm`. The controller must first establish that the previous VM/build stopped, boot the retained disk in inspection mode, and supply a new random 32-character lowercase hexadecimal nonce. The helper never starts a VM, clears a live-build lock, changes stage flags, updates indexes, downloads archives, or installs/configures packages. Do not execute this helper on the host.
+
+Inside that already contained guest:
+
+```
+python3 -B /root/windows12-checks/build/export-package-plan.py --nonce NEW_RANDOM_32_HEX_NONCE
+```
+
+Success exclusively creates `/project-output/package-download-plan.json`, capped at 2 MiB. An existing output causes refusal, so a controller must preserve/export previous evidence and explicitly select an output lifecycle before another run. An exclusive `/project-output/package-plan-NONCE` directory consumes each nonce and retains bounded command evidence. No prior evidence is removed. Failure emits `Package plan refused: ...`; it does not export a usable partial plan. The controller must enforce its own fresh boot/nonce association and accept only the expected nonce.
+
+## Exact package-stage source
+
+The reviewed archive is `.work/lock-review/live-build_20250505+deb13u1.tar.xz`, SHA256 `1aad324e433d6cb6d038193252b74fd0ed1c1e1d7e1c6cf410c8fb09c5225b9e`. This source's `scripts/build/chroot_install-packages` (SHA256 `64e6621e6478ceebc1268e83d1a37a8fc874691d70cab9cdb2be53c899c66f8f`) executes `xargs --arg-file=/root/packages.chroot apt-get ${APT_OPTIONS} install` inside the target chroot for the install pass. It deletes the queue only after successful installation, then creates `.build/chroot_install-packages.install`.
+
+The authoritative retained generated list is `/root/windows12-build/chroot/root/packages.chroot`. `chroot_archives` appends local package names, `chroot_linux-image` appends selected kernels, `chroot_firmware` appends discovered firmware, and `chroot_package-lists install` appends expansions of `config/package-lists/*.list`, `*.list.chroot`, and `*.list.chroot_install`. Reconstructing from the project's handwritten package list would omit those additions. The helper requires completed package-list/kernel/firmware stage files, an incomplete install stage, and the exact installed install-pass script. Nonempty pending foreign-architecture input is refused.
+
+## Trust and selection
+
+Only the builder's `/usr/bin/apt-get`, `/usr/lib/apt/apt-helper`, and `/usr/bin/gpgv` run. The target supplies data, not executables. Each retained remote `InRelease` must verify under the builder's Debian archive keyring; its date and any expiry are checked. Every retained remote Packages index must match the signed release's uncompressed SHA256 and size. Unsupported or uncovered remote catalogs cause refusal. Compression is decoded read-only through the trusted apt-helper, with 256 MiB output and 90-second limits per index. Signature commands are also bounded.
+
+APT receives explicit target root, status, list, extended-state, cache, archive, and configuration paths. Binary cache generation is disabled. Target APT configuration is loaded to retain resolver policy; executable pre/post hooks are cleared in the final configuration. Only `--print-uris --no-remove install` is called, with a 180-second limit and 2 MiB output limit. No `update`, simulation/install execution, or download subcommand is called. `Acquire::ForceHash=SHA256` is explicit: apt 3.0.3's source otherwise selects MD5 for backward-compatible `--print-uris`. The helper never converts MD5 into SHA256.
+
+Every printed remote URI must match the SHA256, size, Filename, package and version in a verified target catalog. Only reviewed Debian archive hosts and pool paths are accepted. Local package inputs are separately recorded with their file SHA256 and `host_download: false`; any printed `file:` URI is separately recorded. Target status/config/source/stage file hashes, signed catalog hashes, verification keyring, queue digest, command-output digest and digest coverage accompany the plan. The helper checks retained inputs again before export.
+
+## Consumer contract and remaining gates
+
+Schema 1 contains `nonce`, `planning_only: true`, and `packages`, each with `url`, `filename`, positive archive `size`, lowercase `sha256`, `package`, and `version`. `local_packages` is never a host download queue. `coverage` counts every matched remote URI. APT omits archives already present in its selected target cache: this is the missing-archive plan for the retained transaction, not an inventory of every installed or selected package. Zero missing remote archives is possible and does not prove installation.
+
+A host consumer must validate the expected nonce/schema, cap file/package/download sizes, reject duplicate names and conflicting hashes, and preserve exact URI/transport authorization. Any HTTP-to-HTTPS normalization belongs to the reviewed consumer and must retain origin/path identity; it cannot bypass TLS or network approval. Prefetch in bounded authorized batches and verify every received archive's SHA256 and size. Transfer verified files into the contained guest only. Native target APT must subsequently verify and install the transaction using its signed catalogs; host prefetch success is not package installation or ISO success.
+
+Only AST parsing and read-only archive-source inspection were performed during source authoring. Actual guest execution and manifest coverage remain required before using this path.
+
+## Controller and host invocation
+From windows12 after confirming prior VM stopped: `python3 -B scripts/build-vm.py --resume --plan-package-downloads`. Separate artifacts/package-plan-* output and run.json bind the fresh nonce/helper/source. First run only has been integrated; exporter intentionally refuses a preexisting topplan, so preserve it before any future explicit lifecycle change. Then `python3 -B scripts/prefetch-packages.py <project-contained-plan> --expected-nonce <matching-run-planning_nonce> --limit 100 --workers 4`. Each invocation verifies cache and fetches at most100missingfiles; complete0/incomplete2/refusal1. Offline mode verifies cache without network. Required nonce preventsusing a differentcontrollerplan; status is resetincomplete beforemanifest/cache validation. All outputs .work/package-prefetch; normal proxy/CA/TLS retained; authdenial stopsnewwork. Delivery and installresume are pending; do not assume prefetchcompletioninstallsanything.

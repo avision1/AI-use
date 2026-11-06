@@ -44,3 +44,6 @@ D032: After actual QMP-no-listener + free runner-lock reconciliation established
 
 ## 2026-11-06 — Preserve raw verification findings during temporary construction state
 The exact live-build bootstrap deliberately uses --no-rename for os-release.debootstrap; absence alone is not evidence of a damaged payload. Keep native missing-path output and raw no-reported-differences=false. A separate no-unexplained-differences classification requires exact reviewed installed source, version/status/stages/diversion, authenticated vendor os-release bytes and exact derived image metadata. No repair, broad ignore list or final-image waiver. Fresh read-only target evidence must precede cache recovery.
+
+## 2026-11-06 — Bounded prefetch after long-connection failure
+26570 stopped afterbulk403/toolnetworkapprovalcancelation; fresh normalHTTP/HTTPS request succeeded200. Cause remains unproven. Preserve disk/cache and export exactretained live-build queue fromverifiedsignedcatalogs; fetch missingarchives in short normalauthorizedHTTPSbatches withsize/SHA256, then deliveronlyverifiedbytes tocontainedVM for nativeAPT verification. No networkapproval/signature/TLS bypass. Wholepipeline notimplementeduntil delivery/newstatecontinuation reviewed. The oldsnapshotguard deliberatelyrefuses changedsecurity-upgraded state.

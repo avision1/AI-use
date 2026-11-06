@@ -24,10 +24,14 @@ def main():
  ap.add_argument('--prepare',action='store_true',help='Download checksum-verified official builder image only')
  ap.add_argument('--probe',action='store_true',help='Run QEMU TCG firmware for 10s with no disk/network')
  ap.add_argument('--resume',action='store_true',help='Resume an existing VM disk, not a new build')
+ ap.add_argument('--plan-package-downloads',action='store_true',help='Export exact signed-catalog package download plan from retained target; no install/build')
  ap.add_argument('--inspect-resume',action='store_true',help='Boot existing disk only for read-only build-state inventory; separate output, never ISO success')
  ap.add_argument('--continue-after-bootstrap',action='store_true',help='Explicit recovery boot: verify retained bootstrap and continue public stages, preserving frozen source')
  ap.add_argument('--refresh-target-indexes',action='store_true',help='Explicitly quarantine the two inspected bad APT indexes and regenerable binary caches; requires guarded continuation')
  args=ap.parse_args()
+ if args.plan_package_downloads:
+  if not args.resume or args.prepare or args.probe or args.inspect_resume or args.continue_after_bootstrap or args.refresh_target_indexes:ap.error('--plan-package-downloads requires --resume alone')
+  OUT=bounded(ROOT/'artifacts'/('package-plan-'+str(time.time_ns())))
  if args.inspect_resume:
   if not args.resume or args.prepare or args.probe or args.continue_after_bootstrap:ap.error('--inspect-resume requires --resume alone')
   OUT=bounded(ROOT/'artifacts'/('builder-inspect-'+str(time.time_ns())))
@@ -142,6 +146,7 @@ def main():
  if proxy.hostname in ['127.0.0.1','localhost'] and proxy.port:
   proxy_guest=f'http://10.0.2.2:{proxy.port}'
  with tarfile.open(checks) as tf:guest=tf.extractfile('build/guest-build.sh').read().decode()
+ planning_hash=None;planning_nonce=None
  inspection_hash=None;inspection_nonce=None
  recovery_hashes={};recovery_nonce=None;recovery_files=[]
  if args.inspect_resume:
@@ -153,6 +158,17 @@ def main():
   # Keep the frozen shell's host-refusal guard, tee, bounded export and shutdown.
   # No packaging, apt or live-build recipe stage is executed in inspection mode.
   guest=guest.split(boundary,1)[0]+"\npython3 - --nonce "+inspection_nonce+" <<'WINDOWS12_INSPECTION_PY'\n"+inspection+"\nWINDOWS12_INSPECTION_PY\n"
+
+
+ if args.plan_package_downloads:
+  helper=bounded(ROOT/'build/export-package-plan.py')
+  if helper.is_symlink():raise SystemExit('Planning helper symlink refused')
+  planning_bytes=helper.read_bytes();planning=planning_bytes.decode('utf-8')
+  if not planning_bytes.endswith(b'\n') or planning_bytes.endswith(b'\n\n') or b'\r' in planning_bytes:raise SystemExit('Planning helper requires canonical LF source')
+  planning_hash=hashlib.sha256(planning_bytes).hexdigest();planning_nonce=secrets.token_hex(16)
+  boundary='\nmkdir -p /root/windows12-checks\n'
+  if guest.count(boundary)!=1 or 'WINDOWS12_PACKAGE_PLAN_PY' in planning:raise SystemExit('Frozen planning prefix/delimiter requires review')
+  guest=guest.split(boundary,1)[0]+"\npython3 - --nonce "+planning_nonce+" <<'WINDOWS12_PACKAGE_PLAN_PY'\n"+planning+"\nWINDOWS12_PACKAGE_PLAN_PY\n"
 
  if args.continue_after_bootstrap:
   recovery_nonce=secrets.token_hex(16)
@@ -183,7 +199,7 @@ def main():
  class Handler(http.server.BaseHTTPRequestHandler):
   def do_PUT(self):
    name=self.path.removeprefix('/output/')
-   allowed={'build.exit','guest-build.log','desktop-SHA256SUMS','windows12-amd64-preview.iso','windows12-amd64-preview.packages','SHA256SUMS','builder-inspection.json','builder-recovery.json'}
+   allowed={'build.exit','guest-build.log','desktop-SHA256SUMS','windows12-amd64-preview.iso','windows12-amd64-preview.packages','SHA256SUMS','builder-inspection.json','builder-recovery.json','package-download-plan.json'}
    if not self.path.startswith('/output/') or (name not in allowed and not re.fullmatch(r'windows12-desktop_[A-Za-z0-9.+~_-]+_all\.deb',name)):
     self.send_error(403);return
    target=OUT/name;partial=OUT/(name+'.part')
@@ -191,6 +207,8 @@ def main():
     self.send_error(403);return
    try:length=int(self.headers['Content-Length'])
    except (TypeError,ValueError):self.send_error(411);return
+   if name=='package-download-plan.json' and length>2*1024**2:
+    self.send_error(413);return
    if length<0 or length>12*1024**3 or shutil.disk_usage(OUT).free<length+256*1024**2:
     self.send_error(413);return
    remaining=length
@@ -223,12 +241,19 @@ def main():
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
- output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'inspection':args.inspect_resume,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
+ output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'package_planning':args.plan_package_downloads,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
  try:
   with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
  finally:server.shutdown()
  status=OUT/'build.exit'
  if not status.exists() or status.read_text().strip()!='0':raise SystemExit('Build incomplete/failed; inspect artifacts/vm-build/serial.log and guest-build.log')
+ if args.plan_package_downloads:
+  report=output_file(OUT/'package-download-plan.json')
+  if not report.is_file() or not 0<report.stat().st_size<=2*1024**2:raise SystemExit('Missing/oversized package plan')
+  plan=json.loads(report.read_text())
+  if not isinstance(plan,dict) or plan.get('schema')!=1 or plan.get('planning_only') is not True or plan.get('nonce')!=planning_nonce or not isinstance(plan.get('packages'),list):raise SystemExit('Package plan schema/freshness mismatch')
+  print('Package download plan exported to',OUT,'; no download/install/build success certified.')
+  return
  if args.inspect_resume:
   report=output_file(OUT/'builder-inspection.json')
   if not report.is_file() or report.stat().st_size==0 or report.stat().st_size>256*1024:raise SystemExit('Missing/oversized inspection report')
