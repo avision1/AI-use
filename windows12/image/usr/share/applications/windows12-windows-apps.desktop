@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Windows Applications
+Comment=Open Bottles or set up optional Wine application support
+Exec=/usr/local/bin/windows12-windows-apps
+TryExec=/usr/local/bin/windows12-windows-apps
+Icon=application-x-executable
+Terminal=false
+Categories=System;Utility;
+Keywords=Windows;Wine;Bottles;EXE;MSI;Applications;
+StartupNotify=false

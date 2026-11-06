@@ -1,0 +1,127 @@
+#!/usr/bin/python3
+"""Open installed Bottles, or a local guide to its optional installation."""
+import os
+from pathlib import Path
+import secrets
+import shutil
+import stat
+import subprocess
+import sys
+
+APP_ID = "com.usebottles.bottles"
+SETUP_HTML = """<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Windows Applications</title>
+<style>
+:root {color-scheme: light dark; font-family: system-ui,sans-serif; line-height:1.6}
+body {max-width:46rem;margin:3rem auto;padding:0 1.5rem} h1 {line-height:1.2}
+a {color:light-dark(#0757a6,#8ec5ff)} .button {display:inline-block;background:#0757a6;
+color:white;padding:.7rem 1rem;border-radius:.45rem;text-decoration:none;margin:.3rem .5rem .3rem 0}
+li {margin:.5rem 0} .note {border-inline-start:3px solid #639ee0;padding-inline-start:1rem}
+</style>
+<h1>Windows Applications</h1>
+<p>Bottles uses Wine to run many Windows applications on Linux. It is optional and is downloaded only when you choose to install it.</p>
+<ol>
+<li>Open the official Bottles page below and follow its stable Flatpak installation option.</li>
+<li>Use the Flathub package page to download Bottles for your software center. Open the downloaded Flatpak reference in Discover, review the source, permissions and download size, then choose whether to install.</li>
+<li>Open <strong>Windows Applications</strong> from the application menu again. It will open Bottles once installed.</li>
+<li>In Bottles, create an application bottle, then use its installer or Run executable action. Separate bottles help keep application settings organized.</li>
+</ol>
+<p><a class="button" href="https://usebottles.com/">Official Bottles installation</a>
+<a class="button" href="https://flathub.org/apps/com.usebottles.bottles">Bottles on Flathub</a></p>
+<p class="note">An internet connection is needed for initial setup. Bottles may download Wine runners and components on first use. No Windows runtime or Windows app is preloaded by this menu entry. Compatibility depends on the exact application and version; current desktop Microsoft Office support has not been established for this distribution.</p>
+<p>Use trusted installers and a regular user account. Wine is not a security boundary for untrusted software. Native Linux applications remain available, with LibreOffice for offline documents and Microsoft Office web apps when suitable.</p>
+<p>If installation is unavailable, check connectivity and the Flatpak backend in Discover. This guide does not change software sources or install anything automatically.</p>
+</html>
+"""
+
+
+def bottles_command(find=shutil.which, run=subprocess.run):
+    """Select one installed scope; injectable queries allow contained mock tests."""
+    flatpak = find("flatpak")
+    if not flatpak:
+        return None
+    for scope in ("--user", "--system"):
+        try:
+            result = run([flatpak, "info", scope, APP_ID], stdin=subprocess.DEVNULL,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                         timeout=10, check=False)
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        if result.returncode == 0:
+            return [flatpak, "run", scope, APP_ID]
+    return None
+
+
+def setup_page():
+    """Atomically publish one bounded offline page in the user's cache."""
+    cache = Path(os.environ.get("XDG_CACHE_HOME", ""))
+    if not cache.is_absolute():
+        cache = Path.home() / ".cache"
+    directory = cache / "windows12"
+    if ".." in directory.parts:
+        raise OSError("Noncanonical cache directory")
+    for part in reversed((directory, *directory.parents)):
+        try:
+            part.mkdir(mode=0o700)
+        except FileExistsError:
+            pass
+        info = part.lstat()
+        if not stat.S_ISDIR(info.st_mode) or stat.S_ISLNK(info.st_mode):
+            raise OSError("Cache directory aliases are not supported")
+    info = directory.stat()
+    if info.st_uid != os.geteuid() or info.st_mode & 0o022:
+        raise OSError("A private user-owned cache directory is required")
+    data = SETUP_HTML.encode("utf-8")
+    if len(data) > 64 * 1024:
+        raise OSError("Setup page exceeds its size limit")
+    directory_fd = os.open(directory, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    temporary = ".windows-apps-" + secrets.token_hex(12)
+    try:
+        fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                     0o600, dir_fd=directory_fd)
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, "windows-apps.html", src_dir_fd=directory_fd,
+                   dst_dir_fd=directory_fd)
+        os.fsync(directory_fd)
+        if directory.lstat() != os.fstat(directory_fd):
+            raise OSError("Cache directory changed during page publication")
+    finally:
+        try:
+            os.unlink(temporary, dir_fd=directory_fd)
+        except FileNotFoundError:
+            pass
+        os.close(directory_fd)
+    return directory / "windows-apps.html"
+
+
+def main():
+    if len(sys.argv) != 1:
+        print("Open Windows Applications from the application menu; choose installers inside Bottles.", file=sys.stderr)
+        return 2
+    if os.geteuid() == 0:
+        print("Open Windows Applications from your regular desktop user account.", file=sys.stderr)
+        return 1
+    try:
+        argv = bottles_command()
+        if argv is None:
+            opener = shutil.which("xdg-open")
+            if not opener:
+                raise OSError("xdg-open is missing; visit https://usebottles.com/ for installation guidance")
+            try:
+                destination = setup_page().as_uri()
+            except OSError:
+                # A broken/private cache must not turn this entry into a dead end.
+                destination = "https://usebottles.com/"
+            argv = [opener, destination]
+        os.execv(argv[0], argv)
+    except OSError as error:
+        print("Unable to open Windows Applications: " + str(error), file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

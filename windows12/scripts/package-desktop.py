@@ -9,7 +9,7 @@ from pathlib import Path
 import tarfile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '0.1.0~preview2'
+VERSION = '0.1.0~preview3'
 CONTROL = f'''Package: windows12-desktop
 Version: {VERSION}
 Architecture: all

@@ -145,3 +145,6 @@ The retained bootstrap may legitimately report only missing /etc/os-release.debo
 
 ## Verified full-plan continuation
 Current full plan and active prefetch ownership are in the latest HANDOFF section. Complete bounded prefetch first; then `python3 -B scripts/build-vm.py --resume --continue-package-stage artifacts/package-plan-1793932073521244203/package-download-plan.json`. The controller validates every host cache input before guest launch. This is public chroot completion only; installer/binary/ISO stages remain separate. Bare `--resume` now refuses to prevent replaying bootstrap over retained work.
+
+## Current source candidate checks
+Preview3 source is separate from the frozen preview2 builder. Run `python3 -B scripts/check-overlay-vm.py` only after its final source review; it uses cached inputs and a new disposable child disk, never the retained build disk. See docs/OVERLAY_VM_CHECK.md. Network policy blocked dependency prefetch; offline status confirms 680/1946 cached, not complete. docs/FINISH_IMAGE_STAGE.md records additional installer/binary acquisitions beyond that plan.

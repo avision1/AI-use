@@ -129,6 +129,50 @@ class LauncherTests(unittest.TestCase):
             self.assertNotIn("--ignore-certificate-errors", source)
 
 
+class WindowsAppsTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        path = IMAGE / "usr/local/bin/windows12-windows-apps"
+        cls.module = runpy.run_path(str(path), run_name="overlay_test_windows_apps")
+        cls.command = staticmethod(cls.module["bottles_command"])
+
+    def test_missing_flatpak_does_not_query_or_install(self):
+        run = Mock()
+        self.assertIsNone(self.command(find=lambda _: None, run=run))
+        run.assert_not_called()
+
+    def test_user_install_preferred_without_system_query(self):
+        run = Mock(return_value=Mock(returncode=0))
+        self.assertEqual(self.command(find=lambda _: "/bin/flatpak", run=run),
+                         ["/bin/flatpak", "run", "--user", "com.usebottles.bottles"])
+        self.assertEqual(run.call_count, 1)
+        self.assertEqual(run.call_args.args[0],
+                         ["/bin/flatpak", "info", "--user", "com.usebottles.bottles"])
+
+    def test_system_install_selected_when_user_absent(self):
+        run = Mock(side_effect=[Mock(returncode=1), Mock(returncode=0)])
+        self.assertEqual(self.command(find=lambda _: "/bin/flatpak", run=run),
+                         ["/bin/flatpak", "run", "--system", "com.usebottles.bottles"])
+        self.assertEqual(run.call_count, 2)
+
+    def test_absent_installs_do_not_add_remote_or_download(self):
+        run = Mock(return_value=Mock(returncode=1))
+        self.assertIsNone(self.command(find=lambda _: "/bin/flatpak", run=run))
+        self.assertTrue(all(call.args[0][1] == "info" for call in run.call_args_list))
+
+    def test_query_failure_uses_other_scope(self):
+        run = Mock(side_effect=[OSError("query failed"), Mock(returncode=0)])
+        self.assertEqual(self.command(find=lambda _: "/bin/flatpak", run=run)[2], "--system")
+
+    def test_root_does_not_query_or_write_setup(self):
+        main = self.module["main"]
+        query, setup = Mock(), Mock()
+        with patch.object(sys, "argv", ["windows12-windows-apps"]), patch("os.geteuid", return_value=0), patch.dict(main.__globals__, {"bottles_command": query, "setup_page": setup}), contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(main(), 1)
+        query.assert_not_called()
+        setup.assert_not_called()
+
+
 class AssetParser(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -149,7 +193,7 @@ class DesktopAssetTests(unittest.TestCase):
         module = runpy.run_path(str(WEBAPP), run_name="overlay_test_assets")
         services = set()
         entries = sorted((IMAGE / "usr/share/applications").glob("windows12-*.desktop"))
-        self.assertEqual(len(entries), len(module["APPS"]) + 1)
+        self.assertEqual(len(entries), len(module["APPS"]) + 2)
         for path in entries:
             with self.subTest(entry=path.name):
                 parser = configparser.ConfigParser(interpolation=None, strict=True)
@@ -169,7 +213,12 @@ class DesktopAssetTests(unittest.TestCase):
                     self.assertNotIn(argv[1], services)
                     services.add(argv[1])
                     self.assertIn("web", entry["Name"].lower())
+                elif path.name == "windows12-windows-apps.desktop":
+                    self.assertEqual(argv, ["/usr/local/bin/windows12-windows-apps"])
+                    self.assertTrue(executable.stat().st_mode & 0o111)
+                    self.assertIn("Windows", entry["Name"])
                 else:
+                    self.assertEqual(path.name, "windows12-welcome.desktop")
                     self.assertEqual(argv, ["/usr/local/bin/windows12-welcome"])
         self.assertEqual(services, set(module["APPS"]))
 

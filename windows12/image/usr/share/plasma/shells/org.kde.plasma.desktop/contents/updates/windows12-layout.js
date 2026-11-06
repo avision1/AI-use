@@ -18,6 +18,10 @@ if (!launcher) launcher = panel.addWidget("org.kde.plasma.kickoff");
 launcher.currentConfigGroup = ["General"];
 launcher.writeConfig("icon", "start-here-kde");
 if (!tasks) tasks = panel.addWidget("org.kde.plasma.icontasks");
+// addWidget appends: a repaired partial panel still needs a left-hand menu.
+// Keep all existing widgets while placing these fresh-profile essentials first.
+launcher.index = 0;
+tasks.index = 1;
 tasks.currentConfigGroup = ["General"];
 tasks.writeConfig("launchers", ["applications:org.kde.dolphin.desktop", "applications:chromium.desktop", "applications:windows12-office.desktop", "applications:org.kde.discover.desktop"]);
 // Repair each missing essential widget even on a partially populated panel.
