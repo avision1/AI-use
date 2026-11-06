@@ -1,3 +1,9 @@
+1.7.1 — Guard all unsaved progress and preserve startup recovery during import
+- Warn before leaving after any failed progress save, including final drafts.
+- Clear the transient guard only after a successful save or import.
+- Preserve original malformed startup text before applying an import.
+- Abort an import if preserving that original fails.
+
 1.7 — Rendered-browser acceptance fixes
 - Fix overview overflow at tablet widths with a consistent narrow-layout breakpoint.
 - Bound grid minimums and allow compact statistic labels to wrap.

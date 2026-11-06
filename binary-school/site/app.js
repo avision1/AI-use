@@ -1,6 +1,7 @@
-let db,state=emptyProgress(),startupRaw=null,invalidCopyStored=false,startupNotice='',progressWarning='';
+let db,state=emptyProgress(),startupRaw=null,invalidCopyStored=false,startupNotice='',progressWarning='',hasUnsavedProgress=false;
 function emptyProgress(){return {done:[],notes:{},exam:false,name:''}}
-let currentBytes=null;const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));function save(){try{if(startupRaw!==null&&!invalidCopyStored){localStorage.setItem('binary-school-invalid-progress-v1',startupRaw);invalidCopyStored=true}localStorage.setItem('binary-school-v1',JSON.stringify(state));progressWarning='';updateProgressBanner();return true}catch{progressWarning='Changes are recorded for this visit only. Browser storage is unavailable or full. Export your progress before closing this page.';updateProgressBanner();return false}}
+let currentBytes=null;const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));function ensureOriginalRecovery(){if(startupRaw!==null&&!invalidCopyStored){localStorage.setItem('binary-school-invalid-progress-v1',startupRaw);invalidCopyStored=true}}
+function save(){hasUnsavedProgress=true;try{ensureOriginalRecovery();localStorage.setItem('binary-school-v1',JSON.stringify(state));hasUnsavedProgress=false;progressWarning='';updateProgressBanner();return true}catch{progressWarning='Changes are recorded for this visit only. Browser storage is unavailable or full. Export your progress before closing this page.';updateProgressBanner();return false}}
 
 let activeLessonId=null,lastRenderedHash=null;
 function persistDraft(){if(activeLessonId===null)return;const field=$('#notes');if(!field)return;state.notes[activeLessonId]=field.value;const report=$('#practicalevidence');if(report){state.evidence=state.evidence||{};state.evidence[activeLessonId]=report.value}const ok=save();const status=$('#notestatus');if(status)status.textContent=ok?'Saved in this browser.':'Could not save: browser storage is unavailable or full. Copy your notes before leaving.';return ok}
@@ -64,8 +65,8 @@ function applyImport(mode){
  if(!pendingImport)return;const feedback=$('#importfeedback');
  if(mode==='replace'&&!$('#confirmreplace').checked){feedback.textContent='Confirm the replacement consequence above, or choose Merge to retain your current records.';return;}
  const before=JSON.stringify(state,null,2),candidate=mode==='merge'?mergeBackups(state,pendingImport.data):pendingImport.data;
- try{localStorage.setItem(recoveryKey,before);download('binary-school-progress-before-import.json',before,'application/json');localStorage.setItem(progressKey,JSON.stringify(candidate));}catch{feedback.textContent='Import was not applied. Could not store the recovery snapshot or new progress, or request the backup download. Export your current progress manually and check browser storage/download settings before retrying.';return;}
- state=candidate;pendingImport=null;render();focusContent('#app h1',false);toast(mode==='merge'?'Progress merged; pre-import recovery is available.':'Progress replaced; pre-import recovery is available.');
+ try{ensureOriginalRecovery();localStorage.setItem(recoveryKey,before);download('binary-school-progress-before-import.json',before,'application/json');localStorage.setItem(progressKey,JSON.stringify(candidate));}catch{feedback.textContent='Import was not applied. Could not store the recovery snapshot or new progress, or request the backup download. Export your current progress manually and check browser storage/download settings before retrying.';return;}
+ state=candidate;hasUnsavedProgress=false;progressWarning='';pendingImport=null;render();focusContent('#app h1',false);toast(mode==='merge'?'Progress merged; pre-import recovery is available.':'Progress replaced; pre-import recovery is available.');
 }
 function bindResources(){
  $('#export').onclick=()=>download('binary-school-progress.json',JSON.stringify(state,null,2),'application/json');
@@ -85,7 +86,7 @@ function bindStudyPaths(){document.querySelectorAll('[data-path]').forEach(butto
 
 function recordProgress(selector){const stored=save();if(!stored){const target=$(selector);if(target)target.textContent+=' Recorded for this visit only; use Export progress before closing.'}return stored}
 function initializeProgress(){
- state=emptyProgress();startupRaw=null;invalidCopyStored=false;startupNotice='';progressWarning='';
+ state=emptyProgress();startupRaw=null;invalidCopyStored=false;startupNotice='';progressWarning='';hasUnsavedProgress=false;
  let raw;try{raw=localStorage.getItem('binary-school-v1')}catch{progressWarning='Browser storage cannot be read. You can study for this visit and export progress manually.';updateProgressBanner();return}
  if(raw===null){state=normalizeBackup(state);updateProgressBanner();return}
  try{state=normalizeBackup(JSON.parse(raw));updateProgressBanner();return}catch{}
@@ -111,7 +112,7 @@ function windowsAcceptancePanel(){return `<section class="panel"><h2>Native Wind
 function focusContent(selector,preventScroll=true){const element=$(selector);if(element&&typeof element.focus==='function'){if(!element.matches?.('a[href],button,input,textarea,select,summary,[tabindex]'))element.setAttribute('tabindex','-1');element.focus({preventScroll})}}
 const skipContent=$('#skipcontent');if(skipContent)skipContent.onclick=e=>{e.preventDefault();focusContent('#main-content',false)};
 
-window.addEventListener('beforeunload',e=>{if(persistDraft()===false){e.preventDefault();e.returnValue=''}});
+window.addEventListener('beforeunload',e=>{if(persistDraft()===false||hasUnsavedProgress){e.preventDefault();e.returnValue=''}});
 window.addEventListener('pagehide',persistDraft);
 
 fetch('curriculum.json').then(r=>{if(!r.ok)throw Error('Curriculum HTTP error');return r.json()}).then(x=>{db=x;initializeProgress();try{render();window.addEventListener('hashchange',render)}catch{const app=$('#app');app.textContent='The curriculum loaded, but the interface could not start. Your stored progress has not been intentionally reset. Use the progress recovery/export controls above, then reload.';updateProgressBanner()}}).catch(()=>$('#app').textContent='Could not load the curriculum data. Check the localhost server and refresh.');
