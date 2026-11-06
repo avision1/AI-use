@@ -1,6 +1,16 @@
-# Project state — 2026-11-06 UTC
+# Project state — current handover, 2026-11-06 America/Chicago
 
-## ACTIVE corrected ISO build — clockfix-001
+## Current state: clockfix-001 stopped; no corrected ISO
+
+Local/remote main before handoff edits: `ed2d15e92484aabbe2a664745e2a3fc92bed5249`. User explicitly stopped the corrected KVM build while SquashFS compression was underway. Owner session1524 exited1 because no successful build marker/export was produced; monitor7783 exited0; validation queue64013 exited130. The guest reached clean ACPI S5. Reconciliation now finds no build/QEMU/monitor/validation process and `scripts/probe-qmp.py status` reports no QMP listener.
+
+The partial run remains preserved at `.work/builder/runs/clockfix-001/`: qcow2 15,745,613,824 allocated bytes; frozen `checks.tar` 768,000 bytes, SHA256 `71603060b1d11c0f27107230e4374bee710de7fb93aca82286a757d2f6593ad5`; source lock and logs retained. Queue output is `interrupted` and all content/BIOS/install/GUI/release flags are false. No corrected ISO or successful `build.exit` exists. The fresh-run controller does not support named-run resume; do not use legacy `--resume`, rerun the occupied slug, rename state into legacy paths or overwrite the partial target. Preserve it unchanged until read-only stage inspection/recovery has been designed or a new slug produces an accepted replacement.
+
+The original preview4 ISO is still the only actual ISO: SHA256 `7d36b5847fba7240ee2795bb42ff3ea841652569b7eb983cfec6ea96968ae11c`. Recorded gates include BIOS installation and ISO-free installed desktop, normal Calamares install/basic workflows, and UEFI live boot. It lacks `util-linux-extra`/`hwclock`, and has no UEFI installed-disk, Secure Boot, broad workflow, physical-device or hardware-compatibility claim. Filesystem is 234GiB total with 60GiB available. Keep useful tools/caches and the partial run; no unrelated cleanup is needed.
+
+Next safe work: inspect the exact retained guest stage read-only and design/tests for an explicit named-run continuation; otherwise use a new never-used slug for a full build after calculating storage needs. Then build a corrected ISO, content-audit it, run BIOS/UEFI live and installation/ISO-free desktop checks, and document remaining coverage. Exact current evidence and handover commands are in `HANDOFF.md` and `RUNBOOK.md`. The local ignored manual network/reboot proposal is static-review-only at `.work/manual-network-development/`; it is not part of this checkpoint.
+
+## Historical checkpoint — corrected ISO build active (superseded)
 
 Latest source main before this checkpoint: 1ba180e2a5b5bf4bc1592bd7b07ee3efb3bb0641. The corrected full build IS RUNNING, owner root session1524, .work/build-clockfix-001.log. Actual KVM/host machine pc,accel=kvm,smm=off; new disk .work/builder/runs/clockfix-001/build.qcow2, exports artifacts/vm-build-clockfix-001/. Frozen source .work/builder/runs/clockfix-001/checks.tar SHA25671603060b1d11c0f27107230e4374bee710de7fb93aca82286a757d2f6593ad5. Shared .work/builder/active-build.json pins nonce57315f684b2257f2bbdde8d36c8c790f (descriptor SHA25694eeaa1548aa9dd3a926a9f8bf4ecc9358bde304d5abcc136a26f1b7ae63bd34). Monitor session7783 (--interval60 --auto-cleanup, no console ringbuffer redirection) follows that descriptor. Sequential audit/BIOS capture queue64013, log.work/validation-clockfix-001.log, output artifacts/candidate-gates-1793996532448507789/, currently waiting for builder stop. It does NOT queue slow default D-I installation; require fresh actual corrected-ISO Calamares/UEFI installed-disk acceptance separately. Do not launch another VM or edit frozen build/controller source while these jobs are active.
 

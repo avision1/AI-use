@@ -98,3 +98,8 @@ A new full builder may use only a strict new slug under .work/builder/runs and a
 ## D047 — Keep useful caches, retire superseded disposable storage
 
 User requests cleanup without repeated downloads. Preserve native tools, signed archives/indexes, pinned cloud and inputs useful to the next build. Delete only reviewed unused disposable disks/derived duplicates after reconciling actual open files and backing dependencies, record removals and retain logs/provenance. Parent reclaimed10.34GiB from11files during clockfix build, preserving the only active disk and backing image. Old completedbuilder/accepted baselines are temporary fallback evidence until corrected-image acceptance; explicitly schedule retirement rather than accumulating them indefinitely.
+
+
+## D048 — Preserve deliberately stopped fresh-run state without pretending it is resumable
+
+The user explicitly stopped `clockfix-001` during SquashFS compression for handover. The guest powered off cleanly; the owner exited1 due to missing build-success/export markers, the monitor exited0, and the post-build queue exited130 with all gates false. Reconciled process/QMP inspection found no active worker or listener. Keep the run disk, exact frozen source, descriptor and logs unchanged. Current fresh-run mode rejects resume and the legacy resume route selects a different disk; do not bypass guards, rename state or replay bootstrap. Before reuse, build a reviewed read-only named-run inspection/continuation path; otherwise launch a full build under a new unused slug. Keep the old ISO labeled as the prior preview and preserve its installation evidence.

@@ -1,4 +1,26 @@
-# Windows12 restart handoff — 2026-11-06 UTC
+# Windows12 restart handoff — 2026-11-06 America/Chicago
+
+## Current checkpoint — corrected build stopped and handed over
+
+Verified local main before this checkpoint: `ed2d15e92484aabbe2a664745e2a3fc92bed5249`, clean before these handoff edits. Linux Mint 22.3/Noble compatibility, authenticated project-local tools, KVM availability and the previous ISO's installation/desktop evidence are recorded below. At the user's explicit stop request, corrected build `clockfix-001` was shut down while compressing the SquashFS image. Its guest reached clean unmount and ACPI S5; this was an intentional interruption, not a build defect.
+
+**Reconciled stopped state:** build session1524 exited1 because the build had no successful export/exit marker; monitor7783 exited0; validation queue64013 exited130. Current process inspection found no builder, QEMU, monitor or validation worker, and `scripts/probe-qmp.py status` reported no QMP listener. Queue result `artifacts/candidate-gates-1793996532448507789/result.json` is `interrupted`, with every content/BIOS/install/GUI/release flag false. There is no corrected ISO and no `build.exit` in the clockfix output.
+
+**Preserved partial build:** `.work/builder/runs/clockfix-001/build.qcow2` (15,745,613,824 allocated bytes), frozen `checks.tar` (768,000 bytes), `build-source.sha256`, output serial/guest logs and run provenance remain. Frozen archive SHA256 is `71603060b1d11c0f27107230e4374bee710de7fb93aca82286a757d2f6593ad5`, matching its source lock. Active descriptor remains nonce `57315f684b2257f2bbdde8d36c8c790f`, SHA256 `94eeaa1548aa9dd3a926a9f8bf4ecc9358bde304d5abcc136a26f1b7ae63bd34`; no process is using it. Do not delete, rename, replay bootstrap over, or infer completion from this disk. Fresh-run mode deliberately has no resume path; an unqualified legacy `--resume` would select the old builder, not this run. Safest supported build path today is a new unused slug after review; reuse requires a separately implemented and validated named-run inspection/continuation feature.
+
+The earlier preview ISO remains `artifacts/vm-build/windows12-amd64-preview.iso`, SHA256 `7d36b5847fba7240ee2795bb42ff3ea841652569b7eb983cfec6ea96968ae11c`; it has recorded BIOS installation, ISO-free installed desktop, Calamares installation and UEFI **live boot** evidence. It lacks the newly required `util-linux-extra`/`hwclock` fix and is not the corrected release candidate. UEFI installed-disk boot, broader workflow/reboot validation, physical hardware and Secure Boot remain unverified.
+
+**Exact next safe action:** before any VM or build, design a fail-closed read-only inspection for the preserved `clockfix-001` guest state and decide whether to implement/test a named-run continuation; otherwise allocate a new never-used run slug and perform a full build while retaining this partial disk until replacement acceptance. Do not run the current `--resume`, rerun this slug, or mark the partial run successful. Keep the original ISO, signed inputs and useful caches; retire superseded large disks only after corrected ISO acceptance and input-preservation checks.
+
+A local, ignored draft proposal remains at `.work/manual-network-development/manual-network.patch` with its review note. It has static checks only and must remain unapplied until guest-suite and actual persistence/network evidence are completed; it is not part of this checkpoint.
+
+## Historical checkpoint — corrected build had been launched
+
+The following older sections preserve prior states and commands; references to the build being active or not yet launched are superseded by the current checkpoint above.
+
+---
+
+# Historical handoff — 2026-11-06 UTC
 
 ## ACTIVE corrected ISO build — clockfix-001
 

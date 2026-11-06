@@ -1,5 +1,22 @@
 # Stable tasks
 
+## Current handover checkpoint — 2026-11-06
+
+Local/remote main before this update: `ed2d15e92484aabbe2a664745e2a3fc92bed5249`. The corrected clockfix-001 build was explicitly stopped during SquashFS compression. Guest shutdown was clean; controller1524 exited1 without build success, monitor7783 exited0, queue64013 exited130. No worker or QMP listener remains. Partial VM disk, frozen source archive, logs and interrupted queue result are preserved; there is no corrected ISO. The old preview ISO remains the only ISO artifact with documented BIOS install/installed-desktop, Calamares/basic workflow and UEFI live-boot evidence, but lacks the hwclock package fix and has no UEFI installation/Secure Boot/hardware certification. See HANDOFF.md for exact hashes and evidence.
+
+| Task | Handoff status / next acceptance |
+|---|---|
+| W12-005 | **Open.** Corrected ISO not built. Inspect retained clockfix guest stage read-only; implement/test explicit named-run continuation or use a new slug for a full build, then audit and validate corrected ISO. |
+| W12-039 | **Partial.** UEFI live boot passed on old ISO; corrected UEFI installation/ISO-free boot and Secure Boot remain unverified. |
+| W12-040 | Old ISO Calamares installation/basic installed workflows observed; rerun on corrected ISO after build. Broader workflow and reboot evidence remain open. |
+| W12-043 | Storage cleanup reclaimed10.34GiB. Keep useful caches, partial clockfix disk and original acceptance evidence until replacement acceptance/input preservation; retire superseded large disks afterward. |
+| W12-044 | **Handover/recovery.** Current run is reconciled stopped. Next: read-only stage inspection and design a fail-closed fresh-run continuation; no supported resume exists now. |
+| W12-006 | Publish this project-only handover on main with nonforced fast-forward, verify remote head and clean local status. |
+
+Current working tree changes are handoff documentation only. The local unapplied draft is excluded. No ISO, corrected build success or guest validation is claimed by this checkpoint.
+
+## Historical task status (superseded below where it says a worker/build is active)
+
 Latest W12-040 BIOS evidence: actual offline Calamares completed all39jobs; ISO-free new-account/Wayland/root/sudo/basicXLSX observations passed. Review12720 stopped0 with unchangedbaseline; docs/CALAMARES_PREVIEW4.md. W12-005 remains open for clock-fixed NEW ISO, UEFI, broader workflow/reboot evidence. Missinghwclock future source fix implemented; new UEFI/fresh-builder code requires contained guest validation. No VM currently running; do not snapshot agent iso_media_review's partial implementation. Main before update1a72ec2f66677ac14f48bf51f37a965b616daabc.
 
 ## Current task checkpoint — overrides historical status rows below

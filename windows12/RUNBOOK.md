@@ -1,6 +1,16 @@
 # Runbook
 
-## ACTIVE corrected ISO build — clockfix-001
+## Current handover — corrected build stopped
+
+Sole project: `/home/avision/gitclone/AI-use/windows12/`; Linux Mint22.3/Noble x86_64; current free space approximately60GiB. Current main before these handoff edits was `ed2d15e92484aabbe2a664745e2a3fc92bed5249`. The user's stop request deliberately ended corrected build `clockfix-001` during SquashFS compression. Guest shutdown was clean. Owner1524 exited1 because no successful build/export marker existed; monitor7783 exited0; validation queue64013 exited130. A fresh process check found no build/QEMU/monitor/validation process; `python3 -B scripts/probe-qmp.py status` reports no QMP listener.
+
+No corrected ISO exists. Queue result is `interrupted` with all acceptance flags false; no `build.exit` exists in `artifacts/vm-build-clockfix-001/`. Preserve `.work/builder/runs/clockfix-001/build.qcow2`, its source lock/archive, active descriptor and logs. Frozen `checks.tar` SHA256 is `71603060b1d11c0f27107230e4374bee710de7fb93aca82286a757d2f6593ad5`. The current fresh-run CLI has no named-run resume support. Never use legacy `--resume` for this disk, reuse its occupied slug, rename the run into a legacy path or bootstrap over it.
+
+**Next safe action:** perform a read-only inspection of the retained guest's live-build stage, then either implement and validate an explicit named-run continuation or choose a fresh never-used slug for a full build. Preserve the partial disk until a replacement passes acceptance; do not remove caches or original evidence that accelerate/enable near-term work. The manual network/reboot proposal is only static-checked, remains ignored at `.work/manual-network-development/`, and must not be used until integrated and guest-tested.
+
+The only existing ISO is `artifacts/vm-build/windows12-amd64-preview.iso`, SHA256 `7d36b5847fba7240ee2795bb42ff3ea841652569b7eb983cfec6ea96968ae11c`. It has recorded BIOS install/ISO-free desktop, Calamares installation/basic workflows and UEFI live boot. It predates the `util-linux-extra`/`hwclock` fix; corrected ISO, UEFI installation, Secure Boot, physical hardware and broader workflow acceptance are pending. See current `HANDOFF.md` before any runtime operation.
+
+## Historical checkpoint — corrected ISO build was active (superseded)
 
 Latest source main before this checkpoint: 1ba180e2a5b5bf4bc1592bd7b07ee3efb3bb0641. The corrected full build IS RUNNING, owner root session1524, .work/build-clockfix-001.log. Actual KVM/host machine pc,accel=kvm,smm=off; new disk .work/builder/runs/clockfix-001/build.qcow2, exports artifacts/vm-build-clockfix-001/. Frozen source .work/builder/runs/clockfix-001/checks.tar SHA25671603060b1d11c0f27107230e4374bee710de7fb93aca82286a757d2f6593ad5. Shared .work/builder/active-build.json pins nonce57315f684b2257f2bbdde8d36c8c790f (descriptor SHA25694eeaa1548aa9dd3a926a9f8bf4ecc9358bde304d5abcc136a26f1b7ae63bd34). Monitor session7783 (--interval60 --auto-cleanup, no console ringbuffer redirection) follows that descriptor. Sequential audit/BIOS capture queue64013, log.work/validation-clockfix-001.log, output artifacts/candidate-gates-1793996532448507789/, currently waiting for builder stop. It does NOT queue slow default D-I installation; require fresh actual corrected-ISO Calamares/UEFI installed-disk acceptance separately. Do not launch another VM or edit frozen build/controller source while these jobs are active.
 
