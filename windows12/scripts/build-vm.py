@@ -4,7 +4,7 @@ Writable guest storage: project-contained .work/builder/build.qcow2;
 exports remain inside project artifacts/ (separate inspection runs).
 """
 from pathlib import Path
-import argparse, hashlib, http.server, json, os, shlex, shutil, subprocess, tarfile, threading, urllib.parse, time, socket, re, fcntl, select, stat, errno, secrets
+import atexit, argparse, hashlib, http.server, json, os, shlex, shutil, subprocess, tarfile, threading, urllib.parse, time, socket, re, fcntl, select, stat, errno, secrets
 ROOT=Path(__file__).resolve().parents[1]
 HOST_WRAPPER_SHA256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 def bounded(path):
@@ -24,6 +24,7 @@ def main():
  ap.add_argument('--prepare',action='store_true',help='Download checksum-verified official builder image only')
  ap.add_argument('--probe',action='store_true',help='Run QEMU TCG firmware for 10s with no disk/network')
  ap.add_argument('--resume',action='store_true',help='Resume an existing VM disk, not a new build')
+ ap.add_argument('--continue-package-stage',type=Path,metavar='PLAN',help='Import the fully verified cache and run only the public chroot stage with no-download; no ISO claim')
  ap.add_argument('--refresh-package-catalogs',action='store_true',help='Quarantine reproducible repository caches and run strict native metadata update only; no install/build')
  ap.add_argument('--package-stage',action='store_true',help='Select explicit security-upgraded package-stage profile for read-only inspection')
  ap.add_argument('--plan-package-downloads',action='store_true',help='Export exact signed-catalog package download plan from retained target; no install/build')
@@ -31,10 +32,14 @@ def main():
  ap.add_argument('--continue-after-bootstrap',action='store_true',help='Explicit recovery boot: verify retained bootstrap and continue public stages, preserving frozen source')
  ap.add_argument('--refresh-target-indexes',action='store_true',help='Explicitly quarantine the two inspected bad APT indexes and regenerable binary caches; requires guarded continuation')
  args=ap.parse_args()
- if sum(map(bool,(args.prepare,args.probe,args.inspect_resume,args.plan_package_downloads,args.refresh_package_catalogs,args.continue_after_bootstrap)))>1:ap.error('Choose only one build operation')
+ if sum(map(bool,(args.prepare,args.probe,args.inspect_resume,args.plan_package_downloads,args.refresh_package_catalogs,args.continue_after_bootstrap,args.continue_package_stage)))>1:ap.error('Choose only one build operation')
+ if args.continue_package_stage:
+  if not args.resume or args.refresh_target_indexes:ap.error('--continue-package-stage requires --resume alone with its plan')
+  OUT=bounded(ROOT/'artifacts'/('package-stage-'+str(time.time_ns())))
  if args.refresh_package_catalogs:
   if not args.resume:ap.error('--refresh-package-catalogs requires --resume')
   OUT=bounded(ROOT/'artifacts'/('catalog-refresh-'+str(time.time_ns())))
+ if args.resume and not any((args.prepare,args.probe,args.inspect_resume,args.plan_package_downloads,args.refresh_package_catalogs,args.continue_after_bootstrap,args.continue_package_stage)):ap.error('Bare --resume can replay bootstrap over retained work; choose an explicit inspection or continuation operation')
  if args.package_stage and not args.inspect_resume:ap.error('--package-stage requires --resume --inspect-resume')
  if args.plan_package_downloads:
   if not args.resume or args.prepare or args.probe or args.inspect_resume or args.continue_after_bootstrap or args.refresh_target_indexes:ap.error('--plan-package-downloads requires --resume alone')
@@ -153,6 +158,7 @@ def main():
  if proxy.hostname in ['127.0.0.1','localhost'] and proxy.port:
   proxy_guest=f'http://10.0.2.2:{proxy.port}'
  with tarfile.open(checks) as tf:guest=tf.extractfile('build/guest-build.sh').read().decode()
+ package_inputs=None;package_stage_nonce=None;stage_inputs_hash=None
  catalog_refresh_hash=None;catalog_refresh_nonce=None
  planning_hash=None;planning_nonce=None
  inspection_hash=None;inspection_nonce=None
@@ -189,6 +195,35 @@ def main():
   if guest.count(boundary)!=1 or 'WINDOWS12_CATALOG_REFRESH_PY' in refresh:raise SystemExit('Frozen catalog refresh prefix/delimiter requires review')
   guest=guest.split(boundary,1)[0]+"\ncd /root/windows12-build\npython3 - --nonce "+catalog_refresh_nonce+" <<'WINDOWS12_CATALOG_REFRESH_PY'\n"+refresh+"\nWINDOWS12_CATALOG_REFRESH_PY\n"
 
+
+ if args.continue_package_stage:
+  preparation=bounded(ROOT/'scripts/package-stage-inputs.py')
+  if preparation.is_symlink():raise SystemExit('Package input preparation alias refused')
+  preparation_bytes=preparation.read_bytes();stage_inputs_hash=hashlib.sha256(preparation_bytes).hexdigest()
+  namespace={'__file__':str(preparation),'__name__':'windows12_package_stage_inputs'}
+  exec(compile(preparation_bytes,str(preparation),'exec'),namespace)
+  manifest_path=bounded(args.continue_package_stage if args.continue_package_stage.is_absolute() else ROOT/args.continue_package_stage)
+  package_inputs=namespace['prepare'](ROOT,manifest_path)
+  atexit.register(package_inputs.close)
+  package_stage_nonce=secrets.token_hex(16)
+  destinations=[('inspect-builder.py','/root/windows12-inspection.py'),('recover-builder.py','/root/windows12-recover.py'),
+                ('import-package-cache.py','/root/windows12-import.py'),('run-package-stage.py','/root/windows12-package-stage.py')]
+  for filename,destination in destinations:
+   helper=bounded(ROOT/'build'/filename)
+   if helper.is_symlink():raise SystemExit('Package-stage helper alias refused')
+   data=helper.read_bytes();text=data.decode('utf-8')
+   if not data.endswith(b'\n') or data.endswith(b'\n\n') or b'\r' in data:raise SystemExit('Package-stage helper requires canonical LF source')
+   recovery_hashes[filename]=hashlib.sha256(data).hexdigest();recovery_files.append((destination,text))
+  boundary='\nlb build\n'
+  if guest.count(boundary)!=1:raise SystemExit('Frozen package-stage boundary requires review')
+  command=['python3','-B','/root/windows12-package-stage.py','--nonce',package_stage_nonce,
+           '--plan-nonce',package_inputs.plan_nonce,'--manifest-sha256',package_inputs.manifest_sha256,
+           '--inspection-sha256',recovery_hashes['inspect-builder.py'],'--recovery-sha256',recovery_hashes['recover-builder.py'],
+           '--importer-sha256',recovery_hashes['import-package-cache.py']]
+  safety_boundary='\nmkdir -p /root/windows12-checks\n'
+  if guest.count(safety_boundary)!=1:raise SystemExit('Frozen safety/export prefix requires review')
+  guest=guest.split(safety_boundary,1)[0]+'\ncd /root/windows12-build\n'+shlex.join(command)+'\n'
+
  if args.continue_after_bootstrap:
   recovery_nonce=secrets.token_hex(16)
   for filename,destination in [('inspect-builder.py','/root/windows12-inspection.py'),('recover-builder.py','/root/windows12-recover.py')]:
@@ -218,7 +253,7 @@ def main():
  class Handler(http.server.BaseHTTPRequestHandler):
   def do_PUT(self):
    name=self.path.removeprefix('/output/')
-   allowed={'build.exit','guest-build.log','desktop-SHA256SUMS','windows12-amd64-preview.iso','windows12-amd64-preview.packages','SHA256SUMS','builder-inspection.json','builder-recovery.json','package-download-plan.json','package-catalog-audit.json','package-catalog-refresh.json','package-cache-import.json'}
+   allowed={'build.exit','guest-build.log','desktop-SHA256SUMS','windows12-amd64-preview.iso','windows12-amd64-preview.packages','SHA256SUMS','builder-inspection.json','builder-recovery.json','package-download-plan.json','package-catalog-audit.json','package-catalog-refresh.json','package-cache-import.json','package-stage-result.json','package-stage.packages'}
    if not self.path.startswith('/output/') or (name not in allowed and not re.fullmatch(r'windows12-desktop_[A-Za-z0-9.+~_-]+_all\.deb',name)):
     self.send_error(403);return
    target=OUT/name;partial=OUT/(name+'.part')
@@ -226,7 +261,7 @@ def main():
     self.send_error(403);return
    try:length=int(self.headers['Content-Length'])
    except (TypeError,ValueError):self.send_error(411);return
-   if ((name in ('package-download-plan.json','package-catalog-audit.json') and length>2*1024**2) or (name=='package-catalog-refresh.json' and length>16*1024**2) or (name=='package-cache-import.json' and length>32*1024**2)):
+   if ((name in ('package-download-plan.json','package-catalog-audit.json','package-stage-result.json') and length>2*1024**2) or (name=='package-catalog-refresh.json' and length>16*1024**2) or (name=='package-cache-import.json' and length>32*1024**2)):
     self.send_error(413);return
    if length<0 or length>12*1024**3 or shutil.disk_usage(OUT).free<length+256*1024**2:
     self.send_error(413);return
@@ -243,6 +278,20 @@ def main():
     payload=checks
     self.send_response(200);self.send_header('Content-Length',str(payload.stat().st_size));self.end_headers()
     with payload.open('rb') as f:shutil.copyfileobj(f,self.wfile)
+   elif package_inputs is not None and self.path=='/package-plan.json':
+    data=package_inputs.raw_manifest;self.send_response(200);self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
+   elif package_inputs is not None and re.fullmatch(r'/package-cache/[0-9a-f]{64}\.deb',self.path):
+    try:opened=package_inputs.open_payload(self.path.split('/')[-1][:-4])
+    except (OSError,ValueError):self.send_error(409);return
+    if opened is None:self.send_error(404);return
+    source,length=opened
+    with source:
+     self.send_response(200);self.send_header('Content-Length',str(length));self.end_headers()
+     remaining=length
+     while remaining:
+      block=source.read(min(1024*1024,remaining))
+      if not block:raise OSError('Verified package stream truncated')
+      self.wfile.write(block);remaining-=len(block)
    elif self.path in seed:
     data=seed[self.path];self.send_response(200);self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
    else:self.send_error(404)
@@ -260,12 +309,25 @@ def main():
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
- output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'package_planning':args.plan_package_downloads,'catalog_refresh':args.refresh_package_catalogs,'catalog_refresh_helper_sha256':catalog_refresh_hash,'catalog_refresh_nonce':catalog_refresh_nonce,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'package_stage_inspection':args.package_stage,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
+ output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'package_stage_only':bool(args.continue_package_stage),'package_stage_nonce':package_stage_nonce,'package_stage_inputs':package_inputs.provenance if package_inputs is not None else None,'stage_inputs_helper_sha256':stage_inputs_hash,'package_planning':args.plan_package_downloads,'catalog_refresh':args.refresh_package_catalogs,'catalog_refresh_helper_sha256':catalog_refresh_hash,'catalog_refresh_nonce':catalog_refresh_nonce,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'package_stage_inspection':args.package_stage,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
  try:
   with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
- finally:server.shutdown()
+ finally:
+  server.shutdown()
+  if package_inputs is not None:package_inputs.close()
  status=OUT/'build.exit'
  if not status.exists() or status.read_text().strip()!='0':raise SystemExit('Build/task incomplete or failed; inspect '+str(OUT/'serial.log')+' and guest-build.log')
+ if args.continue_package_stage:
+  report=output_file(OUT/'package-stage-result.json')
+  if not report.is_file() or not 0<report.stat().st_size<=2*1024**2:raise SystemExit('Missing/oversized package-stage result')
+  stage=json.loads(report.read_text())
+  if (not isinstance(stage,dict) or stage.get('schema')!=1 or stage.get('nonce')!=package_stage_nonce
+      or stage.get('plan_nonce')!=package_inputs.plan_nonce or stage.get('manifest_sha256')!=package_inputs.manifest_sha256
+      or stage.get('chroot_completed') is not True or stage.get('iso_verified') is not False):raise SystemExit('Package-stage proof schema/freshness mismatch')
+  installed=output_file(OUT/'package-stage.packages')
+  if not installed.is_file() or not 0<installed.stat().st_size<=2*1024**2 or hashlib.sha256(installed.read_bytes()).hexdigest()!=stage['installed_manifest']['sha256']:raise SystemExit('Installed package manifest proof mismatch')
+  print('Public package/chroot stage completed:',OUT,'; ISO/boot/install/GUI remain unverified.')
+  return
  if args.refresh_package_catalogs:
   report=output_file(OUT/'package-catalog-refresh.json')
   if not report.is_file() or not 0<report.stat().st_size<=16*1024**2:raise SystemExit('Missing/oversized catalog refresh report')

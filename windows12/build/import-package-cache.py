@@ -21,6 +21,10 @@ ORIGIN = 'http://10.0.2.2:8765'
 MAX_PLAN = 2 * 1024 * 1024
 MAX_PACKAGE = 512 * 1024 * 1024
 MAX_TOTAL = 8 * 1024 * 1024 * 1024
+LOCAL_PAIR_NAME = 'windows12-desktop_0.1.0~preview2_all.deb'
+LOCAL_READ_PAIR = frozenset((BUILD / 'config/packages.chroot' / LOCAL_PAIR_NAME,
+                             ROOT / 'packages' / LOCAL_PAIR_NAME))
+LOCAL_PAIR_SHA256 = '5db8cb011056994620abdfe550a31cbebc492e5a66ce2006551861484adf1776'
 HEX = re.compile('[0-9a-f]{64}')
 RUNTIME_STAGES = {'chroot_devpts', 'chroot_proc', 'chroot_selinuxfs', 'chroot_sysfs'}
 STAGES = {'config', 'bootstrap', 'bootstrap_cache.save', 'chroot_apt',
@@ -73,14 +77,32 @@ def ancestry(path, leaf=True):
         raise ValueError('Canonical ancestry mismatch')
 
 
+def reviewed_read_links(path, info):
+    """Read-only exception for live-build's one exact CP_OPTIONS=-l pair."""
+    if info.st_nlink == 1:
+        return False
+    path = Path(path)
+    if (path not in LOCAL_READ_PAIR or not stat.S_ISREG(info.st_mode)
+            or info.st_nlink != 2 or info.st_uid != 0 or info.st_gid != 0
+            or info.st_size != 7118):
+        raise ValueError('Unreviewed hardlink input: ' + str(path))
+    peer = next(p for p in LOCAL_READ_PAIR if p != path)
+    ancestry(path)
+    ancestry(peer)
+    if stable_metadata(peer.lstat()) != stable_metadata(info):
+        raise ValueError('Reviewed local hardlink pair identity differs')
+    return True
+
+
 def snapshot(path, limit=MAX_PACKAGE):
     path = Path(path)
     ancestry(path)
     fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     with os.fdopen(fd, 'rb') as stream:
         before = os.fstat(stream.fileno())
-        if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or before.st_size > limit:
-            raise ValueError('Not a bounded single-link regular file: ' + str(path))
+        linked_local = reviewed_read_links(path, before)
+        if not stat.S_ISREG(before.st_mode) or before.st_size > limit:
+            raise ValueError('Not a bounded regular file: ' + str(path))
         h = hashlib.sha256()
         total = 0
         while True:
@@ -96,6 +118,9 @@ def snapshot(path, limit=MAX_PACKAGE):
     if any(getattr(before, k) != getattr(after, k) for k in fields) or path.lstat() != after:
         raise ValueError('File changed during read: ' + str(path))
     ancestry(path)
+    reviewed_read_links(path, after)
+    if linked_local and h.hexdigest() != LOCAL_PAIR_SHA256:
+        raise ValueError('Reviewed linked package SHA256 differs')
     return dict(path=str(path), size=total, sha256=h.hexdigest(),
                 metadata={k: getattr(after, k) for k in fields})
 
@@ -153,7 +178,8 @@ def copy_local(item, stream):
     h, total = hashlib.sha256(), 0
     with os.fdopen(fd, 'rb') as incoming:
         before = os.fstat(incoming.fileno())
-        if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or before.st_size != item['size']:
+        linked_local = reviewed_read_links(source, before)
+        if not stat.S_ISREG(before.st_mode) or before.st_size != item['size']:
             raise ValueError('Local source type/size differs')
         while True:
             chunk = incoming.read(min(1024 * 1024, item['size'] - total + 1))
@@ -168,6 +194,9 @@ def copy_local(item, stream):
     ancestry(source)
     if stable_metadata(before) != stable_metadata(after) or stable_metadata(source.lstat()) != stable_metadata(after):
         raise ValueError('Local source changed during copy')
+    reviewed_read_links(source, after)
+    if linked_local and h.hexdigest() != LOCAL_PAIR_SHA256:
+        raise ValueError('Reviewed linked package changed during copy')
     return total, h.hexdigest(), b''
 
 
@@ -343,8 +372,10 @@ def unchanged_identities(baseline):
             entry = entry['evidence']
         p = Path(entry['path'])
         ancestry(p)
-        if stable_metadata(p.lstat()) != entry['metadata']:
+        current = p.lstat()
+        if stable_metadata(current) != entry['metadata']:
             raise ValueError('Target input identity changed during import: ' + str(p))
+        reviewed_read_links(p, current)
 
 
 def quiescent():
@@ -560,13 +591,21 @@ def main():
         after = inventory()
         if any(after.get(name) != entry for name, entry in before.items()):
             raise ValueError('Preexisting cache entry changed')
+        for item in selected:
+            found = after.get(item['filename'])
+            if not isinstance(found, dict) or (found.get('size'), found.get('sha256')) != (item['size'], item['sha256']):
+                raise ValueError('Final selected archive differs from authenticated plan: ' + item['filename'])
+            info = found.get('metadata', {})
+            if (info.get('st_uid'), info.get('st_gid'), info.get('st_nlink')) != (0, 0, 1) or stat.S_IMODE(info.get('st_mode', 0)) != 0o644:
+                raise ValueError('Final selected archive metadata differs: ' + item['filename'])
         permitted = set(before) | {p['filename'] for p in selected}
         if set(after) != permitted or provenance(plan) != baseline:
             raise ValueError('Unexpected cache or target state change')
         quiescent()
-        report.update(cache_after=after, preserved_target=True, import_performed=True)
+        report.update(cache_after=after, preserved_target=True, import_performed=True,
+                      final_selected_sha256_verified=True, final_verified_archive_count=len(selected))
         report_write(report, workspace)
-        print('Verified package cache delivery complete; native APT verification still required')
+        print('All selected archive hashes verified; installation has not been performed')
     except Exception as error:
         for record in report['files']:
             if record['status'] == 'pending':

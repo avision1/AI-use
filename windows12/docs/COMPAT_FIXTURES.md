@@ -5,7 +5,7 @@
 | Case | Fixed input | Evidence required later |
 |---|---|---|
 | x64 EXE | 7-Zip26.05 x64 | GUI installation, ZIP/7z creation/extraction, native hash comparison, removal |
-| x86 EXE | 7-Zip26.05 x86 | Independent32-bit bottle/runner and functional archive operations |
+| x86 EXE | 7-Zip26.05 x86 | Independent x86 workflow using the runner’s supported WoW64/prefix mode, with functional archive operations |
 | MSI | 7-Zip26.05 x64 MSI | Separate installation/use/removal; EXE success is insufficient |
 | Editor | Notepad++8.9.8.1 x64 EXE | Edit/save/reopen UTF-8, non-ASCII filenames, clipboard/file chooser, removal |
 

@@ -50,3 +50,5 @@ The exact live-build bootstrap deliberately uses --no-rename for os-release.debo
 
 ## 2026-11-06 — Rebuild untrusted catalog cache; authenticate full archive set
 SQV foundadditionalretainedindexSHA mismatch afterprevious two-indexparsefix. PreservewholeoldAPTlists/generatedbinarycaches and regenerateonlymetadatawithnativeAPTstrictHTTPS/SignedBy, leavingstatus/config/trust/stage/payload unchanged. NativeAPT3.0.3 accepts existingarchivesbysize, notSHA: planning usesemptyisolatedcache; allselectedremote/localarchives mustindependentlymatchauthenticatedplanSHA immediatelybeforeinstallation. No oldcachetrustshortcut, signaturewaiver orclaimthat --no-download aloneverifiescachedbytes.
+
+D033 (2026-11-06 UTC): User reaffirmed Wine compatibility and use of subagents. Keep optional managed Wine/Bottles integration central to Windows application support, with Proton for Steam games. Avoid duplicate preloaded stacks; x86 tests must use the selected runner’s actual WoW64/prefix mode. Upstream progress and source checks do not establish tested app support in this distro.

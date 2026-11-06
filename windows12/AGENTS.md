@@ -22,7 +22,7 @@ Update task IDs, branch/commit, validation, blockers and exact next command. Sta
 - `python3 -B scripts/desktop-test.py <real-ISO>` in TTY: contained interactive GUI evidence after builder stops; docs/DESKTOP_TEST.md, public test data only.
 - `python3 -B scripts/probe-qmp.py status` or `blockstats`: read-only state/I/O evidence; counters do not certify build success.
 - `python3 -B scripts/probe-qmp.py quit`: stop only the recorded build VM when deliberately authorized by task context.
-- `python3 -B scripts/build-vm.py --resume`: experimental frozen-source rerun; inspect jobs first.
+- `python3 -B scripts/build-vm.py --resume --inspect-resume --package-stage`: read-only inventory for current approved package stage; reconcile jobs first. Bare --resume is refused to protect retained work.
 - `python3 -B scripts/boot-test.py artifacts/vm-build/windows12-amd64-preview.iso`: collect BIOS evidence only after real ISO exists.
 - `python3 -B scripts/export-staged-tree.py`: export reviewed staged project text for authenticated GitHub main checkpoint.
 Guest test command: `python3 -B -m unittest discover -s /root/windows12-checks/tests -v`. Do not run image build/package installation/test suites against the host.
@@ -34,3 +34,5 @@ If the selected execution environment becomes unavailable, stop runtime/file ope
 
 ## Current host and runtime status
 Current host is Debian13; build-tools.py supports native Debian13 and Ubuntu24.04 using installed archive keyring and gpgv/sqv, extracting only project-local files. No global installation. Current-job source of truth is HANDOFF.md's November checkpoint; older October handles are historical. Runtime disk/artifacts can be lost by workspace pruning. Frequent local commits are required even when authenticated GitHub branch synchronization fails; report that failure honestly and retry without force.
+
+Current verified input pipeline: --resume --refresh-package-catalogs performs update-only metadata regeneration; --resume --plan-package-downloads independently authenticates the complete transaction; scripts/prefetch-packages.py PLAN --expected-nonce NONCE fetches at most100 inputs per invocation. --resume --continue-package-stage PLAN requires the entire verified cache and runs only public chroot with checked no-download options. New controller/guest runtime status is in HANDOFF; never imply these inputs alone are an installable ISO. Do not restore bootstrap over retained target.
