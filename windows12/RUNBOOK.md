@@ -1,5 +1,8 @@
 # Runbook
 
+## Current approved workspace — 2026-11-05 America/Chicago
+Current project: `/workspace/AI-use/windows12/`. User approved this restore after the old checkout was absent. All 102 project blobs/modes match main b9913c7 exactly. Native clone failed at the configured proxy; local baseline 6a686c3 has independent history. Use the authenticated GitHub connection with fresh upstream parent/base for checkpoints; never push the independent local history to main. Shell package bootstrap currently fails with curl 7 (proxy unreachable), distinct from the historical allowlist denial. About7.42GiB was free before preparation; reassess build/export headroom before launch. Runtime inputs/ISO are absent. Do not use historical resume plans/nonces. See HANDOFF and docs/RESTORE_2026-11-05.md.
+
 ## Contained setup
 
 Use the sole existing AI-use checkout. Read AGENTS.md and HANDOFF.md, inspect Git and existing jobs, then enter `windows12/`. The current local absolute path is recorded in PROJECT_STATE.md. No other checkout, worktree, host package installation, root workflow file, host disk access or host mount is needed.

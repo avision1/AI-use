@@ -1,16 +1,17 @@
 # Project state — 2026-11-06 UTC
 
-## Current execution checkpoint — 2026-11-05 America/Chicago
-Execution works in the supplied fresh workspace. Sole checkout: `/workspace/scratch/a8ea18c8241a/AI-use`; project boundary: its `windows12/` directory. Source restored from main `8619b2c`; no sibling project changed. Process inventory found no QEMU/build/monitor/validation workers. Before wrapper refusal checks, `.work/` and `artifacts/` were absent: old disk, source archive, cloud image, tools, cache and package plan are unavailable. Historical handles/counts below are not current inputs.
+## Current execution checkpoint — 2026-11-05 America/Chicago (approved restore)
+Sole checkout: `/workspace/AI-use`; project boundary: `/workspace/AI-use/windows12/`. User explicitly approved restoring only this project into the empty workspace. Native clone failed because the configured proxy at port 8080 could not be reached. The existing GitHub connection restored all 102 project blobs and executable modes from main `b9913c70c1797c0f99fa4cdcc902c7bcea0acaad`. Every blob was hash-checked; the reconstructed project tree is exactly `f9f92931c4e845442ad62c797b0b9a3a57e1eed3`. No sibling contents were fetched or materialized. Local source-equivalent baseline: `6a686c3`; this is a snapshot with local history, not a successful Git clone or a copy of upstream ancestry. Publish via the authenticated GitHub connection using freshly read upstream main as parent/base; never push this independent local baseline over main.
 
-Current environment network allowlist excludes Debian package/security/cloud hosts. No denied download was retried or alternate route used. No guest build, runtime suite or ISO gate ran. Previous 31-test/package results remain historical. No ISO exists.
+Process inventory found no QEMU/project workers. Before checks, `.work/builder/` and `artifacts/` were absent. Original disks, inputs and ISO remain absent. Available space: approximately 7.42GiB before tool preparation; assess sufficient build/export headroom before any launch.
 
-Independent read-only review confirmed two controller defects now fixed: retained disk/source/hash checks precede dependency checks/downloads; fresh source validation precedes disk creation. Resume+prepare/probe options are rejected. Validation: Python syntax parsing, actual negative CLI refusal checks and diff checks; guest/runtime verification pending.
+Actual `python3 -B scripts/build-tools.py` failed before downloading Debian InRelease: curl 7, configured proxy unreachable. Current environment metadata reports enforced unrestricted policy; this transport failure is distinct from the previous allowlist denial. No proxy bypass, direct route, host package install or VM launch was attempted. No ISO exists.
 
-User is considering Linux Mint laptop as build environment. Local Codex can continue from these checkpoints. build-tools.py explicitly supports Debian13/Ubuntu24.04; inspect/adapt Mint support rather than assuming compatibility. Keep target construction inside the project VM, never on the laptop host.
+Current validation: all 26 Python files parsed, guest shell passed `bash -n`, four negative controller CLI checks passed (resume+probe, resume+prepare, bare resume, missing retained disk), and diff checks passed. No host test suite was run. Previous 31 guest tests/package results remain historical.
 
-Next: in an environment with permitted Debian/cloud access, reconcile source/jobs/storage. With no artifacts, set project-local HOME/TMP/XDG from RUNBOOK, prepare tools for the actual host, then run build-vm.py --probe, --prepare and a deliberate fresh build (no --resume). Monitor storage safeguards. Require real ISO content/boot/install/GUI and Windows-app gates. Never use historical plan/nonce commands unless exact inputs are recovered and validated.
+The previously discussed Linux Mint laptop remains an alternative build environment. Tool bootstrap currently supports Debian 13 and Ubuntu 24.04 explicitly; inspect/adapt Mint compatibility before assuming it works. Keep all target construction inside the project VM.
 
+Next: restore the configured shell proxy service and provide sufficient project storage; then use project-local writable environment from RUNBOOK, run `python3 -B scripts/build-tools.py`, `python3 -B scripts/build-vm.py --probe`, `--prepare`, and deliberately build fresh without `--resume`. Reconcile workers/locks/storage again first. Require real ISO, boot/install/GUI and Windows-app gates. See `docs/RESTORE_2026-11-05.md` for current evidence.
 
 ## Historical execution interruption
 A resume attempt found the supplied checkout at old project commit 696bc1c, with no windows12/.work/builder or windows12/artifacts directories. The committed preview3 source on GitHub is intact (remote main759c468e750c405f93d60e0e858429384d3cd97e at inspection); later sibling changes were preserved.
@@ -31,8 +32,8 @@ W12-005 first installable Debian13/amd64 KDE preview remains incomplete. **No IS
 - Full selected transaction signed-catalog exporter, bounded prefetch, complete archive importer, explicit package-stage guard and no-download public chroot controller implemented/reviewed. Catalog refresh and full plan passed; actual delivery/chroot completion pending.
 - ISO content/BIOS/live GUI/D-I disposable installation/sequential validation tools implemented; actual ISO gates pending. Windows and Office QA fixtures validated as inputs only.
 
-## Current blocker
-Network policy blocked https://deb.debian.org:443. No bypass attempted. Offline cache check:680 valid cached /1946 planned,1266 missing,2.049GB full transaction. No prefetch worker active. More installer/binary inputs are required beyond that transaction, documented in docs/FINISH_IMAGE_STAGE.md. These missing inputs prevent honest ISO completion in this environment.
+## Historical dependency blocker
+The earlier network policy blocked https://deb.debian.org:443. No bypass attempted. Offline cache check:680 valid cached /1946 planned,1266 missing,2.049GB full transaction. No prefetch worker active. More installer/binary inputs are required beyond that transaction, documented in docs/FINISH_IMAGE_STAGE.md. These missing inputs prevent honest ISO completion in this environment.
 
 ## Historical baseline — not currently present
 Retained standalone24GiB virtual builder previously passed offline QCOW2 check. Frozen preview2 checks.tar SHA256f045e04aff5ae2c730e171dc10b559655ad90724d62848c245b1b83ec8049dff unchanged. Current source preview3 is separate and must use a deliberate new candidate; do not silently modify frozen baseline. Runtime artifacts are ignored and can be pruned; Git preserves source and instructions only.
