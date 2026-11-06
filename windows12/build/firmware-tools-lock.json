@@ -1,0 +1,9 @@
+{
+  "ovmf": {
+    "Package": "ovmf",
+    "Version": "2024.02-2ubuntu0.10",
+    "Filename": "pool/main/e/edk2/ovmf_2024.02-2ubuntu0.10_all.deb",
+    "SHA256": "78a6a3a4ffa666f1cb25e9069e4ec9270b5ceac7987b6eefc2674bd3f58a1473",
+    "base": "https://archive.ubuntu.com/ubuntu"
+  }
+}

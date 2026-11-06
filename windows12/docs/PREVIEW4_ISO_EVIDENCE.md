@@ -37,3 +37,11 @@ The modified X11 session displayed a bottom panel (`screen-0019.ppm`), respondin
 Next diagnostic: a NEW unchanged-ISO guest using the explicit contained Nehalem/2D virtio-vga profile after guest tests. No inference about physical hardware, UEFI or graphics-driver support follows from these software-emulated failures or workarounds.
 
 The new diagnostic-profile controller passed55 guest tests, byte-identical preview4 packaging/dpkg checks and confirmed shutdown in `artifacts/overlay-check-c11fb30393c6f70b20f9472002912b2f/`. Ordinary-permission attempt af7aacea0e12491fe6b08b7615d9a464 failed before VM launch on loopback access; the approved network-enabled retry passed. Corrected installation session8231 is now active in `artifacts/install-serial20-001/`; its eventual result must be inspected, not presumed.
+
+## Hybrid structure and installation follow-up
+
+Authenticated xorriso metadata review in `.work/iso-media-review/` confirmed MBR isohybrid/GPT/APM structures,55aa MBR signature, bootable BIOS/UEFI ElTorito entries, and the embedded EFI partition with EFI/BOOT/BOOTX64.EFI and GRUBX64.EFI. File identity stayed unchanged. The report's GPT overlapping notation was retained, not diagnosed as corruption. PhysicalUSB and UEFI runtime remain untested.
+
+Corrected D-I installation8231 passed its exact guard, partitioned/formatted the new vda, and progressed beyond filesystem copying into installed-root configuration. One software-emulated guest watchdog warning during tar copy was retained in the serial log; copy progress continued. Completion callback and ISO-free proof are still pending.
+
+Actual Calamares configuration review used authenticated read-only unsquashfs data under `.work/calamares-review-001/` and002. Required gates include live-user pkexec launch, offline APT behavior, partition/account choices, GRUB installation, removal/autoremove preserving the desktop and overlay, ISO-free login/reboot, and independent session/render verification. It unpacks pristine SquashFS, so live RAM workarounds do not transfer to the target. This route needs its own runtime acceptance; the D-I harness cannot certify it.

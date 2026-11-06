@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract signature-verified VM or ISO build tools locally; never install packages.
+"""Extract signature-verified VM, ISO or UEFI firmware tools locally; never install packages.
 Supports amd64 Ubuntu 24.04, Noble-based Mint 22.3 and Debian 13 hosts, without apt state.
 """
 from pathlib import Path
@@ -28,9 +28,13 @@ def fields(block):
 def main():
  global TOOLS
  parser=argparse.ArgumentParser(description=__doc__)
- parser.add_argument('--profile',choices=['vm','iso'],default='vm',help='vm: QEMU; iso: separate read-only ISO inspection tools')
+ parser.add_argument('--profile',choices=['vm','iso','firmware'],default='vm',help='vm: QEMU; iso: separate read-only ISO inspection tools; firmware: separate OVMF firmware files')
  arguments=parser.parse_args()
- TOOLS=WORK/('tools' if arguments.profile=='vm' else 'iso-tools')
+ profiles={'vm':('tools','tools-lock.json',['qemu-system-x86','qemu-utils','seabios']),
+           'iso':('iso-tools','iso-tools-lock.json',['xorriso','squashfs-tools']),
+           'firmware':('firmware-tools','firmware-tools-lock.json',['ovmf'])}
+ tool_directory,lock_filename,seeds=profiles[arguments.profile]
+ TOOLS=WORK/tool_directory
  if TOOLS.is_symlink() or not TOOLS.resolve().is_relative_to(ROOT):raise SystemExit('Tool destination escapes project or aliases another toolset')
  for path in [WORK,TOOLS,WORK/'debs',ROOT/'build',*WRITABLE_ENV.values()]:bounded(path)
  for key,value in WRITABLE_ENV.items():value.mkdir(parents=True,exist_ok=True);ENV[key]=str(value)
@@ -95,7 +99,7 @@ def main():
      provider=candidate.copy();declared=re.search(r'\(= ([^)]+)\)',provided)
      provider['_ProvidedVersion']=declared[1] if declared else None
      packages.setdefault(alias,[]).append(provider)
- todo=['qemu-system-x86','qemu-utils','seabios'] if arguments.profile=='vm' else ['xorriso','squashfs-tools'];selected={};constraints=[]
+ todo=list(seeds);selected={};constraints=[]
  while todo:
   name=todo.pop()
   if name in selected:continue
@@ -133,7 +137,7 @@ def main():
   with tarfile.open(fileobj=io.BytesIO(payload)) as tf:
    members=[m for m in tf.getmembers() if not (m.issym() and Path(m.linkname).is_absolute())]
    tf.extractall(TOOLS,members=members,filter='data')
- lock_output=bounded(ROOT/'build'/('tools-lock.json' if arguments.profile=='vm' else 'iso-tools-lock.json'))
+ lock_output=bounded(ROOT/'build'/lock_filename)
  if lock_output.is_symlink():raise SystemExit('Tool lock output symlink refused')
  lock_output.write_text(json.dumps({n:{k:v for k,v in f.items() if k in ['Package','Version','Filename','SHA256','base']} for n,f in selected.items()},indent=2)+'\n')
  print('Project-local '+arguments.profile+' tools extracted to',TOOLS)

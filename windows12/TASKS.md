@@ -20,7 +20,7 @@
 | W12-017 | Recover current console without guest restart | 015 | boot_guard/build_restored/lead | done: UART ringbuf recovery and persistent reader executed | Observed serial0 stdio, preserve QMP pipe, bounded ringbuf output, no guest CPU/disk/boot change |
 | W12-018 | Practical desktop release audit | 004,005 | desktop_audit/lead | source review complete; GUI execution pending | Concrete defects separated from unknowns, practical workflow validation before release |
 | W12-019 | Real ISO content audit | 003,005 | boot_guard/lead | implemented/reviewed; authenticated tools startup passed; actual ISO pending | Frozen source/payload/core package/permissions/proxy/CA evidence; no boot claims |
-| W12-020 | Interactive desktop validation harness | 003,005 | desktop_audit/lead | implemented/reviewed; real ISO execution pending | Sole contained VM, safe QMP input/captures, new disk only, no false GUI pass |
+| W12-020 | Interactive desktop validation harness | 003,005 | desktop_audit/lead | actual live attempt reached kernel/login; max/VGA default black; modified X11 panel/menu/Dolphin partial; constrained profiles55guesttests pass | Sole contained VM, safe QMP input/captures, new disk only, no false GUI pass |
 | W12-021 | Controlled post-build image iteration plan | 005 | boot_guard/lead | source research complete; implementation/runtime pending | Preserve baseline/source; correct installer regeneration and manifests; version gates |
 | W12-022 | ISO-free installed desktop QA | 011,020 | desktop_audit/lead | sealed proof producer/installed GUI child mode implemented/reviewed; 52 guest tests and actual QEMU graph pass; real installation/login pending | One-shot proof stamp, validated prior test disk, new writable child, baseline preserved; real reboot/GUI evidence |
 
@@ -53,3 +53,6 @@
 | W12-037 | Managed sidecar proxy transport and bounded guest network proof | 035 | lead/proxy_helper/release_review | implemented/reviewed; real guest HTTPS/signature,36tests/package and shutdown passed | Fixed inherited upstream only; localhost relay; normal TLS and archive signatures; bounded connections; no direct fallback; provenance and actual contained evidence |
 
 | W12-038 | Explicit contained VGA firmware for graphical gates | 012,020,022 | lead | actual missing-ROM failure reproduced; all 3 controllers fixed; real QEMU graph/readonly-baseline smoke and 52 guest tests pass | Only authenticated local VGA ROM; firmware startup and baseline preservation; OS/GUI validation still separate |
+
+| W12-039 | Contained normal UEFI validation | 012,020 | lead | authenticated separate OVMF tools prepared; firmware descriptor/readme reviewed; actual UEFI boot/install pending | Read-only code, new writable vars copy, no physical devices; measured UEFI boot/install; Secure Boot separate |
+| W12-040 | Actual graphical installer acceptance | 003,004,020 | lead | actual Calamares payload/config reviewed; offline live-user launch/partition/install/reboot pending | New disposable disk, normal account/admin/session, payload survives cleanup, ISO-free reboot and workflow evidence |
