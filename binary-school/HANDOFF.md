@@ -1,19 +1,19 @@
 # Binary School checkpoint
 
-All project edits stay inside `binary-school/`. Preserve lesson IDs and sibling projects. The runtime remains Python standard library + buildless HTML/CSS/JS.
+All work stays inside `binary-school/`; preserve sibling projects and existing lesson IDs. Runtime: Python standard library + buildless HTML/CSS/JS.
 
 ## Completed
 
-- High-priority fixes merged through PR #1: autosaving notes, setup first, separate progress evidence, deeper practicals and fresh mock-final variants.
-- Medium-priority backup-import safety: previews, merge/confirmed replacement, pre-import recovery/download, legacy validation, and failure handling.
-- Required checks pass: 11 Python tests, course UI regressions, new import regressions, and JavaScript syntax.
+PR #1: autosaving notes, setup first, separate progress evidence, richer practicals and unfamiliar finals. PR #2: safe backup previews/merge/replacement/recovery.
 
-## Pause and next decision
+Current checkpoint: prerequisite diagnostic, foundation and focused syllabus-revision paths, weekly prerequisites/effort/evidence targets, four-outcome matrix, complete syllabus AI-policy summary, expanded instructional/practical search and corrected platform wording. Diagnostic results do not grant lesson credit; path/diagnostic fields survive progress backups.
 
-The user requested a fresh, syllabus-only subagent review while medium-priority work proceeded. The review has returned; finish and push the backup-import fix, show the independent findings, and ask the user for next steps before starting another issue.
+## Authorized next work
 
-Fresh review examined main `a6af0361453632e87e983d505b552dd446b141d2`, before backup-import changes. It raised Windows/MSVC live verification and a prerequisite diagnostic with separate foundation/revision routes as high priorities. It also found contradictory platform wording, incomplete catalog search, mismatched debugger videos, an incomplete syllabus outcome/deliverable map, and an incomplete AI-policy summary. These review findings have not been implemented in this checkpoint. Earlier accessibility work also remains pending.
+The user authorized taking on the next tasks, with subagents reviewing the website and regular commits/pushes. Remaining tasks: accessibility/navigation/mobile lesson selection, accurately scoped video support, and native Windows/MSVC validation. Use a fresh syllabus-only reviewer on a pushed checkpoint, finish the active issue, then report findings and ask for next steps.
 
-## Verification limits
+## Checks and limits
 
-Linux binary behavior and automated frontend/HTTP checks were tested. Native Windows/MSVC workflows and rendered browser/keyboard/mobile behavior remain unverified. Supplied Windows PE files are MinGW GCC output; native MSVC builds require the included Windows scripts.
+Run all Python tests, `node tests/test_course.cjs`, `node tests/test_import.cjs`, `node tests/test_paths.cjs`, and `node --check site/app.js`. Keep checksum manifests current.
+
+Linux binaries and automated HTTP/frontend tests are verified. Live Windows/MSVC and rendered browser/keyboard/mobile behavior remain unverified. Supplied native PE downloads are MinGW GCC, not MSVC output; the native MSVC scripts require Windows.
