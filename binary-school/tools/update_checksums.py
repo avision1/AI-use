@@ -6,7 +6,7 @@ import json
 import os
 import zipfile
 ROOT=Path(__file__).resolve().parents[1]
-EXCLUDED={'.build-tools','__pycache__','.openai','.venv','.qa'}
+EXCLUDED={'.build-tools','__pycache__','.openai','.venv','.qa','qa-browser.html'}
 def manifest(root):
     return {p.relative_to(root).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()
             for p in sorted(root.rglob('*')) if p.is_file()

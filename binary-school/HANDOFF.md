@@ -23,3 +23,9 @@ Do not claim Windows acceptance from expected observations or cross-compilation.
 ## Maintenance
 
 Run `python3 -m unittest discover -s tests -v`, every `tests/test_*.cjs`, and `node --check site/app.js`. Refresh integrity manifests with `python3 tools/update_checksums.py`; add `--packages` for flag/full/Windows acceptance pack changes. Readiness kit packages use `tools/package_readiness.py`. Keep source and compiler/architecture labels honest; never bundle professor PDFs or textbook pages.
+
+## Additional browser acceptance checkpoint
+
+Rendered 375/768/1280 CSS-pixel checks found and fixed actual 768px overview overflow. All six key routes fit at all three widths after the fix. Lesson outlines collapse at narrow/tablet widths and respond to Enter. The live patch flow validated a real ELF data patch; pass status survived reload. Its saved explanation was missing from the form, so explanation drafts now restore/autosave and have regression coverage. Six Node suites and Python checks must remain passing.
+
+A native file-chooser event call stalled in the browser tool and expired its tabs; do not claim live browser import acceptance from that attempt. The import suite remains passing. This task does not resolve unavailable native Windows, screen-reader or physical-device acceptance. Preserve those limits.

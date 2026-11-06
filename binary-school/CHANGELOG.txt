@@ -1,3 +1,9 @@
+1.7 — Rendered-browser acceptance fixes
+- Fix overview overflow at tablet widths with a consistent narrow-layout breakpoint.
+- Bound grid minimums and allow compact statistic labels to wrap.
+- Restore and autosave final explanation drafts before validation.
+- Add a reproducible ignored viewport fixture and actual browser evidence.
+
 1.6.1 — Final independent-review polish
 - Use a neutral disclosure label for commands as well as instruction listings.
 - Record actual desktop-browser checks, test results and reviewer findings.

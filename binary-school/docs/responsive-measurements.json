@@ -1,0 +1,153 @@
+[
+  {
+    "route": "lesson/0",
+    "results": [
+      {
+        "viewport": 375,
+        "documentWidth": 360,
+        "contentWidth": 360,
+        "overflow": false,
+        "heading": "Your first lab environment",
+        "lessonOutlineOpen": false,
+        "focused": "BODY"
+      },
+      {
+        "viewport": 768,
+        "documentWidth": 753,
+        "contentWidth": 753,
+        "overflow": false,
+        "heading": "Your first lab environment",
+        "lessonOutlineOpen": false,
+        "focused": "BODY"
+      },
+      {
+        "viewport": 1280,
+        "documentWidth": 1265,
+        "contentWidth": 1265,
+        "overflow": false,
+        "heading": "Your first lab environment",
+        "lessonOutlineOpen": true,
+        "focused": "BODY"
+      }
+    ]
+  },
+  {
+    "route": "lesson/108",
+    "results": [
+      {
+        "viewport": 375,
+        "documentWidth": 360,
+        "contentWidth": 360,
+        "overflow": false,
+        "heading": "Interactive binary lab · Registers and addition",
+        "lessonOutlineOpen": false,
+        "focused": "BODY"
+      },
+      {
+        "viewport": 768,
+        "documentWidth": 753,
+        "contentWidth": 753,
+        "overflow": false,
+        "heading": "Interactive binary lab · Registers and addition",
+        "lessonOutlineOpen": false,
+        "focused": "BODY"
+      },
+      {
+        "viewport": 1280,
+        "documentWidth": 1265,
+        "contentWidth": 1265,
+        "overflow": false,
+        "heading": "Interactive binary lab · Registers and addition",
+        "lessonOutlineOpen": true,
+        "focused": "BODY"
+      }
+    ]
+  },
+  {
+    "route": "resources",
+    "results": [
+      {
+        "viewport": 375,
+        "documentWidth": 360,
+        "contentWidth": 360,
+        "overflow": false,
+        "heading": "Everything you need to investigate.",
+        "focused": "BODY"
+      },
+      {
+        "viewport": 768,
+        "documentWidth": 753,
+        "contentWidth": 753,
+        "overflow": false,
+        "heading": "Everything you need to investigate.",
+        "focused": "BODY"
+      },
+      {
+        "viewport": 1280,
+        "documentWidth": 1265,
+        "contentWidth": 1265,
+        "overflow": false,
+        "heading": "Everything you need to investigate.",
+        "focused": "BODY"
+      }
+    ]
+  },
+  {
+    "route": "final",
+    "results": [
+      {
+        "viewport": 375,
+        "documentWidth": 360,
+        "contentWidth": 360,
+        "overflow": false,
+        "heading": "Make the binary say something new.",
+        "focused": "BODY"
+      },
+      {
+        "viewport": 768,
+        "documentWidth": 753,
+        "contentWidth": 753,
+        "overflow": false,
+        "heading": "Make the binary say something new.",
+        "focused": "BODY"
+      },
+      {
+        "viewport": 1280,
+        "documentWidth": 1265,
+        "contentWidth": 1265,
+        "overflow": false,
+        "heading": "Make the binary say something new.",
+        "focused": "BODY"
+      }
+    ]
+  },
+  {
+    "route": "paths",
+    "results": [
+      {
+        "viewport": 375,
+        "documentWidth": 360,
+        "contentWidth": 360,
+        "overflow": false,
+        "heading": "Choose a path that fits your starting point.",
+        "focused": "BODY"
+      },
+      {
+        "viewport": 768,
+        "documentWidth": 753,
+        "contentWidth": 753,
+        "overflow": false,
+        "heading": "Choose a path that fits your starting point.",
+        "focused": "BODY"
+      },
+      {
+        "viewport": 1280,
+        "documentWidth": 1265,
+        "contentWidth": 1265,
+        "overflow": false,
+        "heading": "Choose a path that fits your starting point.",
+        "focused": "BODY"
+      }
+    ]
+  }
+]
