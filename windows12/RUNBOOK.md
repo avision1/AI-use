@@ -1,5 +1,17 @@
 # Runbook
 
+## Local Mint execution checkpoint — 2026-11-06
+Sole project is `/home/avision/gitclone/AI-use/windows12/`; this supersedes the historical `/workspace` runtime location. Host is Linux Mint 22.3 / Ubuntu Noble base, x86_64, Python 3.12.3. Observed storage: 234 GiB total, 117 GiB available. Initial worktree clean at `05caa8b2d7a84528ff426b5210524f8497750c49`; fresh origin/main matched. No `.work` or `artifacts` survived here and process inventory contained no prior build workers; historical supervisor handles do not apply.
+
+Bootstrap now explicitly accepts only Mint 22.3 with matching Noble os-release and Ubuntu 24.04 upstream-release evidence. Uses the existing Ubuntu archive keyring and signed Noble repositories; no host identity changes or package installation. Both native VM and ISO tool closures prepared successfully; generated locks reflect this host. QEMU TCG process probe survived 10 seconds (no OS claim). Pinned cloud manifest/image digest verification passed. Restricted DNS failed; approved network-enabled execution succeeded. Disposable guest check passed all 52 tests, deterministic preview4 packaging and dpkg inspection; host confirmed QEMU stopped. Evidence: `artifacts/overlay-check-c1a753df3961007c2a70d9abc089842c/`. First full builder session 7303 was interrupted during dependency setup. QMP had no listener and inspection acquired the shared runner lock. Inspection `artifacts/builder-inspect-1793950417375223518/builder-inspection.json` recorded no live-build installation, target chroot, configuration or stages; it refused recovery (22 missing-input findings), performed no cleanup, and stopped. Preserved disk, frozen source and vm-build outputs under `.work/interrupted-before-live-build-1793950417375223518/` with preservation.json; no retained target was overwritten.
+
+Current fresh candidate: owner `/root` build session **9951**, log `.work/build-controller-002.log`; monitor TTY **45292** (`--interval 60 --auto-cleanup`); sequential audit/BIOS/disposable-install queue **65173**, log `.work/validation-queue.log`. Monitor initial free bytes124973637632, no sync copies. Queue is bound to exact frozen source/run and waits for builder stop. Reconcile these sessions/QMP/lock and logs before starting any new process. No ISO/installation/GUI evidence yet. Native commit/push lacked local author/HTTPS credentials; use authenticated GitHub nonforced checkpoint, no global Git changes.
+
+Next: poll existing monitor at most once per minute and builder/queue sessions; after real successful ISO export require content, BIOS and installation results, then actual live/installed GUI workflows. Do not use historical resume commands.
+
+
+
+
 ## Current approved workspace — 2026-11-05 America/Chicago
 Project: `/workspace/AI-use/windows12/`. Upstream ancestry is restored at 9107ef1; only windows12 is materialized, other index paths remain sparse. User authorizes useful subagents and default main publication for windows12-only commits. Native filtered fetch works; nonforced GitHub checkpoints remain available.
 

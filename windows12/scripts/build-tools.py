@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Extract signature-verified VM or ISO build tools locally; never install packages.
-Supports amd64 Ubuntu 24.04 and Debian 13 hosts, without apt state.
+Supports amd64 Ubuntu 24.04, Noble-based Mint 22.3 and Debian 13 hosts, without apt state.
 """
 from pathlib import Path
 import hashlib, lzma, os, re, subprocess, json, sys, shutil
@@ -51,13 +51,18 @@ def main():
 
  host=dict(line.split('=',1) for line in Path('/etc/os-release').read_text().splitlines() if '=' in line)
  identity=(host.get('ID','').strip(chr(34)),host.get('VERSION_ID','').strip(chr(34)))
- if identity==('ubuntu','24.04'):
+ mint_noble=False
+ if identity==('linuxmint','22.3'):
+  upstream=Path('/etc/upstream-release/lsb-release')
+  base=dict(line.split('=',1) for line in upstream.read_text().splitlines() if '=' in line) if upstream.is_file() else {}
+  mint_noble=(host.get('UBUNTU_CODENAME','').strip(chr(34))=='noble' and base.get('DISTRIB_ID')=='Ubuntu' and base.get('DISTRIB_RELEASE')=='24.04' and base.get('DISTRIB_CODENAME')=='noble')
+ if identity==('ubuntu','24.04') or mint_noble:
   repositories=[('noble','https://archive.ubuntu.com/ubuntu'),('noble-updates','https://archive.ubuntu.com/ubuntu'),('noble-security','https://security.ubuntu.com/ubuntu')]
   keyring=Path('/usr/share/keyrings/ubuntu-archive-keyring.gpg')
  elif identity==('debian','13'):
   repositories=[('trixie','https://deb.debian.org/debian'),('trixie-updates','https://deb.debian.org/debian'),('trixie-security','https://security.debian.org/debian-security')]
   keyring=Path('/usr/share/keyrings/debian-archive-keyring.gpg')
- else:sys.exit('Bootstrap requires amd64 Ubuntu 24.04 or Debian 13; no host changes attempted.')
+ else:sys.exit('Bootstrap requires amd64 Ubuntu 24.04, verified Noble-based Mint 22.3 or Debian 13; no host changes attempted.')
  if os.uname().machine!='x86_64':sys.exit('Local bootstrap requires x86_64; provide a host-compatible QEMU instead.')
  if not keyring.is_file():sys.exit('Host archive keyring missing; refusing unauthenticated tools.')
  verifier=shutil.which('gpgv') or shutil.which('sqv')

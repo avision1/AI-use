@@ -1,142 +1,121 @@
 {
   "squashfs-tools": {
     "Package": "squashfs-tools",
-    "Version": "1:4.6.1-1",
-    "Filename": "pool/main/s/squashfs-tools/squashfs-tools_4.6.1-1_amd64.deb",
-    "SHA256": "0e185122f5858132bbc709e26228ba28cf7f0c41f6ed26e3f55f518f2a53b59d",
-    "base": "https://deb.debian.org/debian"
+    "Version": "1:4.6.1-1build1",
+    "Filename": "pool/main/s/squashfs-tools/squashfs-tools_4.6.1-1build1_amd64.deb",
+    "SHA256": "87fae263846bab255d4a51ad9fc623685497ad830db60758dde39589c9fdadcb",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "zlib1g": {
     "Package": "zlib1g",
-    "Version": "1:1.3.dfsg+really1.3.1-1+b1",
-    "Filename": "pool/main/z/zlib/zlib1g_1.3.dfsg+really1.3.1-1+b1_amd64.deb",
-    "SHA256": "015be740d6236ad114582dea500c1d907f29e16d6db00566ca32fb68d71ac90d",
-    "base": "https://deb.debian.org/debian"
+    "Version": "1:1.3.dfsg-3.1ubuntu2.3",
+    "Filename": "pool/main/z/zlib/zlib1g_1.3.dfsg-3.1ubuntu2.3_amd64.deb",
+    "SHA256": "376249c8de139568221dbb242318cc8cb8f02299e3a62b7432948e1754fbddf9",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "libc6": {
     "Package": "libc6",
-    "Version": "2.41-12+deb13u4",
-    "Filename": "pool/main/g/glibc/libc6_2.41-12+deb13u4_amd64.deb",
-    "SHA256": "967aa62605721081c3eb2a17650611a792aa802d76a6511d1840242623d204c9",
-    "base": "https://deb.debian.org/debian"
+    "Version": "2.39-0ubuntu8.9",
+    "Filename": "pool/main/g/glibc/libc6_2.39-0ubuntu8.9_amd64.deb",
+    "SHA256": "ff5557d99b51f761c4b7c92368b9cc45565eda17df9bf9eb4b134d09825008be",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "libgcc-s1": {
     "Package": "libgcc-s1",
-    "Version": "14.2.0-19",
-    "Filename": "pool/main/g/gcc-14/libgcc-s1_14.2.0-19_amd64.deb",
-    "SHA256": "3c71917b490d1a17aed43196a2787a256ecf060526cdb20216a74bedc061b150",
-    "base": "https://deb.debian.org/debian"
+    "Version": "14.2.0-4ubuntu2~24.04.1",
+    "Filename": "pool/main/g/gcc-14/libgcc-s1_14.2.0-4ubuntu2~24.04.1_amd64.deb",
+    "SHA256": "aa7fadbe33b78bcf99885318040601c550c208929565b179891d9a3cc2aa68cd",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "gcc-14-base": {
     "Package": "gcc-14-base",
-    "Version": "14.2.0-19",
-    "Filename": "pool/main/g/gcc-14/gcc-14-base_14.2.0-19_amd64.deb",
-    "SHA256": "5b6825de4263824b78c4c51f6476414f3b4e89c2ab63e81dc8b9b5501e867cf6",
-    "base": "https://deb.debian.org/debian"
+    "Version": "14.2.0-4ubuntu2~24.04.1",
+    "Filename": "pool/main/g/gcc-14/gcc-14-base_14.2.0-4ubuntu2~24.04.1_amd64.deb",
+    "SHA256": "b95c172411a7fdae70307cf33a9f5320ba5e056b556454543dd5b679d5ce1c4f",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "libzstd1": {
     "Package": "libzstd1",
-    "Version": "1.5.7+dfsg-1",
-    "Filename": "pool/main/libz/libzstd/libzstd1_1.5.7+dfsg-1_amd64.deb",
-    "SHA256": "2f6a2aeacfc925eba8b00ac9139bc4bfccf8cacb09eb93de067074b26948eef9",
-    "base": "https://deb.debian.org/debian"
+    "Version": "1.5.5+dfsg2-2build1.1",
+    "Filename": "pool/main/libz/libzstd/libzstd1_1.5.5+dfsg2-2build1.1_amd64.deb",
+    "SHA256": "dfcf25061e07aad7efd3f4f880ba5ad4d4d09ebe7fc8cc77ab6b8a161d6d4727",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "liblzo2-2": {
     "Package": "liblzo2-2",
-    "Version": "2.10-3+b1",
-    "Filename": "pool/main/l/lzo2/liblzo2-2_2.10-3+b1_amd64.deb",
-    "SHA256": "f3032201fe2928a87e13f05ce256ff3ac2a7860c7e594dc51ae6d7348a4466ce",
-    "base": "https://deb.debian.org/debian"
+    "Version": "2.10-2build4",
+    "Filename": "pool/main/l/lzo2/liblzo2-2_2.10-2build4_amd64.deb",
+    "SHA256": "e0d13be155013138b8db4cfe68212b866080af661c78302c2eab0d2f9d0d454e",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "liblzma5": {
     "Package": "liblzma5",
-    "Version": "5.8.1-1+deb13u2",
-    "Filename": "pool/updates/main/x/xz-utils/liblzma5_5.8.1-1+deb13u2_amd64.deb",
-    "SHA256": "b38acab30f295bf1066a6632e31cbd0a1980f2924b38040cda131d5dea5384ec",
-    "base": "https://security.debian.org/debian-security"
+    "Version": "5.6.1+really5.4.5-1ubuntu0.4",
+    "Filename": "pool/main/x/xz-utils/liblzma5_5.6.1+really5.4.5-1ubuntu0.4_amd64.deb",
+    "SHA256": "5bcf5da2339331e21d3f42a831e82c61c54c6b2f29804010e8d59abd0ae52167",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "liblz4-1": {
     "Package": "liblz4-1",
-    "Version": "1.10.0-4",
-    "Filename": "pool/main/l/lz4/liblz4-1_1.10.0-4_amd64.deb",
-    "SHA256": "c31ec4c7c82755a38b2f3fe066fc0c5518cc91a601a268fbcd19bdacb1f22e1e",
-    "base": "https://deb.debian.org/debian"
-  },
-  "libxxhash0": {
-    "Package": "libxxhash0",
-    "Version": "0.8.3-2",
-    "Filename": "pool/main/x/xxhash/libxxhash0_0.8.3-2_amd64.deb",
-    "SHA256": "81da7064d56fc044f5db4bb3c1e80ff50a4986dcbbf80d958eeca565b44c157f",
-    "base": "https://deb.debian.org/debian"
+    "Version": "1.9.4-1build1.1",
+    "Filename": "pool/main/l/lz4/liblz4-1_1.9.4-1build1.1_amd64.deb",
+    "SHA256": "319331270d5cc52d5ebffe51c941d7b01b432bc402c2924b557209a64d4ecbad",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "xorriso": {
     "Package": "xorriso",
-    "Version": "1.5.6-1.2+b1",
-    "Filename": "pool/main/libi/libisoburn/xorriso_1.5.6-1.2+b1_amd64.deb",
-    "SHA256": "9ee40b0f45479283c1c69e5d914f69c44051c61b6efb3f86994238a62ceddd1a",
-    "base": "https://deb.debian.org/debian"
+    "Version": "1:1.5.6-1.1ubuntu3",
+    "Filename": "pool/main/libi/libisoburn/xorriso_1.5.6-1.1ubuntu3_amd64.deb",
+    "SHA256": "7a0644fc4bc269d22ce8d27bd39e14b5849b532097265161938a9b216468f84d",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "libisoburn1t64": {
     "Package": "libisoburn1t64",
-    "Version": "1.5.6-1.2+b1",
-    "Filename": "pool/main/libi/libisoburn/libisoburn1t64_1.5.6-1.2+b1_amd64.deb",
-    "SHA256": "b80bb60269492aaf4a7dd316b238db0e1fc34647f59bc0d86aeb9d298089931d",
-    "base": "https://deb.debian.org/debian"
+    "Version": "1:1.5.6-1.1ubuntu3",
+    "Filename": "pool/main/libi/libisoburn/libisoburn1t64_1.5.6-1.1ubuntu3_amd64.deb",
+    "SHA256": "0ddf6338c1ae7a30bf40a1222f5defebb7415bd46d64f57071c93f132d8c8a93",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
-  "libreadline8t64": {
+  "libreadline8": {
     "Package": "libreadline8t64",
-    "Version": "8.2-6",
-    "Filename": "pool/main/r/readline/libreadline8t64_8.2-6_amd64.deb",
-    "SHA256": "eeadf2b5e755c9f183883feea2d9b5b28560284275d5f54d3e55d0923b1d0967",
-    "base": "https://deb.debian.org/debian"
+    "Version": "8.2-4build1",
+    "Filename": "pool/main/r/readline/libreadline8t64_8.2-4build1_amd64.deb",
+    "SHA256": "563977a16df03b611f5239cc1e9a0426e86479fcc616b5c9e200ea32063119e5",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "libtinfo6": {
     "Package": "libtinfo6",
-    "Version": "6.5+20250216-2",
-    "Filename": "pool/main/n/ncurses/libtinfo6_6.5+20250216-2_amd64.deb",
-    "SHA256": "8b9f6a7983e9418564e48a627518de4c03917b56efe68d7f3e93bd8fffa1cc10",
-    "base": "https://deb.debian.org/debian"
+    "Version": "6.4+20240113-1ubuntu2.2",
+    "Filename": "pool/main/n/ncurses/libtinfo6_6.4+20240113-1ubuntu2.2_amd64.deb",
+    "SHA256": "b67a6df2bdab61d273eabebd208bb6a3fb12618a390a067e1ee305a409ff03d9",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "readline-common": {
     "Package": "readline-common",
-    "Version": "8.2-6",
-    "Filename": "pool/main/r/readline/readline-common_8.2-6_all.deb",
-    "SHA256": "f77e8aa0bf0de618f11cb0b21658a4ed60f177d63b3cf26d7fc3706b6d0eaaa9",
-    "base": "https://deb.debian.org/debian"
+    "Version": "8.2-4build1",
+    "Filename": "pool/main/r/readline/readline-common_8.2-4build1_all.deb",
+    "SHA256": "879bfd7f8a9bc4c0f7cdc777cdd8bc6de5f8c4a2ac80c060322a1b22f13504bb",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
-  "libjte2": {
-    "Package": "libjte2",
-    "Version": "1.22-4+b2",
-    "Filename": "pool/main/j/jigit/libjte2_1.22-4+b2_amd64.deb",
-    "SHA256": "2e7799a28deac613ffaa75bb131046e8f9311fc211b747a10cf6760f15f0c4ae",
-    "base": "https://deb.debian.org/debian"
-  },
-  "libbz2-1.0": {
-    "Package": "libbz2-1.0",
-    "Version": "1.0.8-6",
-    "Filename": "pool/main/b/bzip2/libbz2-1.0_1.0.8-6_amd64.deb",
-    "SHA256": "cba4cda04244b5e481bb15524bc3c983a7d1b6f330013b9b381706a2fcb65310",
-    "base": "https://deb.debian.org/debian"
-  },
-  "libisofs6t64": {
+  "libisofs6": {
     "Package": "libisofs6t64",
-    "Version": "1.5.6.pl01-1.1+b1",
-    "Filename": "pool/main/libi/libisofs/libisofs6t64_1.5.6.pl01-1.1+b1_amd64.deb",
-    "SHA256": "52e9b19b888ff9af70299068ccd2bad790583da54ef8b6b6d8cb16b55d16aa88",
-    "base": "https://deb.debian.org/debian"
+    "Version": "1.5.6.pl01-1.1ubuntu2",
+    "Filename": "pool/main/libi/libisofs/libisofs6t64_1.5.6.pl01-1.1ubuntu2_amd64.deb",
+    "SHA256": "05404ceb43455cbbc1c4c0976ac2720976d2764ae5f7a8698ea733887a3184f9",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
   "libacl1": {
     "Package": "libacl1",
-    "Version": "2.3.2-2+b1",
-    "Filename": "pool/main/a/acl/libacl1_2.3.2-2+b1_amd64.deb",
-    "SHA256": "08074f01e384bc07c0c2d79a58cf4a6523f71cf75d1808101c79617656c9a39d",
-    "base": "https://deb.debian.org/debian"
+    "Version": "2.3.2-1build1.1",
+    "Filename": "pool/main/a/acl/libacl1_2.3.2-1build1.1_amd64.deb",
+    "SHA256": "f2bfd3f8f00413d5f1f04fc723063803c56ac0f1e0efae3bc41f2d7276972ec3",
+    "base": "https://archive.ubuntu.com/ubuntu"
   },
-  "libburn4t64": {
+  "libburn4": {
     "Package": "libburn4t64",
-    "Version": "1.5.6-1.1+b1",
-    "Filename": "pool/main/libb/libburn/libburn4t64_1.5.6-1.1+b1_amd64.deb",
-    "SHA256": "59edae2bc41ec2319d1569157b82c49f54b64e7459ce57c7ff443029fa8bb82f",
-    "base": "https://deb.debian.org/debian"
+    "Version": "1.5.6-1.1build1",
+    "Filename": "pool/main/libb/libburn/libburn4t64_1.5.6-1.1build1_amd64.deb",
+    "SHA256": "1ffba645a32e490ef69b3142d12d5a02f1efc495f11179202a760e04baf03c19",
+    "base": "https://archive.ubuntu.com/ubuntu"
   }
 }
