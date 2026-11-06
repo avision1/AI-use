@@ -10,3 +10,5 @@
 a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #196452;outline-offset:4px}
 aside{overflow-y:auto}.lessonoutline>summary{cursor:pointer;font-weight:bold;padding:10px 0;color:var(--green)}.lessonlinks>a{display:block}.lessonoutline{min-width:0}
 @media(max-width:760px){.lessonnav{max-height:none;overflow:visible}.lessonoutline[open] .lessonlinks{max-height:60vh;overflow-y:auto;padding:4px}.lessonoutline>summary{padding:14px 4px}}
+
+.progressnotice{margin:20px 43px 0}.progressnotice[hidden]{display:none}@media(max-width:760px){.progressnotice{margin:16px 18px 0}}

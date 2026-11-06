@@ -57,6 +57,7 @@ node tests/test_course.cjs
 node tests/test_import.cjs
 node tests/test_paths.cjs
 node tests/test_accessibility.cjs
+node tests/test_progress.cjs
 node --check site/app.js
 ```
 
@@ -73,3 +74,5 @@ Notebook and practical-report drafts save as you type. Storage failures display 
 Maintainers can rebuild the new binaries with `python3 tools/build_readiness.py` using GCC plus MinGW-w64 GCC/binutils; `--mingw-cc` selects the cross compiler. `python3 tools/package_readiness.py` refreshes their ZIPs and lab checksums without rebuilding. Neither tool nor Node.js is needed by students.
 
 Keyboard support includes a skip link, route-heading focus, current-page labels, a native mobile lesson-list disclosure, and a real button for the backup chooser. Structural/focus-flow regressions pass; live keyboard, screen-reader and mobile visual acceptance remain to be performed.
+
+Malformed stored progress is recovered before the interface starts. The original text is preserved and downloadable from the recovery banner or Resources. If saving fails, results remain available for the current visit and an export control stays visible. Do not close the page before exporting when that warning appears.

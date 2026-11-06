@@ -21,3 +21,7 @@ Linux binaries and automated HTTP/frontend tests are verified. Live Windows/MSVC
 ## Fresh review returned
 
 A fresh syllabus-only reviewer examined main `8a51658ea21d211a44b24db842d7ed27afb881e9`. It found no critical curriculum contradiction. It reported six P2 items: keyboard-inaccessible backup chooser; route focus/skip navigation; source-free GDB instructions incorrectly relying on unavailable C; successful interactions ignoring failed persistence; malformed valid stored JSON preventing startup; native Windows acceptance still unverified. The first two are addressed in the current accessibility checkpoint. Other findings remain pending. Finish/push this issue, report the review and ask the user for next steps before beginning another issue.
+
+## Completion authorization and reliability checkpoint
+
+The user now explicitly requests finishing all previously discussed tasks; this supersedes the earlier pause-and-ask checkpoint. Progress startup recovery and truthful storage-failure feedback are implemented and tested. Continue through source-free GDB teaching, appropriately scoped media/walkthroughs, Windows acceptance tooling, supported browser QA, and a final independent review. Do not claim native Windows execution without actually running it. Keep pushing checkpoints.
