@@ -28,3 +28,7 @@ The same-origin viewport fixture in `tools/create_browser_qa.py` exercised the o
 A live Chrome run loaded the original 15,952-byte ELF, applied the requested 14-byte output patch, and passed validation with the null terminator and remaining bytes intact. The pass survived reload. That check exposed a missing restored explanation in the form; final explanations now restore and autosave drafts before validation. Reload verified draft persistence. The resulting UI is captured in `docs/patch-acceptance.png`. No uploaded executable was run.
 
 The native file-chooser event test stalled in the browser tool and its tabs expired; import acceptance was not counted as a live-browser pass. Backup preview/merge/replace/recovery remains covered by its passing Node suite. Native Windows, full screen-reader and physical-device acceptance remain open as stated above.
+
+## Unsaved-progress guard regressions
+
+The progress suite verifies a leave-page warning after a failed final-draft save even when no lesson notebook is active, and no warning after a successful retry. Import regressions verify that malformed startup text is archived before an import overwrites the main record, that archive failure aborts the import, and that successful import clears visit-only/unsaved status. These are deterministic browser-logic tests, not a native Windows acceptance run.

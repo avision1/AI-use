@@ -29,3 +29,7 @@ Run `python3 -m unittest discover -s tests -v`, every `tests/test_*.cjs`, and `n
 Rendered 375/768/1280 CSS-pixel checks found and fixed actual 768px overview overflow. All six key routes fit at all three widths after the fix. Lesson outlines collapse at narrow/tablet widths and respond to Enter. The live patch flow validated a real ELF data patch; pass status survived reload. Its saved explanation was missing from the form, so explanation drafts now restore/autosave and have regression coverage. Six Node suites and Python checks must remain passing.
 
 A native file-chooser event call stalled in the browser tool and expired its tabs; do not claim live browser import acceptance from that attempt. The import suite remains passing. This task does not resolve unavailable native Windows, screen-reader or physical-device acceptance. Preserve those limits.
+
+## Unsaved-progress safeguard checkpoint
+
+Failed storage writes now set a transient unsaved-progress guard, covering final explanation drafts and other records even outside lesson routes. Successful saves/imports clear it. Imports first preserve any original malformed startup text; if that cannot be archived, they leave current progress unchanged. Regression suites cover both cases. The user requested another independent syllabus-only subagent review; it is running against the current source. Finish/push this safeguard before reporting findings; continue resolving concrete issues within authorized scope.
