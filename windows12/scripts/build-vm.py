@@ -26,11 +26,13 @@ def main():
  ap.add_argument('--resume',action='store_true',help='Resume an existing VM disk, not a new build')
  ap.add_argument('--inspect-resume',action='store_true',help='Boot existing disk only for read-only build-state inventory; separate output, never ISO success')
  ap.add_argument('--continue-after-bootstrap',action='store_true',help='Explicit recovery boot: verify retained bootstrap and continue public stages, preserving frozen source')
+ ap.add_argument('--refresh-target-indexes',action='store_true',help='Explicitly quarantine the two inspected bad APT indexes and regenerable binary caches; requires guarded continuation')
  args=ap.parse_args()
  if args.inspect_resume:
   if not args.resume or args.prepare or args.probe or args.continue_after_bootstrap:ap.error('--inspect-resume requires --resume alone')
   OUT=bounded(ROOT/'artifacts'/('builder-inspect-'+str(time.time_ns())))
  if args.continue_after_bootstrap and (not args.resume or args.prepare or args.probe or args.inspect_resume):ap.error('--continue-after-bootstrap requires --resume alone')
+ if args.refresh_target_indexes and not args.continue_after_bootstrap:ap.error('--refresh-target-indexes requires --resume --continue-after-bootstrap')
  planned_dirs=[WORK,OUT]+[WORK/name for name in ['home','tmp','cache','config','data','state']]
  for p in planned_dirs:bounded(p)
  for p in planned_dirs:p.mkdir(parents=True,exist_ok=True)
@@ -162,7 +164,7 @@ def main():
    recovery_hashes[filename]=hashlib.sha256(data).hexdigest();recovery_files.append((destination,text))
   boundary='\nlb build\n'
   if guest.count(boundary)!=1:raise SystemExit('Frozen build stage boundary requires review')
-  guest=guest.replace(boundary,'\npython3 /root/windows12-recover.py --nonce '+recovery_nonce+' --inspection-sha256 '+recovery_hashes['inspect-builder.py']+'\nexport_results 0 checkpoint\nlb chroot\nlb installer\nlb binary\nlb source\n')
+  guest=guest.replace(boundary,'\npython3 /root/windows12-recover.py --nonce '+recovery_nonce+' --inspection-sha256 '+recovery_hashes['inspect-builder.py']+(' --refresh-target-indexes' if args.refresh_target_indexes else '')+'\nexport_results 0 checkpoint\nlb chroot\nlb installer\nlb binary\nlb source\n')
  guest_recipe_hash=hashlib.sha256(guest.encode()).hexdigest()
  user_data='#cloud-config\nwrite_files:\n  - path: /run/windows12-build-vm\n    content: "contained full VM build\\n"\n  - path: /root/build.sh\n    permissions: "0700"\n    content: |\n'+''.join('      '+line+'\n' for line in guest.splitlines())
  for destination,text in recovery_files:
@@ -221,7 +223,7 @@ def main():
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
- output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'inspection':args.inspect_resume,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
+ output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'inspection':args.inspect_resume,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
  try:
   with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
  finally:server.shutdown()
@@ -239,6 +241,7 @@ def main():
   if not report.is_file() or report.stat().st_size>256*1024:raise SystemExit('Missing/oversized recovery report')
   recovery=json.loads(report.read_text())
   if not isinstance(recovery,dict) or recovery.get('schema')!=1 or recovery.get('recovery_nonce')!=recovery_nonce or recovery.get('recovery_performed') is not True:raise SystemExit('Recovery report schema/freshness mismatch')
+  if args.refresh_target_indexes and (recovery.get('refresh_target_indexes') is not True or recovery.get('target_index_quarantine_performed') is not True):raise SystemExit('Target index refresh proof missing')
  iso=OUT/'windows12-amd64-preview.iso'
  if not iso.is_file() or iso.stat().st_size==0:raise SystemExit('Guest reported success without nonempty ISO; refusing success.')
  expected_iso=(OUT/'SHA256SUMS').read_text().split()[0]

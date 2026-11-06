@@ -49,6 +49,17 @@ SCRIPTS = {
 }
 STATUS_SHA = '2fe156f9c72673a5cf03773f7773789b77050012ebf4cf2c1c26b635444ad4a7'
 BASE_PACKAGES = {'apt', 'base-files', 'base-passwd', 'dpkg', 'libc6', 'systemd'}
+APT_LISTS = BUILD / 'chroot/var/lib/apt/lists'
+APT_CACHE = BUILD / 'chroot/var/cache/apt'
+INDEX_PINS = {
+    str(APT_LISTS / 'deb.debian.org_debian_dists_trixie_main_i18n_Translation-en'):
+        (8388608, '2daeb1f36095b44b318410b3f4e8b5d989dcc7bb023d1426c492dab0a3053e74'),
+    str(APT_LISTS / 'security.debian.org_dists_trixie-security_contrib_binary-amd64_Packages'):
+        (12938, '2444e5f8b0644d9bc1db7e18b3ba0651ff96184e3ee5e43fa70d28c98b8c82fe'),
+}
+BINARY_CACHE_SIZES = {str(APT_CACHE / 'pkgcache.bin'): 45479976,
+                      str(APT_CACHE / 'srcpkgcache.bin'): 45479917}
+READ_BOUND = 64 * 1024 * 1024
 
 
 def no_alias(path):
@@ -108,6 +119,82 @@ def valid_empty(item):
             and item.get('mode') == '0o644')
 
 
+def valid_cache(item):
+    return (item.get('exists') is True and item.get('type') == 'regular' and item.get('uid') == 0
+            and item.get('gid') == 0 and item.get('links') == 1 and item.get('mode') == '0o644'
+            and type(item.get('bytes')) is int and 0 < item['bytes'] <= READ_BOUND)
+
+
+def entry_map(directory):
+    if not directory.get('exists') or directory.get('truncated'):
+        raise ValueError('Complete APT directory inventory required')
+    records = {item['path']: item for item in directory['entries']}
+    if len(records) != directory.get('count') or len(records) != len(directory['entries']):
+        raise ValueError('Ambiguous APT directory inventory')
+    return records
+
+
+def index_candidates(inventory):
+    if inventory['lock'].get('exists'):
+        raise ValueError('Index refresh expects the approved absent-lock state')
+    lists = entry_map(inventory['target_apt_lists'])
+    cache_directory = entry_map(inventory['target_apt_cache_directory'])
+    records = {item['path']: item for item in inventory['reported_apt_indexes']}
+    if set(records) != set(INDEX_PINS) or len(records) != len(inventory['reported_apt_indexes']):
+        raise ValueError('Exact two reported APT indexes required')
+    candidates = []
+    for path, (length, digest) in INDEX_PINS.items():
+        item = records[path]
+        if (not valid_cache(item) or item['bytes'] != length or item.get('sha256') != digest
+                or item.get('header_hex') != '00' * 64 or path not in lists
+                or any(lists[path].get(k) != item.get(k) for k in lists[path])):
+            raise ValueError('Reported bad APT index differs from approved bytes/state')
+        if hashlib.sha256(read_regular(Path(path), READ_BOUND)).hexdigest() != digest:
+            raise ValueError('Reported APT index bytes changed')
+        candidates.append((Path(path), item, digest))
+    binaries = {item['path']: item for item in inventory['target_apt_binary_caches']}
+    if set(binaries) != set(BINARY_CACHE_SIZES) or len(binaries) != len(inventory['target_apt_binary_caches']):
+        raise ValueError('Exact optional binary cache records required')
+    for path, length in BINARY_CACHE_SIZES.items():
+        item = binaries[path]
+        if item.get('exists') is False:
+            if path in cache_directory:
+                raise ValueError('Conflicting absent binary-cache metadata')
+            continue
+        if (not valid_cache(item) or item['bytes'] != length or cache_directory.get(path) != item):
+            raise ValueError('Unexpected binary-cache state')
+        digest = hashlib.sha256(read_regular(Path(path), READ_BOUND)).hexdigest()
+        candidates.append((Path(path), item, digest))
+    return candidates
+
+
+def compare_directory_removals(before, after, allowed):
+    left, right = entry_map(before), entry_map(after)
+    removed = set(left) & allowed
+    if {path: item for path, item in left.items() if path not in allowed} != right:
+        raise ValueError('Unrelated APT directory entry changed')
+    a = {key: value for key, value in before.items() if key not in ('count', 'entries')}
+    b = {key: value for key, value in after.items() if key not in ('count', 'entries')}
+    if a != b or before['count'] - len(removed) != after['count']:
+        raise ValueError('APT directory changed beyond exact allowed removals')
+
+
+def preserved_list_hashes(inventory):
+    records = entry_map(inventory['target_apt_lists'])
+    result = {}
+    total = 0
+    for path, item in sorted(records.items()):
+        if path in INDEX_PINS or item['type'] == 'directory':
+            continue
+        if item['type'] != 'regular' or item['links'] != 1 or item['uid'] != 0 or item['bytes'] > READ_BOUND:
+            raise ValueError('Unreviewed remaining APT list entry type/size')
+        total += item['bytes']
+        if total > 512 * 1024 * 1024:
+            raise ValueError('Remaining APT list hashing exceeds aggregate bound')
+        result[path] = hashlib.sha256(read_regular(Path(path), READ_BOUND)).hexdigest()
+    return result
+
+
 def validate(inventory, nonce):
     if (inventory.get('schema') != 1 or inventory.get('inspection_only') is not True
             or inventory.get('inspection_complete') is not True or inventory.get('inspection_nonce') != nonce
@@ -117,6 +204,9 @@ def validate(inventory, nonce):
     uptime = float(inventory['uptime'].split()[0])
     if not 0 < uptime < 1800 or not re.fullmatch(r'[0-9a-f-]{36}', inventory['boot_id']):
         raise ValueError('Explicit fresh-boot inventory required')
+    payload = inventory.get('target_payload_verification')
+    if not isinstance(payload, dict) or payload.get('available_md5_no_reported_differences') is not True:
+        raise ValueError('Target payload checksum differences/unknown coverage require review before recovery')
     overrides = inventory['live_build_overrides']
     if overrides.get('environment_set') or overrides.get('environment_value') is not None or any(
             overrides[name].get('exists') is not False for name in
@@ -175,10 +265,13 @@ def validate(inventory, nonce):
 
 def summary(inventory):
     names = ('boot_id', 'uptime', 'lock', 'stage_flags', 'config', 'source_functions', 'live_build_version',
-             'live_build_overrides', 'chroot_dpkg', 'active_build_package_processes', 'build_mounts')
+             'live_build_overrides', 'chroot_dpkg', 'active_build_package_processes', 'build_mounts', 'target_payload_verification')
     value = {name: inventory[name] for name in names}
     for name in ('target_apt_archives', 'target_apt_partial', 'bootstrap_package_cache', 'bootstrap_cache', 'chroot'):
         value[name] = {key: item for key, item in inventory[name].items() if key != 'entries'}
+    for name in ('target_apt_lists', 'target_apt_cache_directory', 'reported_apt_indexes', 'target_apt_binary_caches'):
+        if name in inventory:
+            value[name] = inventory[name]
     return value
 
 
@@ -188,6 +281,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--nonce', required=True)
     parser.add_argument('--inspection-sha256', required=True)
+    parser.add_argument('--refresh-target-indexes', action='store_true',
+                        help='Explicitly quarantine only the two pinned bad indexes and optional binary caches')
     args = parser.parse_args()
     if not re.fullmatch(r'[0-9a-f]{32}', args.nonce) or not re.fullmatch(r'[0-9a-f]{64}', args.inspection_sha256):
         parser.error('Expected nonce32hex and inspection-sha25664hex')
@@ -195,7 +290,9 @@ def main():
     if Path.cwd() != BUILD:
         raise SystemExit('Recovery must run from the fixed guest live-build directory')
     report = {'schema': 1, 'recovery_nonce': args.nonce, 'started': time.time(),
-              'recovery_performed': False, 'resume_verified': False, 'outcome': 'preflight', 'quarantined': []}
+              'recovery_performed': False, 'refresh_target_indexes': args.refresh_target_indexes,
+              'target_index_quarantine_performed': False, 'resume_verified': False,
+              'outcome': 'preflight', 'quarantined': []}
     write_report(report)
     try:
         if hashlib.sha256(read_regular(INSPECTOR, 128 * 1024)).hexdigest() != args.inspection_sha256:
@@ -220,13 +317,16 @@ def main():
                       inspection_helper_sha256=args.inspection_sha256)
         write_report(report)
         candidates = []
-        if before['lock'].get('exists'):
-            candidates.append((BUILD / '.lock', before['lock']))
-        candidates.extend((BUILD / '.build' / name, flags[name]) for name in sorted(RUNTIME & set(flags)))
+        if args.refresh_target_indexes:
+            candidates.extend(index_candidates(before))
+            report['preserved_apt_list_sha256'] = preserved_list_hashes(before)
+        elif before['lock'].get('exists'):
+            candidates.append((BUILD / '.lock', before['lock'], EMPTY_SHA))
+        candidates.extend((BUILD / '.build' / name, flags[name], EMPTY_SHA) for name in sorted(RUNTIME & set(flags)))
         if not candidates:
             raise ValueError('No stale recovery files found; do not replay this one-off recovery blindly')
         boot_ns = int((before['started'] - float(before['uptime'].split()[0])) * 1_000_000_000)
-        if any(item['mtime_ns'] >= boot_ns - 5_000_000_000 for _, item in candidates):
+        if any(item['mtime_ns'] >= boot_ns - 5_000_000_000 for _, item, _ in candidates):
             raise ValueError('Recovery file does not clearly predate this fresh boot')
         quarantine = no_alias(OUT / ('builder-recovery-quarantine-' + args.nonce))
         if quarantine.exists():
@@ -241,14 +341,14 @@ def main():
             left.pop('uptime'); right.pop('uptime')
             if left != right:
                 raise ValueError('Builder state changed during recovery preflight')
-        for path, expected in candidates:
-            data = read_regular(path, 0)
+        for path, expected, digest in candidates:
+            data = read_regular(path, READ_BOUND if expected['bytes'] else 0)
             info = path.lstat()
             if (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_uid, info.st_gid, info.st_nlink, stat.S_IMODE(info.st_mode)) != (
-                    expected['device'], expected['inode'], 0, expected['mtime_ns'], 0, 0, 1, 0o644):
+                    expected['device'], expected['inode'], expected['bytes'], expected['mtime_ns'], 0, 0, 1, 0o644):
                 raise ValueError('Recovery file changed immediately before quarantine')
-            if info.st_dev != quarantine.stat().st_dev or hashlib.sha256(data).hexdigest() != EMPTY_SHA:
-                raise ValueError('Unsafe cross-device or nonempty recovery file')
+            if info.st_dev != quarantine.stat().st_dev or hashlib.sha256(data).hexdigest() != digest:
+                raise ValueError('Unsafe cross-device or changed recovery file')
             target = no_alias(quarantine / path.name)
             if target.exists():
                 raise ValueError('Quarantine target already exists')
@@ -256,7 +356,7 @@ def main():
             sync_directory(path.parent)
             sync_directory(quarantine)
             report['quarantined'].append({'source': str(path), 'destination': str(target),
-                                          'before': expected, 'sha256': EMPTY_SHA})
+                                          'before': expected, 'bytes': expected['bytes'], 'sha256': digest})
             write_report(report)
         after, after_sha = inspect()
         before_retained = {item['path']: item for item in before['stage_flags']['entries'] if Path(item['path']).name not in RUNTIME}
@@ -267,13 +367,35 @@ def main():
                     'bootstrap_package_cache', 'bootstrap_cache', 'chroot'):
             if before[key] != after[key]:
                 raise ValueError('Preserved builder state changed: ' + key)
+        if args.refresh_target_indexes:
+            allowed = set(INDEX_PINS) | set(BINARY_CACHE_SIZES)
+            compare_directory_removals(before['target_apt_lists'], after['target_apt_lists'], allowed)
+            compare_directory_removals(before['target_apt_cache_directory'], after['target_apt_cache_directory'], allowed)
+            if {item['path'] for item in after['reported_apt_indexes']} != set(INDEX_PINS) or any(
+                    item.get('exists') is not False for item in after['reported_apt_indexes']):
+                raise ValueError('Required bad indexes were not quarantined')
+            if {item['path'] for item in after['target_apt_binary_caches']} != set(BINARY_CACHE_SIZES) or any(
+                    item.get('exists') is not False for item in after['target_apt_binary_caches']):
+                raise ValueError('Selected binary caches remain unexpectedly')
+            if preserved_list_hashes(after) != report['preserved_apt_list_sha256']:
+                raise ValueError('Unrelated APT index/Release bytes changed')
+        else:
+            for key in ('target_apt_lists', 'target_apt_cache_directory', 'reported_apt_indexes', 'target_apt_binary_caches'):
+                if before.get(key) != after.get(key):
+                    raise ValueError('APT state changed during stale-lock-only recovery')
         for moved in report['quarantined']:
             target = Path(moved['destination'])
-            if hashlib.sha256(read_regular(target, 0)).hexdigest() != EMPTY_SHA:
+            digest_after = hashlib.sha256(read_regular(target, READ_BOUND if moved['bytes'] else 0)).hexdigest()
+            if digest_after != moved['sha256']:
                 raise ValueError('Quarantined evidence changed')
+            moved['sha256_after'] = digest_after
             moved['after'] = namespace['metadata'](target)
+            if any(moved['before'].get(key) != moved['after'].get(key) for key in
+                   ('bytes', 'uid', 'gid', 'links', 'device', 'inode', 'mtime_ns', 'mode', 'type')):
+                raise ValueError('Quarantined evidence metadata changed')
         report.update(after=summary(after), after_inventory_sha256=after_sha,
-                      recovery_performed=True, outcome='stale-files-quarantined-public-stages-required')
+                      recovery_performed=True, target_index_quarantine_performed=args.refresh_target_indexes,
+                      outcome='approved-files-quarantined-public-stages-required')
         return 0
     except (OSError, ValueError, KeyError, RuntimeError) as error:
         report.update(outcome='failed', error=str(error))

@@ -206,6 +206,7 @@ def main():
     report['target_apt_partial'] = attempt(report, 'target apt partial', lambda: entries(BUILD / 'chroot/var/cache/apt/archives/partial', 128))
     report['bootstrap_package_cache'] = attempt(report, 'bootstrap packages', lambda: entries(BUILD / 'cache/packages.bootstrap', 128))
     report['target_apt_lists'] = attempt(report, 'target apt lists', lambda: entries(BUILD / 'chroot/var/lib/apt/lists', 128))
+    report['target_apt_cache_directory'] = attempt(report, 'target apt cache directory', lambda: entries(BUILD / 'chroot/var/cache/apt', 128))
     reported_indexes = ('deb.debian.org_debian_dists_trixie_main_i18n_Translation-en',
                         'security.debian.org_dists_trixie-security_contrib_binary-amd64_Packages')
     report['reported_apt_indexes'] = []
@@ -231,6 +232,31 @@ def main():
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=10, check=True)
         return value.stdout.strip()[:128]
     report['live_build_version'] = attempt(report, 'live-build version', version)
+    def payload_verification():
+        # Use the builder's verifier, never a target executable or maintainer script.
+        info = no_alias(BUILD / 'chroot/var/lib/dpkg/info')
+        digest = hashlib.sha256()
+        count = total = 0
+        for path in sorted(info.glob('*.md5sums')):
+            data = read_regular(path, 2 * 1024 * 1024)
+            digest.update(path.name.encode() + b'\0' + data + b'\0')
+            count += 1
+            total += len(data)
+            if total > 16 * 1024 * 1024:
+                raise ValueError('Stored checksum metadata exceeds bound')
+        command = ['/usr/bin/dpkg', '--root=' + str(BUILD / 'chroot'), '--verify-format=rpm', '--verify']
+        value = subprocess.run(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               text=True, timeout=120, check=False)
+        stdout, stderr = value.stdout, value.stderr
+        truncated = len(stdout) > 32768 or len(stderr) > 8192
+        return {'command': command, 'returncode': value.returncode,
+                'stdout': stdout[:32768], 'stderr': stderr[:8192], 'output_truncated': truncated,
+                'stored_md5_file_count': count, 'stored_md5_metadata_bytes': total,
+                'stored_md5_metadata_sha256': digest.hexdigest(),
+                'available_md5_no_reported_differences': (value.returncode == 0 and not stdout.strip()
+                                                        and not stderr.strip() and not truncated and count > 0),
+                'coverage': 'Only available stored MD5 comparisons; not security/all-file verification. Local diversions can omit backup digests; inspect separately.'}
+    report['target_payload_verification'] = attempt(report, 'read-only target dpkg verification', payload_verification)
     report['active_build_package_processes'] = attempt(report, 'process scan', processes)
     def numeric_mounts():
         text = read_regular(Path('/proc') / str(os.getpid()) / 'mountinfo', 1024 * 1024).decode(errors='replace')
