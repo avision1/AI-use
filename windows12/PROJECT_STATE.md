@@ -1,3 +1,11 @@
+# Current checkpoint — 2026-11-06
+
+Current milestone W12-005: first practical installable preview, incomplete. W12-030 blocked at a safely refused native payload screen, not a running ISO build. No active VM/monitor/queue. Latest48889 exited1 before cache changes: sole missing os-release.debootstrap is source-explained candidate temporary live-build state, pending exact fresh target evidence. See concise HANDOFF.md for authoritative jobs/next commands; earlier historical active-job sections below are superseded.
+
+Evidence preserved artifacts/refresh-refused-2026-11-06-diversion; no ISO or completed signed APT refresh. Implementing source-backed separate no-unexplained-differences classification, keeping raw verifier differences visible. Latest pushed project09c8b925; observed remote cdb0aaa05 includes concurrent sibling work. Source archive f045e04a unchanged. Actual25 guest tests/deterministic package pass; release gates remain pending.
+
+---
+
 # Project state — 2026-11-05
 
 ## Milestone and boundaries
