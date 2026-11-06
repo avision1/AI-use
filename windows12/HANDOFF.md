@@ -39,3 +39,6 @@ Root-onlyVM92218 active, no monitor/queue/otherVM. Output artifacts/catalog-refr
 
 ## Second refresh / bootstrap cache scope correction
 43224completed1/cleanshutdown beforeanyquarantine/update, oninactivebootstrapcache/bin mergedusralias; reportquarantined[]. Local7118bytehardlinkpaircheckpassed. Helpernowusesonlyboundedtop-levellstat/linkliterals forinactivebootstrapcache (notused/restored/written), explicitno-deepSHAcoverage. Activeconfig/dpkg/stage/archives retainfullbytehashchecks. Independentreviewdocupdatednoblocker. NoactiveVM currently; nextthird --resume --refresh-package-catalogs. Source731...,2fdf...,749b8999871a076b3af0ea9082772a1bbf6bfab5 pushed.
+
+## Native catalog regeneration ACTUALLY PASSED
+ThirdmetadataVM33189completed0/cleanshutdown. Freshreportnonce6003109f66790c8d50c5b286bc0fae24 atartifacts/catalog-refresh-1793931845864078075: nativeupdate_returncode0, refresh_completedtrue, wholeoldlists+2binarycachesquarantinedoutsidechroot; protectedretainedbytes/metadata checksunchanged. Evidencecopied artifacts/catalog-refresh-passed-2026-11-06 withSHAmanifest. NoactiveVM now. NextFULLplanexport (SQVindependentallindices +emptyisolatedarchivecache) beforeanypayloadwork. Sourcecheckpoint0a2396273d9d088a7bd90fc0360d32aff8980152 pushed; importerhardlinkfixandstageRunner sourceuncommitted/awaitintegrationreview. NoISO.
