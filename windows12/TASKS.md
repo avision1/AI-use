@@ -45,3 +45,5 @@
 
 | W12-033 | Preview3 desktop and optional Windows Apps integration | 004,009 | lead/desktop_polish/windows_apps | implemented:31 guest tests and deterministic package pass; real GUI/app execution pending | Panel order, accessible offline help, installed Bottles routing with on-demand setup; no runtime preload |
 | W12-034 | Exact post-chroot image finish contract | 032 | iso_finish/lead | documented; new installer inputs and executable bootstrap cache trust remain blockers | Preserve completed chroot, authenticate remaining inputs, public installer/binary/source then real ISO SHA/export |
+
+| W12-035 | Restore execution and reconstruct lost preview3 build inputs | 014,023 | lead/infrastructure | blocked: exec-server disconnected; current observed runtime/artifacts absent; source intact on GitHub | Existing checkout/project boundary preserved; execution restored, original jobs/storage reconciled, current source restored, permitted dependencies and deliberate rebuild; no stale resume commands |
