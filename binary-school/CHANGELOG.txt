@@ -1,3 +1,16 @@
+1.3 — High-priority independent-review fixes
+- Autosave notebook drafts and preserve them on navigation/page lifecycle.
+- Show storage errors, preserve in-memory text and warn before closing.
+- Put platform setup first and add a compile/run/debug environment check.
+- Separate study completion, checkpoint success, flags and practical evidence.
+- Add six richer practical programs with 34 guided/stripped ELF/PE builds.
+- Add task-specific behavioral predictions and ungraded evidence reports.
+- Add three unfamiliar mock-final variants with separate challenge/review packs.
+- Validate the final computational data patch in-browser without executing it;
+  provide a local multi-input behavioral verifier for alternative repairs.
+- Keep lesson IDs, original course flags and existing progress compatible.
+- Defer medium-priority recommendations pending user approval.
+
 Binary School Localhost 1.2
 
 137 lessons/activities in 13 modules.

@@ -1,0 +1,48 @@
+FRESH MOCK FINAL: POST-ATTEMPT SELF-REVIEW
+Do not open until you have saved your independent report.
+All variants share a structure but differ in constants, encoded token and data.
+C sources here are original. Compare your own reconstruction, not naming style.
+
+Variant | threshold | rate | bonus | token
+cedar   | 3         | 4    | 5     | north
+quartz  | 2         | 6    | 7     | delta
+willow  | 4         | 3    | 8     | cabin
+The two-field-like appearance can mislead: Policy has THREE int fields at
+0,4,8. charge loops over n, charges rate below threshold and rate+2 above it,
+subtracts bonus if n>threshold, then adds volatile adjustment (original1).
+Repaired output adds9. Correct token + probe0 exits0; failed unlock exits3;
+parser errors exit2. Windows additionally prints wide_length=10 and varying PID.
+
+Expected original / repaired charges for quantities 0..8:
+cedar: 1/9, 5/13, 9/17, 13/21, 14/22, 20/28, 26/34, 32/40, 38/46
+quartz: 1/9, 7/15, 13/21, 14/22, 22/30, 30/38, 38/46, 46/54, 54/62
+willow: 1/9, 4/12, 7/15, 10/18, 13/21, 10/18, 15/23, 20/28, 25/33
+
+100-point SELF-REVIEW RUBRIC (ungraded)
+A: C recovery30: types/layout8, control/data flow10, parsing/returns6,
+   edge cases6. Give instruction evidence and explain any inferred type.
+B: Windows25: import/startup identification6, observed call arguments/ABI7,
+   string/struct interpretation6, correct backed RVA conversion6.
+   Static-only analysis is partial; record missing native Windows tests.
+C: Debugging20: reproducible breakpoints5, live state5, competing hypotheses5,
+   predictions checked across inputs5. Register snapshots without interpretation
+   are incomplete. Account for ASLR and optimization.
+D: anti-analysis/repair25: decoded data5, explicit toy-probe reasoning5,
+   temporary vs persistent change5, computational repair5, regression tests5.
+   Verify at least quantities0,1,3,5,8 and invalid/probe/token failure paths.
+
+Use verify-repair.py VARIANT PATH-TO-YOUR-PATCHED-EXECUTABLE locally to check
+all9 quantities and7 failure/parser cases. It RUNS the supplied path: use your
+own training executable. Run it on the matching OS. Linux cannot run PE itself.
+Browser validation accepts the narrow patch of adjustment's initialized data
+from1 to9, preserving the rest of the original file; it does not execute it.
+Alternative instruction repairs should use the behavioral verifier.
+
+Deduct credit for unsupported claims even if the output happens to match.
+Retest a fresh variant after revisiting missed skills. A self-awarded score is
+not a verified credential, university grade, or guarantee of exam performance.
+
+MSVC comparison after the attempt: extract this review kit and run
+build-msvc-readiness.bat from x86 and x64 Native Tools prompts. Build outputs
+are native MSVC, unlike the supplied cross-compiled MinGW GCC PE.
+Live Windows/MSVC verification was not available on the build host.

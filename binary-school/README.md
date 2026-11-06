@@ -6,7 +6,9 @@ A self-paced reverse engineering learning site that runs on localhost.
 - An interactive downloadable flag lab for each course.
 - 26 guided/stripped Linux x64 flag binaries.
 - Eight comparative C case studies with Linux x86/x64 binaries, real disassembly, state tables, and MSVC build kits.
-- Ungraded learning assignments, worked solutions, notes, and browser-local progress.
+- Six deeper practical programs, 34 additional guided/stripped ELF and native Windows PE binaries, and three unfamiliar mock-final variants.
+- Ungraded learning assignments, worked solutions, autosaving notes/reports, and browser-local progress.
+- Separate checkpoint, flag, practical evidence and self-reported readiness records.
 
 ## Run locally
 
@@ -28,9 +30,11 @@ Progress is stored in the browser for this exact hostname and port. Use **Resour
 
 ## Lab platforms and verification
 
-The site runs on Windows, macOS, and Linux. Included ELF executables require matching Linux x86/x64 execution support; static Ghidra analysis does not require running them. Native Windows PE programs are built locally with the supplied MSVC scripts. No prebuilt MSVC binaries are supplied.
+The site runs on Windows, macOS, and Linux. Included ELF executables require matching Linux x86/x64 execution support; static Ghidra analysis does not require running them. New practical and mock-final downloads include native Windows x64 PE files compiled with MinGW-w64 GCC. These are explicitly **not MSVC output**. Use the supplied MSVC scripts in x86/x64 Native Tools prompts to compile the same C locally with MSVC. No prebuilt MSVC binaries are supplied.
 
-The 26 flag executables were checked for accepted, rejected, and malformed inputs. The comparative x64 examples passed 328 input checks. The x86/32 casebook binaries were checked statically, not executed on the build host. Windows builds and debugger workflows require local verification.
+Start with **Your first lab environment**, now first in the learning sequence. It includes Windows, Linux, Intel Mac and Apple Silicon routes and a compile/run/debug smoke test.
+
+The original 26 flag executables were checked for accepted, rejected, and malformed inputs. The comparative x64 examples passed 328 input checks. The x86/32 casebook binaries were checked statically, not executed on the build host. The new Linux practical programs and all three final variants were executed in guided and stripped builds, including 16 behavioral repair checks per final build. New Windows PE architecture/imports and repair-byte locations were checked statically. Native Windows execution, MSVC compilation and live debugger workflows require local verification.
 
 Assignments are ungraded. Flag checks give practice feedback. Certificates are unproctored completion records, not accredited credentials or a grade guarantee.
 
@@ -53,3 +57,13 @@ node --check site/app.js
 ```
 
 Keep all changes for this project inside `binary-school/`. Other top-level projects and repository-root files are outside its scope.
+
+## Practical readiness and mock final
+
+Each advanced flag lesson now adds a separate investigation with predictions and an autosaving evidence report. The old scalar flag exercises remain warm-ups. The **Practical readiness** page distinguishes study completion, checkpoint success, flags, behavioral predictions and ungraded evidence for the four syllabus outcomes. Existing progress is retained; old checkpoint results cannot be inferred retrospectively.
+
+Lesson 94 uses a separate challenge-only pack with cedar, quartz and willow variants. Source, answers and a self-review rubric are in a separate post-attempt pack. The browser can validate an exported executable containing only the specified computational data patch; it never executes uploads. A local Python verifier in the review kit can check alternative repairs across quantities and failure cases. These are unproctored study exercises, not secure exams.
+
+Notebook and practical-report drafts save as you type. Storage failures display a message; a failed notebook save also prompts before leaving the page. Browser storage can still be cleared, so continue exporting backups.
+
+Maintainers can rebuild the new binaries with `python3 tools/build_readiness.py` using GCC plus MinGW-w64 GCC/binutils; `--mingw-cc` selects the cross compiler. `python3 tools/package_readiness.py` refreshes their ZIPs and lab checksums without rebuilding. Neither tool nor Node.js is needed by students.

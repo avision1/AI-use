@@ -1,0 +1,52 @@
+PRACTICAL INVESTIGATION SELF-REVIEW — ATTEMPT FIRST
+These reports and checks are ungraded. A copied answer does not demonstrate the
+outcome. Record evidence before comparing. Addresses vary across builds/ASLR.
+
+xref: weights are 3,7,2,5. dispatch rejects other names and n outside 0..4.
+orbit 0 =>0, orbit 1=>3, orbit 2=>21, orbit 3=>21, orbit 4=>43.
+Two accepted quantities show why one observed success does not establish a
+complete input predicate. Follow format-string references to main and argument
+flow into dispatch; support your loop and switch reconstruction with branches.
+
+records: natural Record offsets enabled=0, amount=4, bias=8, name=10, stride=16
+for the supplied x86-64 GCC and ordinary MSVC x86/x64 layouts. Verify rather
+than assume; packing flags change layout. Totals n=0,1,2,3 are 0,9,9,14. Row 1
+is disabled. The signed 16-bit bias must be extended correctly before addition.
+
+trace: accumulator starts 4. With 3 -3 4, deltas are 3,-6,12; totals 7,13,25.
+With 3 3 4 the total is also 25, but the success predicate needs xs[1]<0.
+0 0 0 =>4, exit1; malformed input=>exit2. A watchpoint after initialization
+shows changing total. In optimized code total may be register-only; use an
+instruction breakpoint and inspect the relevant register. State what you saw,
+not just a list of debugger commands.
+
+windows: Order label=0, quantity=8, unit_price=12, stride=16 for usual targets.
+The quote is q*7+(q<3?5:0): q=0,2,3,4 =>5,19,21,28.
+The UTF-16 literal has length10; PID varies. IsDebuggerPresent nonzero selects
+exit3. Temporarily force its return to zero and compare; restart to show the
+change was not persistent. The success requires LAB and quantity4.
+RVA-to-file: rawPointer+(rva-sectionVA), valid only inside the section's backed
+raw bytes. Use your binary's actual section values; do not invent an address.
+MinGW import wrappers/CRT startup differ from MSVC. In Windows x64 the first
+integer/pointer argument is RCX, then RDX/R8/R9; x86 patterns depend on calling
+convention. Record the actual call and compare both compilers/targets.
+
+protected: XOR 0x55 decodes maple. Probe nonzero returns3 before decoding;
+correct token with probe0 exits0, wrong token exits1. The noise variable is not
+a dependency of the result and may disappear under optimization. Explain a
+local branch/return bypass, then persist a copy and check both intended paths.
+This models an obstacle but does not implement real debugger detection.
+
+reconstruct: Plan fields limit,rate,discount are int at offsets0,4,8.
+For mode0 the first two units cost3 and later units5, discount2 for n>=4.
+For mode1 the first three cost5 and later7, discount4 for n>=4.
+Mode0 n=0,2,4=>0,6,14. Mode1 n=3,5=>15,25. Invalid mode/quantity=>exit2.
+A complete reconstruction preserves formatting, parser bounds and exit status.
+Explain multiple functions, call arguments and data flow, not just the flag.
+
+Report checklist for every investigation:
+- binary hash, OS, bitness, compiler/build type; meaningful symbol names;
+- instruction/address evidence for data layout and control flow;
+- predicted cases then observed stdout/exit status; mismatch explanations;
+- reproducible debugger state, commands and comparison against a hypothesis;
+- readable C, edge cases, limitations and a fresh stripped-build attempt.
