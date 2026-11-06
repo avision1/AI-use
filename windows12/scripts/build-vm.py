@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Build in a full TCG VM. No host mounts, chroot, package installs or block devices.
+"""Build in a full VM (default TCG/max; explicit fresh-run KVM supported). No host mounts, chroot, package installs or block devices.
 Writable guest storage: project-contained .work/builder/build.qcow2;
 exports remain inside project artifacts/ (separate inspection runs).
 """
 from pathlib import Path
-import atexit, argparse, hashlib, http.server, json, os, shlex, shutil, subprocess, tarfile, threading, urllib.parse, time, socket, re, fcntl, select, stat, errno, secrets
+import atexit, argparse, hashlib, http.server, json, os, shlex, shutil, subprocess, tarfile, threading, urllib.parse, time, socket, re, fcntl, select, stat, errno, secrets, runpy
 ROOT=Path(__file__).resolve().parents[1]
 HOST_WRAPPER_SHA256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 def bounded(path):
@@ -14,12 +14,15 @@ def output_file(path):
  bounded(path)
  if path.is_symlink():raise SystemExit('Output symlink refused: '+str(path))
  return path
-WORK=bounded(ROOT/'.work/builder')
-TOOLS=WORK/'tools'
+BASE_WORK=bounded(ROOT/'.work/builder')
+WORK=BASE_WORK
+TOOLS=BASE_WORK/'tools'
 OUT=bounded(ROOT/'artifacts/vm-build')
+RUNS=runpy.run_path(str(ROOT/'scripts/build-run-state.py'),run_name='builder_run_state')
 
 def main():
- global OUT
+ global OUT,WORK
+ WORK=BASE_WORK;OUT=bounded(ROOT/'artifacts/vm-build')
  ap=argparse.ArgumentParser(description=__doc__)
  ap.add_argument('--prepare',action='store_true',help='Download checksum-verified official builder image only')
  ap.add_argument('--probe',action='store_true',help='Run QEMU TCG firmware for 10s with no disk/network')
@@ -31,7 +34,16 @@ def main():
  ap.add_argument('--inspect-resume',action='store_true',help='Boot existing disk only for read-only build-state inventory; separate output, never ISO success')
  ap.add_argument('--continue-after-bootstrap',action='store_true',help='Explicit recovery boot: verify retained bootstrap and continue public stages, preserving frozen source')
  ap.add_argument('--refresh-target-indexes',action='store_true',help='Explicitly quarantine the two inspected bad APT indexes and regenerable binary caches; requires guarded continuation')
+ ap.add_argument('--fresh-run',help='NEW isolated full-build slug; never resumes or replaces the legacy candidate')
+ ap.add_argument('--accelerator',choices=('tcg','kvm'),default='tcg',help='Explicit acceleration; nondefault hardware requires --fresh-run')
+ ap.add_argument('--cpu-profile',choices=('max','host'),default='max',help='Fixed CPU profile; host requires KVM and --fresh-run')
  args=ap.parse_args()
+ if args.fresh_run is not None and any((args.prepare,args.probe,args.resume,args.continue_package_stage,args.refresh_package_catalogs,args.package_stage,args.plan_package_downloads,args.inspect_resume,args.continue_after_bootstrap,args.refresh_target_indexes)):ap.error('--fresh-run supports only a NEW full build; no preparation, probe, stage or resume')
+ try:
+  RUNS['require_profile'](args.accelerator,args.cpu_profile,args.fresh_run)
+  run_paths=RUNS['require_new'](ROOT,args.fresh_run) if args.fresh_run is not None else RUNS['paths'](ROOT)
+ except (OSError,ValueError) as error:ap.error(str(error))
+ if args.fresh_run is not None:WORK=run_paths['work'];OUT=run_paths['output']
  if args.resume and (args.prepare or args.probe):ap.error('--resume cannot be combined with --prepare or --probe')
  if sum(map(bool,(args.prepare,args.probe,args.inspect_resume,args.plan_package_downloads,args.refresh_package_catalogs,args.continue_after_bootstrap,args.continue_package_stage)))>1:ap.error('Choose only one build operation')
  if args.continue_package_stage:
@@ -50,23 +62,23 @@ def main():
   OUT=bounded(ROOT/'artifacts'/('builder-inspect-'+str(time.time_ns())))
  if args.continue_after_bootstrap and (not args.resume or args.prepare or args.probe or args.inspect_resume):ap.error('--continue-after-bootstrap requires --resume alone')
  if args.refresh_target_indexes and not args.continue_after_bootstrap:ap.error('--refresh-target-indexes requires --resume --continue-after-bootstrap')
- planned_dirs=[WORK,OUT]+[WORK/name for name in ['home','tmp','cache','config','data','state']]
+ planned_dirs=([BASE_WORK] if args.fresh_run is not None else [WORK,OUT]+[WORK/name for name in ['home','tmp','cache','config','data','state']])
  for p in planned_dirs:bounded(p)
  for p in planned_dirs:p.mkdir(parents=True,exist_ok=True)
  for p in [WORK,OUT,ROOT/'image']:
   if not p.resolve().is_relative_to(ROOT):raise SystemExit('Symlink escapes project: '+str(p))
- lock_path=WORK/'runner.lock'
+ lock_path=BASE_WORK/'runner.lock'
  if lock_path.is_symlink():raise SystemExit('Runner lock symlink refused')
  lock_handle=output_file(lock_path).open('a')
  try:fcntl.flock(lock_handle.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
  except BlockingIOError:raise SystemExit('Another project build runner holds runner.lock; inspect its recorded job')
  # Older runners did not hold runner.lock. Refuse live or ambiguous QMP controls.
- qmp_existing=WORK/'qmp'
+ qmp_existing=BASE_WORK/'qmp'
  qmp_in=Path(str(qmp_existing)+'.in');qmp_out=Path(str(qmp_existing)+'.out')
  if qmp_in.exists() or qmp_out.exists():
   for path in [qmp_in,qmp_out]:
    if path.is_symlink() or not path.exists() or not stat.S_ISFIFO(path.stat().st_mode):raise SystemExit('Ambiguous QMP controls; reconcile before launch')
-  guard_file=output_file(WORK/'qmp-client.lock').open('a')
+  guard_file=output_file(BASE_WORK/'qmp-client.lock').open('a')
   try:fcntl.flock(guard_file.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
   except BlockingIOError:raise SystemExit('Another QMP client is active; reconcile before launch')
   reader=os.open(qmp_out,os.O_RDONLY|os.O_NONBLOCK)
@@ -93,6 +105,12 @@ def main():
    if writer is not None:os.close(writer)
    guard_file.close()
 
+ if args.fresh_run is not None:
+  # Recheck under the fixed shared lock; never create a candidate beside a live VM.
+  RUNS['require_new'](ROOT,args.fresh_run)
+  WORK.mkdir(parents=True);OUT.mkdir(parents=True)
+  for name in ['home','tmp','cache','config','data','state']:(WORK/name).mkdir()
+
  # Reject impossible recovery before tool checks, downloads or provenance writes.
  # Keep these checks under the shared lock and after old VM reconciliation.
  disk=output_file(WORK/'build.qcow2')
@@ -110,6 +128,15 @@ def main():
   elif shutil.disk_usage(ROOT).free<8*1024**3:
    raise SystemExit('Fresh image build requires at least 8 GiB free before dependency access or disk creation; the installation gate alone requires that much. Use a 40+ GiB project filesystem and retain build/export headroom.')
 
+ active_record=None
+ if not args.prepare and not args.probe:
+  full=not any((args.inspect_resume,args.plan_package_downloads,args.refresh_package_catalogs,args.continue_package_stage))
+  # Serialize publication against a monitor's pinned QMP operation.
+  with output_file(BASE_WORK/'qmp-client.lock').open('a') as publish_lock:
+   try:fcntl.flock(publish_lock.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+   except BlockingIOError:raise SystemExit('QMP client active during run publication; reconcile before retry')
+   active_record=RUNS['publish'](ROOT,run_paths,OUT,args.accelerator,args.cpu_profile,full=full)
+
  env=os.environ.copy()
  env.update(HOME=str(WORK/'home'),TMPDIR=str(WORK/'tmp'),XDG_CACHE_HOME=str(WORK/'cache'),XDG_CONFIG_HOME=str(WORK/'config'),XDG_DATA_HOME=str(WORK/'data'),XDG_STATE_HOME=str(WORK/'state'),PYTHONDONTWRITEBYTECODE='1')
  lib=TOOLS/'usr/lib/x86_64-linux-gnu'
@@ -119,7 +146,7 @@ def main():
  qemu=TOOLS/'usr/bin/qemu-system-x86_64';qimg=TOOLS/'usr/bin/qemu-img'
  if not qemu.exists():raise SystemExit('Run python3 scripts/build-tools.py first. No global installation is attempted.')
  firmware=TOOLS/'usr/share/seabios/bios-256k.bin'
- common=[str(qemu),'-machine','pc,accel=tcg,smm=off','-cpu','max','-smp','2','-m','4096','-bios',str(firmware),'-L',str(TOOLS/'usr/share/qemu'),'-no-user-config','-nodefaults','-display','none','-monitor','none','-no-reboot']
+ common=[str(qemu),'-machine','pc,accel='+args.accelerator+',smm=off','-cpu',args.cpu_profile,'-smp','2','-m','4096','-bios',str(firmware),'-L',str(TOOLS/'usr/share/qemu'),'-no-user-config','-nodefaults','-display','none','-monitor','none','-no-reboot']
  if args.probe:
   try:run(common+['-serial','stdio','-net','none'],timeout=10)
   except subprocess.TimeoutExpired:print('QEMU TCG process remained running for 10s; no guest OS verified.')
@@ -129,9 +156,9 @@ def main():
  lock=json.loads((ROOT/'build/builder-image.lock.json').read_text())
  name=lock['filename'];expected=lock['sha512']
  if Path(name).name!=name or not re.fullmatch(r'[0-9a-f]{128}',expected):raise SystemExit('Invalid builder image lock')
- sums=WORK/'pinned-SHA512SUMS'
- legacy=WORK/lock.get('legacy_cache_name',name)
- cloud=legacy if legacy.is_file() else WORK/name
+ sums=BASE_WORK/'pinned-SHA512SUMS'
+ legacy=BASE_WORK/lock.get('legacy_cache_name',name)
+ cloud=legacy if legacy.is_file() else BASE_WORK/name
  def download(url,path):
   if path.is_symlink() or not path.resolve().is_relative_to(ROOT):raise SystemExit('Download path escapes project')
   partial=Path(str(path)+'.part')
@@ -318,14 +345,14 @@ def main():
  if old_status.exists():old_status.rename(OUT/f'build.exit.previous-{time.time_ns()}')
  server=http.server.ThreadingHTTPServer(('127.0.0.1',8765),Handler)
  threading.Thread(target=server.serve_forever,daemon=True).start()
- qmp=WORK/'qmp'
+ qmp=BASE_WORK/'qmp'
  for extension in ['.in','.out']:
   fifo=Path(str(qmp)+extension)
   if fifo.is_symlink() or (fifo.exists() and not stat.S_ISFIFO(fifo.stat().st_mode)):raise SystemExit('Unexpected QMP path; reconcile before launch')
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
- output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'package_stage_only':bool(args.continue_package_stage),'package_stage_nonce':package_stage_nonce,'package_stage_inputs':package_inputs.provenance if package_inputs is not None else None,'stage_inputs_helper_sha256':stage_inputs_hash,'package_planning':args.plan_package_downloads,'catalog_refresh':args.refresh_package_catalogs,'catalog_refresh_helper_sha256':catalog_refresh_hash,'catalog_refresh_nonce':catalog_refresh_nonce,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'package_stage_inspection':args.package_stage,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'proxy_transport':proxy_transport.provenance,'proxy_helper_sha256':proxy_helper_hash,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
+ output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'fresh_run':args.fresh_run,'run_work':str(WORK),'accelerator':args.accelerator,'cpu_profile':args.cpu_profile,'active_run_nonce':active_record['nonce'] if active_record else None,'resume':args.resume,'package_stage_only':bool(args.continue_package_stage),'package_stage_nonce':package_stage_nonce,'package_stage_inputs':package_inputs.provenance if package_inputs is not None else None,'stage_inputs_helper_sha256':stage_inputs_hash,'package_planning':args.plan_package_downloads,'catalog_refresh':args.refresh_package_catalogs,'catalog_refresh_helper_sha256':catalog_refresh_hash,'catalog_refresh_nonce':catalog_refresh_nonce,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'package_stage_inspection':args.package_stage,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'proxy_transport':proxy_transport.provenance,'proxy_helper_sha256':proxy_helper_hash,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
  try:
   with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
  finally:

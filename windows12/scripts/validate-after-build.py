@@ -10,14 +10,14 @@ import hashlib
 import json
 import os
 import signal
+import runpy
 from pathlib import Path
 import subprocess
 import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-WORK = ROOT / '.work/builder'
-BUILD = ROOT / 'artifacts/vm-build'
+RUNS = runpy.run_path(str(ROOT / 'scripts/build-run-state.py'), run_name='validator_run_state')
 
 
 def safe(path):
@@ -32,6 +32,8 @@ def main():
     parser.add_argument('--wait-timeout', type=int, default=14400)
     parser.add_argument('--install', action='store_true', help='Also run the NEW disposable-disk D-I proof')
     args = parser.parse_args()
+    selected, pinned = RUNS['active'](ROOT)
+    WORK, BUILD, BASE = selected['work'], selected['output'], selected['base']
     if not 60 <= args.wait_timeout <= 14400:
         parser.error('Wait timeout must be60–14400 seconds')
     def interrupted(signum, frame):
@@ -53,7 +55,7 @@ def main():
         path.mkdir(mode=0o700)
         env[key] = str(path)
     env['PYTHONDONTWRITEBYTECODE'] = '1'
-    result = {'source_sha256': source, 'started': time.time(), 'stage': 'waiting-for-builder',
+    result = {'active_descriptor_sha256': pinned, 'fresh_run': selected['fresh_run'], 'source_sha256': source, 'started': time.time(), 'stage': 'waiting-for-builder',
               'output': str(output), 'content_audit_verified': False, 'bios_capture_collected': False,
               'install_boot_proof_verified': False, 'gui_verified': False, 'release_verified': False}
 
@@ -63,12 +65,13 @@ def main():
         pending.replace(safe(output / 'result.json'))
         print(json.dumps(result), flush=True)
 
-    scripts = ['audit-iso.py', 'boot-test.py', 'install-test.py']
+    scripts = ['audit-iso.py', 'boot-test.py', 'install-test.py', 'build-run-state.py']
     controller_hashes = {name: hashlib.sha256(safe(ROOT / 'scripts' / name).read_bytes()).hexdigest() for name in scripts}
     result['controller_sha256'] = controller_hashes
     iso_identity = None
 
     def unchanged():
+        RUNS['unchanged'](ROOT, pinned)
         if safe(output / 'cancel').exists():
             raise KeyboardInterrupt()
         if json.loads(safe(BUILD / 'run.json').read_text()) != initial or safe(WORK / 'build-source.sha256').read_text().strip() != source:
@@ -142,7 +145,7 @@ def main():
                 # Marker is exported before guest shutdown. Wait for the actual
                 # supervising runner to release its lock, then let each VM gate
                 # independently enforce its own lock/legacy-QMP exclusion.
-                with safe(WORK / 'runner.lock').open('r') as lock:
+                with safe(BASE / 'runner.lock').open('r') as lock:
                     try:
                         fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
                     except BlockingIOError:

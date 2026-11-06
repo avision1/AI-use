@@ -78,3 +78,7 @@ Installed baseline SHA256 remains `58bcaea9b07c88797ac80fd8aed126862a1459561d061
 |---|---|---|---|---|---|
 | W12-041 | Explicit available-KVM test profiles | 003,011,020 | lead | reviewed/AST parsed; existing device access confirmed; guest/runtime validation pending | No host setup/fallback, fixed CPU choices, contained devices, actual KVM startup/desktop evidence |
 | W12-042 | Honest manual installed-disk continuation | 020,040 | lead | BIOS-only wrapper and guest tests implemented/reviewed; runtime pending | Clean live provenance, stopped sealed baseline, readonly backing/new child, no ISO, distinct falseflags then reviewed boot/login/root evidence |
+
+Current source-check47507 includes fresh-builder namespace/KVM/observer/QMP-lock safeguards plus10new guest tests; combined target97. OldISO normalUEFI live boot observed and stopped0/originalfirmwareunchanged; docs/UEFI_PREVIEW4.md. Corrected fresh build still not launched.
+
+Combined source validation PASSED97guesttests/package/shutdown in artifacts/overlay-check-196e24e1e16eef4083a3ff138c4ab309, sourceSHA7e609eb2cef6c8fde337c4566a4d93a63fedac5011a33158fba07e6182e8f61a.64GiBfree/noVMactive. Ready to checkpoint and launch isolated clockfix-001 fullbuild.

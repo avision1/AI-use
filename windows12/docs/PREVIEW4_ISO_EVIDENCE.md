@@ -101,3 +101,6 @@ The first expanded run2e5f15f759bd4fbc5a770de8f78cd814 ran82 tests but stopped1 
 ## Installed desktop and normal live installer follow-up
 
 Actual default installed Wayland desktop review completed0 with unchanged baseline; docs/INSTALLED_DESKTOP_PREVIEW4.md records login/layout/menu/file editing, basic offline DOCX save/reopen, lock/unlock and logout/relogin, exported public files/hashes and remaining workflow limits. Automatic harness flags remainfalse; manually reviewed observations are separate. A new pristine-ISO KVM/host/virtio live guest75984 rendered its default desktop without guest graphics tweaks and launched Calamares from Install Debian. Its actual offline installation is now copying to the only new24GiB virtual disk after reviewed partition/account summary. Evidence artifacts/calamares-live-001; completion, Calamares-installed ISO-free boot and UEFI validation remain pending.
+
+
+Normal UEFI live boot subsequently reached the default Wayland desktop and offline guide; controller55315 stopped0 with original firmware inputs unchanged (docs/UEFI_PREVIEW4.md). All97 integrated source tests/package/shutdown passed in artifacts/overlay-check-196e24e1e16eef4083a3ff138c4ab309. New clock-fixed full build is next; the original ISO remains unchanged and lacks util-linux-extra. UEFI installed-disk and next-image acceptance remain pending.

@@ -88,3 +88,8 @@ The actual passstdout installation and ISO-free disk boot both completed0 with m
 ## D045 — Correct the actual Calamares RTC utility omission in a new candidate
 
 The real offline Calamares installation and ISO-free account/desktop/basicCalc review completed with unchanged baseline. Its log nevertheless shows hwclock command-not-found (exit127), not proof of an RTC hardware bug. Debian13 provides it in util-linux-extra. Add that explicit image package and core audit requirement for the next ISO; retain the old ISO and successful bounded evidence unchanged. Future UEFI continuation preserves sealed final VARS in a fresh copy; fresh builds must preserve legacy candidate paths and use existing KVM only, never host setup or weakened isolation.
+
+
+## D046 — Preserve validated candidates through fixed fresh-run namespaces
+
+A new full builder may use only a strict new slug under .work/builder/runs and artifacts/vm-build-<slug>, retaining authenticated tools/cloud and sharedrunner/QMP at the fixed base. Nondefault KVM/host requires this explicit fresh mode, existing device access and no fallback/host setup; resume and defaults stay unchanged. Active descriptor pins monitor/cleanup/validator selection, and QMP validates the pin under the same client lock used for publication, so an old exit marker or replaced run cannot control a new guest. Combined guest validation is required before launch.
