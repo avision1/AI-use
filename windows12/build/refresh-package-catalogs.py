@@ -155,10 +155,35 @@ def quiescent():
     return {'boot_id': Path('/proc/sys/kernel/random/boot_id').read_text().strip(), 'uptime': uptime}
 
 
+
+def bootstrap_inventory():
+    # This inactive rootfs cache is never restored or written by metadata update.
+    # Preserve its identity/top-level entries without following merged-usr links,
+    # opening device nodes or claiming a deep-content checksum.
+    root = canonical(BUILD / 'cache/bootstrap')
+    names = sorted(root.iterdir())
+    if len(names) > 512:
+        raise ValueError('Bootstrap top-level inventory exceeds bound')
+    def item(path):
+        info = path.lstat()
+        value = {'mode': info.st_mode, 'uid': info.st_uid, 'gid': info.st_gid,
+                 'device': info.st_dev, 'inode': info.st_ino, 'bytes': info.st_size,
+                 'mtime_ns': info.st_mtime_ns, 'links': info.st_nlink, 'rdev': info.st_rdev}
+        if stat.S_ISLNK(info.st_mode):
+            target = os.readlink(path)
+            if len(target) > 4096:
+                raise ValueError('Bootstrap link literal exceeds bound')
+            value['link_literal'] = target
+        return value
+    return {'root': item(root), 'entries': {p.name: item(p) for p in names},
+            'coverage': 'Top-level lstat and link literals only; no traversal, device reads or deep content hash.'}
+
+
 def retained():
     result = {str(p): tree(p, p == BUILD / 'config') for p in
               (BUILD / 'config', BUILD / '.build', ROOT / 'etc/apt', ROOT / 'var/lib/dpkg',
-               CACHE / 'archives', BUILD / 'cache/bootstrap')}
+               CACHE / 'archives')}
+    result[str(BUILD / 'cache/bootstrap')] = bootstrap_inventory()
     for p in (ROOT / 'var/lib/apt/extended_states', BUILD / '.lock', ROOT / 'root/packages.chroot'):
         result[str(p)] = file_record(p) if canonical(p).exists() else {'exists': False}
     stages = result[str(BUILD / '.build')].get('entries', {})
