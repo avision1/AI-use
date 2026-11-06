@@ -1,3 +1,10 @@
+1.5 — Progress recovery and truthful persistence feedback
+- Validate/migrate stored progress before rendering; recover valid fields.
+- Preserve malformed original text and offer recovery downloads without wiping it.
+- Distinguish curriculum-load failures from interface startup failures.
+- Show visit-only status and export controls when storage fails across all results.
+- Test malformed/legacy progress, blocked storage and retry persistence.
+
 1.4.1 — Keyboard and mobile learning navigation
 - Add skip-to-content and route-only heading focus without hijacking hash routing.
 - Label course progress and current navigation/lesson links.

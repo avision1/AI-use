@@ -4,7 +4,7 @@ const root=path.join(__dirname,'..','site')+path.sep;
 let src=fs.readFileSync(root+'app.js','utf8');src=src.slice(0,src.lastIndexOf("fetch('curriculum.json')"));
 let saved={},els={},storageFails=false;const events={};const element=()=>({value:'',innerHTML:'',textContent:'',className:'',dataset:{},style:{},classList:{toggle(){}},setAttribute(){}});
 const ctx={window:{addEventListener(name,fn){events[name]=fn},scrollTo(){}},location:{hash:'#home'},crypto:require('crypto').webcrypto,TextEncoder,Uint8Array,localStorage:{getItem:()=>JSON.stringify({done:[0,25,26],notes:{0:'retained'},exam:false,name:''}),setItem:(k,v)=>{if(storageFails)throw Error('quota');saved[k]=v}},document:{querySelector:s=>els[s]??(els[s]=element()),querySelectorAll:()=>[]},setTimeout:()=>0};
-vm.createContext(ctx);vm.runInContext(src,ctx);const db=JSON.parse(fs.readFileSync(root+'curriculum.json','utf8'));vm.runInContext('db='+JSON.stringify(db),ctx);
+vm.createContext(ctx);vm.runInContext(src,ctx);const db=JSON.parse(fs.readFileSync(root+'curriculum.json','utf8'));vm.runInContext('db='+JSON.stringify(db)+';initializeProgress()',ctx);
 async function test(){
  assert.equal(db.courses.length,13);assert.equal(db.lessons.length,137);assert.equal(new Set(db.lessons.map(l=>l.id)).size,137);
  for(const l of db.lessons){let html=vm.runInContext(`lesson(${l.id})`,ctx);assert(html.includes('id="answerform"'));if(l.id>=42)assert(html.includes('Worked solution'));if(l.flagDigest){assert(html.includes('Guided Linux x64 executable'));assert(html.includes('case-sensitive'));}}
