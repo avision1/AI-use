@@ -24,7 +24,7 @@
 | W12-021 | Controlled post-build image iteration plan | 005 | boot_guard/lead | source research complete; implementation/runtime pending | Preserve baseline/source; correct installer regeneration and manifests; version gates |
 | W12-022 | ISO-free installed desktop QA | 011,020 | desktop_audit/lead | one-shot proof source reimplemented/syntax checked; validated-disk GUI/helper/tests pending | One-shot proof stamp, validated prior test disk, new writable child, baseline preserved; real reboot/GUI evidence |
 
-| W12-023 | Fast contained unittest runner | 003 | lead | prior uncommitted work lost; pending | Fresh VM/source and bounded results; no host suite execution |
+| W12-023 | Fast contained unittest runner | 003 | lead/overlay_vm | source implemented, parent VM session3723 active; result pending | Fresh VM/source and bounded results; no host suite execution |
 | W12-024 | Debian 13 host bootstrap | 014 | lead | done: prep72608 and TCG probe pass;91 authenticated packages | Native signed repositories/keyring; local extraction; actual startup and TCG probe; no host installs |
 
 | W12-025 | Pinned Windows QA installer inputs | 009 | lead | done: real hashes/signature/offline/negative checks; no app execution | Locked public fixtures, no host execution, reproducible cache and honest assurance |
