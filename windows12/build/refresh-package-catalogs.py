@@ -70,8 +70,16 @@ def file_record(path, maximum=256 * 1024 * 1024):
     fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     with os.fdopen(fd, 'rb') as stream:
         s = os.fstat(stream.fileno())
-        if not stat.S_ISREG(s.st_mode) or s.st_uid != 0 or s.st_nlink != 1 or s.st_size > maximum:
-            raise ValueError('Unsafe hash input: ' + str(path))
+        local_name = 'windows12-desktop_0.1.0~preview2_all.deb'
+        local_pair = {BUILD / 'config/packages.chroot' / local_name, ROOT / 'packages' / local_name}
+        linked_local = path in local_pair and s.st_nlink == 2
+        if not stat.S_ISREG(s.st_mode) or s.st_uid != 0 or (s.st_nlink != 1 and not linked_local) or s.st_size > maximum:
+            raise ValueError('Unsafe hash input: ' + str(path) + ' uid=' + str(s.st_uid) + ' links=' + str(s.st_nlink) + ' bytes=' + str(s.st_size))
+        if linked_local:
+            peer = next(p for p in local_pair if p != path)
+            other = canonical(peer).lstat()
+            if signature(other) != signature(s) or s.st_size != 7118 or s.st_gid != 0:
+                raise ValueError('Unexpected local package hardlink pair')
         digest = hashlib.sha256()
         total = 0
         while True:
@@ -84,6 +92,8 @@ def file_record(path, maximum=256 * 1024 * 1024):
             digest.update(chunk)
         if signature(s) != signature(os.fstat(stream.fileno())) or total != s.st_size:
             raise ValueError('Hash input changed')
+    if linked_local and digest.hexdigest() != '5db8cb011056994620abdfe550a31cbebc492e5a66ce2006551861484adf1776':
+        raise ValueError('Linked local package differs from measured deterministic build')
     return {'bytes': total, 'sha256': digest.hexdigest(), 'mode': stat.S_IMODE(s.st_mode),
             'uid': s.st_uid, 'gid': s.st_gid, 'links': s.st_nlink,
             'device': s.st_dev, 'inode': s.st_ino, 'mtime_ns': s.st_mtime_ns}
