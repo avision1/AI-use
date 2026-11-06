@@ -1,3 +1,9 @@
+1.7.3 — Verified portable student package
+- Add a reproducible standard-library ZIP builder with package checksums.
+- Exclude development files, temporary QA data and personal progress.
+- Verify extracted startup from a path containing spaces and an unrelated working folder.
+- Use an ASCII startup banner for consoles with limited output encodings.
+
 1.7.2 — Independent syllabus review fixes
 - Recover from missing lesson/course links and rendering errors without trapping navigation.
 - Allow large own-export backups after explicit read confirmation; retain safe preview/cancel.

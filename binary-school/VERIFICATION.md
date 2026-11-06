@@ -40,3 +40,7 @@ A fresh reviewer given only the syllabus reference found four actionable issues:
 Live Chrome loaded `#lesson/999`, displayed a focused missing-lesson recovery page, and successfully followed its learning-path link. The corrected lesson 91 rendered the Order investigation with native PE and MSVC source-kit links; see `docs/windows-review-fix.png`. The lesson 129 GCC translation-unit pair compiled and printed `result=28`.
 
 A native file-picker retry selected a synthetic JSON backup but produced no visible preview update in this browser automation session. It is not counted as live import acceptance; the eight passing suites include import, large-import and route-error regressions. A separate environment audit confirmed no native Windows or screen-reader runner.
+
+## Portable student ZIP
+
+Fourteen Python tests and eight Node suites pass. Package tests compare two builds byte-for-byte, check archive execute-mode metadata, verify every extracted checksum, reject stale source checksums without replacing an existing package, and reject output paths outside this project. They start the extracted server from a directory containing spaces with an unrelated working directory and ASCII stdout encoding, then fetch its health endpoint, curriculum, homepage and ELF lab. The ASCII encoding case reproduces the startup issue identified by the independent launcher reviewer; an ASCII banner fixes it. These Linux subprocess checks do not establish native Windows/macOS acceptance.

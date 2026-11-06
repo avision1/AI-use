@@ -89,7 +89,7 @@ def main(argv=None):
         return 1
     server.daemon_threads = True
     url = 'http://localhost:{}/'.format(args.port)
-    print('\nBinary School — localhost edition\n')
+    print('\nBinary School - localhost edition\n')
     print('Open: ' + url)
     print('Only this laptop can connect. Keep this window open.')
     print('Press Ctrl+C to stop. YouTube and external references require internet.\n', flush=True)
