@@ -2,7 +2,7 @@
 Build an actual installable Linux distribution with a cohesive Windows-style experience. Support everyday workflows, including Microsoft Office via web applications where appropriate. Never claim Windows parity or tested support without evidence.
 
 ## Absolute boundary this run
-`/workspace/scratch/3c38ab731138/AI-use/windows12/`
+The `windows12/` directory in the sole existing `AI-use` checkout (resolve its absolute path in each environment).
 Every project write, dependency, cache, temporary file, log, output and agent file must stay here. Only normal Git tracking/commit/synchronization metadata may be written in the parent `.git`. Never edit the parent README, LICENSE, instructions, sibling projects, global config, host packages, host disks, or boot settings. Image `/etc` and `/usr` are allowed only in contained image storage. No root workflow files. Use project-local HOME, TMPDIR and XDG/cache directories for subprocesses. No physical installation. Isolation must fail closed; never run image package installation against the host.
 
 ## Resume

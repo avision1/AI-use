@@ -148,3 +148,6 @@ Current full plan and active prefetch ownership are in the latest HANDOFF sectio
 
 ## Current source candidate checks
 Preview3 source is separate from the frozen preview2 builder. Run `python3 -B scripts/check-overlay-vm.py` only after its final source review; it uses cached inputs and a new disposable child disk, never the retained build disk. See docs/OVERLAY_VM_CHECK.md. Network policy blocked dependency prefetch; offline status confirms 680/1946 cached, not complete. docs/FINISH_IMAGE_STAGE.md records additional installer/binary acquisitions beyond that plan.
+
+## Local Linux Mint handoff
+Start local Codex in the existing `AI-use/windows12/` checkout and read the current HANDOFF. Reconcile actual source/jobs/storage and resolve the boundary for that machine. The browser-hosted session does not automatically gain laptop shell access. build-tools.py does not currently accept Linux Mint: inspect Mint version/Ubuntu base and adapt authenticated bootstrap or use a contained supported build environment. Do not spoof host identity or run target package installation on the host. Local Git authentication is separate from the hosted connector. Preserve the folder boundary and push source checkpoints regularly. No historical resume/plan command applies to absent inputs.

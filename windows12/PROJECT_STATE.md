@@ -1,6 +1,18 @@
 # Project state — 2026-11-06 UTC
 
-## Execution interruption — authoritative current state
+## Current execution checkpoint — 2026-11-05 America/Chicago
+Execution works in the supplied fresh workspace. Sole checkout: `/workspace/scratch/a8ea18c8241a/AI-use`; project boundary: its `windows12/` directory. Source restored from main `8619b2c`; no sibling project changed. Process inventory found no QEMU/build/monitor/validation workers. Before wrapper refusal checks, `.work/` and `artifacts/` were absent: old disk, source archive, cloud image, tools, cache and package plan are unavailable. Historical handles/counts below are not current inputs.
+
+Current environment network allowlist excludes Debian package/security/cloud hosts. No denied download was retried or alternate route used. No guest build, runtime suite or ISO gate ran. Previous 31-test/package results remain historical. No ISO exists.
+
+Independent read-only review confirmed two controller defects now fixed: retained disk/source/hash checks precede dependency checks/downloads; fresh source validation precedes disk creation. Resume+prepare/probe options are rejected. Validation: Python syntax parsing, actual negative CLI refusal checks and diff checks; guest/runtime verification pending.
+
+User is considering Linux Mint laptop as build environment. Local Codex can continue from these checkpoints. build-tools.py explicitly supports Debian13/Ubuntu24.04; inspect/adapt Mint support rather than assuming compatibility. Keep target construction inside the project VM, never on the laptop host.
+
+Next: in an environment with permitted Debian/cloud access, reconcile source/jobs/storage. With no artifacts, set project-local HOME/TMP/XDG from RUNBOOK, prepare tools for the actual host, then run build-vm.py --probe, --prepare and a deliberate fresh build (no --resume). Monitor storage safeguards. Require real ISO content/boot/install/GUI and Windows-app gates. Never use historical plan/nonce commands unless exact inputs are recovered and validated.
+
+
+## Historical execution interruption
 A resume attempt found the supplied checkout at old project commit 696bc1c, with no windows12/.work/builder or windows12/artifacts directories. The committed preview3 source on GitHub is intact (remote main759c468e750c405f93d60e0e858429384d3cd97e at inspection); later sibling changes were preserved.
 
 Before any VM launch, current-source restoration was attempted through the GitHub connector in the existing checkout. All60 required writes failed because the execution service returned: Failed to create unified exec process: exec-server transport disconnected. Successful restoration writes:0. No build, tests, downloads or VM launch occurred in this attempt. Runtime/file operations stopped after the service failure. Any process/disk state after disconnection is UNKNOWN until execution access is restored; historical handles are not live evidence.
@@ -29,4 +41,4 @@ Retained standalone24GiB virtual builder previously passed offline QCOW2 check. 
 Windows-like desktop conventions are implemented but untested graphically. Linux/KDE preferences and native apps remain available. Optional Bottles/Wine and Proton are the compatibility direction; no Windows runtime/app has yet executed. Office web functionality partial; LibreOffice offline alternative; current native Microsoft365 desktop unsupported. Smaller kde-plasma-desktop selection avoids the full application collection, but real installed size/RAM/startup/background services remain measurement gates.
 
 ## Next action
-Follow current HANDOFF exact plan/nonce/commands. Restore permitted package access, complete authenticated inputs, execute guarded chroot, cover installer inputs, finish ISO and run boot/install/desktop gates. Do not launch a stage on incomplete cache or claim source/tests are a release. User authorizes helpful subagents and regular project-only commits/pushes to main without reasking.
+Follow HANDOFF current checkpoint; historical plan/nonce files are missing. Restore permitted package access, complete authenticated inputs, execute guarded chroot, cover installer inputs, finish ISO and run boot/install/desktop gates. Do not launch a stage on incomplete cache or claim source/tests are a release. User authorizes helpful subagents and regular project-only commits/pushes to main without reasking.

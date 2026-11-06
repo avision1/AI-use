@@ -1,13 +1,25 @@
 # Windows12 restart handoff — 2026-11-06 UTC
 
+## Current execution checkpoint — 2026-11-05 America/Chicago
+Execution works in the supplied fresh workspace. Sole checkout: `/workspace/scratch/a8ea18c8241a/AI-use`; project boundary: its `windows12/` directory. Source restored from main `8619b2c`; no sibling project changed. Process inventory found no QEMU/build/monitor/validation workers. Before wrapper refusal checks, `.work/` and `artifacts/` were absent: old disk, source archive, cloud image, tools, cache and package plan are unavailable. Historical handles/counts below are not current inputs.
+
+Current environment network allowlist excludes Debian package/security/cloud hosts. No denied download was retried or alternate route used. No guest build, runtime suite or ISO gate ran. Previous 31-test/package results remain historical. No ISO exists.
+
+Independent read-only review confirmed two controller defects now fixed: retained disk/source/hash checks precede dependency checks/downloads; fresh source validation precedes disk creation. Resume+prepare/probe options are rejected. Validation: Python syntax parsing, actual negative CLI refusal checks and diff checks; guest/runtime verification pending.
+
+User is considering Linux Mint laptop as build environment. Local Codex can continue from these checkpoints. build-tools.py explicitly supports Debian13/Ubuntu24.04; inspect/adapt Mint support rather than assuming compatibility. Keep target construction inside the project VM, never on the laptop host.
+
+Next: in an environment with permitted Debian/cloud access, reconcile source/jobs/storage. With no artifacts, set project-local HOME/TMP/XDG from RUNBOOK, prepare tools for the actual host, then run build-vm.py --probe, --prepare and a deliberate fresh build (no --resume). Monitor storage safeguards. Require real ISO content/boot/install/GUI and Windows-app gates. Never use historical plan/nonce commands unless exact inputs are recovered and validated.
+
+
 ## Scope and authorization
-Sole checkout: `/workspace/scratch/3c38ab731138/AI-use/windows12/` in existing `avision1/AI-use`.
+Current sole checkout/project boundary is recorded above; repository is `avision1/AI-use`.
 Every write, dependency, cache, temporary file, log and disk stays inside this folder. Only ordinary parent `.git` metadata is excepted. Preserve root and sibling projects, including concurrent commits. User explicitly authorized regular direct pushes to main and helpful subagents; no routine push approval needed. Never force-push. No host packages, mounts, partitions, boot changes or physical installation.
 
 ## Current truth
-**The execution service is unavailable and the last observed workspace lacks the prior ignored runtime files. No ISO exists.** Current source is intact on GitHub. See the authoritative interruption below before following any historical commands.
+**Execution is restored; runtime inputs are absent and Debian downloads are unavailable under the current allowlist. No ISO exists.** The current checkpoint above supersedes historical sections below.
 
-## Execution interruption — authoritative current state
+## Historical execution interruption
 A resume attempt found the supplied checkout at old project commit 696bc1c, with no windows12/.work/builder or windows12/artifacts directories. The committed preview3 source on GitHub is intact (remote main759c468e750c405f93d60e0e858429384d3cd97e at inspection); later sibling changes were preserved.
 
 Before any VM launch, current-source restoration was attempted through the GitHub connector in the existing checkout. All60 required writes failed because the execution service returned: Failed to create unified exec process: exec-server transport disconnected. Successful restoration writes:0. No build, tests, downloads or VM launch occurred in this attempt. Runtime/file operations stopped after the service failure. Any process/disk state after disconnection is UNKNOWN until execution access is restored; historical handles are not live evidence.
@@ -40,7 +52,7 @@ Full signed-catalog plan: `artifacts/package-plan-1793932073521244203/package-do
 At the previous checkpoint the main builder `.work/builder/build.qcow2` was preserved; it is absent from the current observed workspace; frozen `.work/builder/checks.tar` SHA256 `f045e04aff5ae2c730e171dc10b559655ad90724d62848c245b1b83ec8049dff`. Current retained target is CF0/1df reviewed144-package state. See package-stage docs for exact provenance. Last catalog refresh passed native update and preserved protected state.
 Preview3 source is **not** in that frozen preview2 builder. Do not replace its pinned package/source in-place. Preserve baseline and deliberately create a new candidate when ready. Git saves source/memory, not ignored VM disks, inputs or artifacts; pruning requires documented reconstruction.
 
-## Next steps, in order
+## Historical next steps — only if exact retained inputs are recovered
 1. Restore execution and reconcile current remote/head, source/status, VM locks/QMP and ignored artifact survival. Read AGENTS, PROJECT_STATE, TASKS, DECISIONS, RUNBOOK. Keep the same project boundary.
 2. Dependency access must be permitted before further fetching. Once that is available, run bounded prefetch from this directory with project-local HOME/TMP/XDG:
    `python3 -B scripts/prefetch-packages.py artifacts/package-plan-1793932073521244203/package-download-plan.json --expected-nonce f405608a78a6be1a66da098684917d9b --limit 100 --workers 4`

@@ -32,6 +32,7 @@ def main():
  ap.add_argument('--continue-after-bootstrap',action='store_true',help='Explicit recovery boot: verify retained bootstrap and continue public stages, preserving frozen source')
  ap.add_argument('--refresh-target-indexes',action='store_true',help='Explicitly quarantine the two inspected bad APT indexes and regenerable binary caches; requires guarded continuation')
  args=ap.parse_args()
+ if args.resume and (args.prepare or args.probe):ap.error('--resume cannot be combined with --prepare or --probe')
  if sum(map(bool,(args.prepare,args.probe,args.inspect_resume,args.plan_package_downloads,args.refresh_package_catalogs,args.continue_after_bootstrap,args.continue_package_stage)))>1:ap.error('Choose only one build operation')
  if args.continue_package_stage:
   if not args.resume or args.refresh_target_indexes:ap.error('--continue-package-stage requires --resume alone with its plan')
@@ -92,6 +93,21 @@ def main():
    if writer is not None:os.close(writer)
    guard_file.close()
 
+ # Reject impossible recovery before tool checks, downloads or provenance writes.
+ # Keep these checks under the shared lock and after old VM reconciliation.
+ disk=output_file(WORK/'build.qcow2')
+ checks=output_file(WORK/'checks.tar')
+ source_lock=output_file(WORK/'build-source.sha256')
+ if not args.prepare and not args.probe:
+  if args.resume:
+   for retained in [disk,checks,source_lock]:
+    if not retained.is_file():raise SystemExit('Resume requires preserved regular file: '+str(retained))
+   source_hash=hashlib.sha256(checks.read_bytes()).hexdigest()
+   if source_lock.read_text().strip()!=source_hash:raise SystemExit('Archived source digest mismatch; refusing resume')
+   print('Resuming frozen source snapshot',source_hash,flush=True)
+  elif disk.exists():
+   raise SystemExit('Build disk exists. Preserve it and choose an explicit --resume operation; no automatic deletion.')
+
  env=os.environ.copy()
  env.update(HOME=str(WORK/'home'),TMPDIR=str(WORK/'tmp'),XDG_CACHE_HOME=str(WORK/'cache'),XDG_CONFIG_HOME=str(WORK/'config'),XDG_DATA_HOME=str(WORK/'data'),XDG_STATE_HOME=str(WORK/'state'),PYTHONDONTWRITEBYTECODE='1')
  lib=TOOLS/'usr/lib/x86_64-linux-gnu'
@@ -131,20 +147,9 @@ def main():
  if h.hexdigest()!=expected:raise SystemExit('Builder SHA512 mismatch; cached input left untouched for investigation.')
  output_file(OUT/'input-provenance.json').write_text(json.dumps({'url':lock['url'],'sha512':expected,'verification':'official HTTPS SHA512SUMS; detached signature not verified','tools_lock':'build/tools-lock.json'},indent=2)+'\n')
  if args.prepare:return
- disk=output_file(WORK/'build.qcow2')
- if args.resume and not disk.exists():raise SystemExit('No VM disk to resume')
- if disk.exists() and not args.resume:raise SystemExit('Build disk exists. Use --resume or preserve then remove it deliberately. No automatic deletion.')
- if not disk.exists():
-  run([str(qimg),'create','-f','qcow2','-F','qcow2','-b',str(cloud),str(disk),'24G'])
- # Resume uses the immutable archived source, not possibly changed working files.
- checks=output_file(WORK/'checks.tar')
- source_lock=output_file(WORK/'build-source.sha256')
- if args.resume:
-  if not checks.exists() or not source_lock.exists():raise SystemExit('Resume requires preserved checks.tar and build-source.sha256')
-  source_hash=hashlib.sha256(checks.read_bytes()).hexdigest()
-  if source_lock.read_text().strip()!=source_hash:raise SystemExit('Archived source digest mismatch; refusing resume')
-  print('Resuming frozen source snapshot',source_hash,flush=True)
- else:
+ # Resume uses the immutable archive already verified above. Validate fresh
+ # source before creating a disk, so rejected source cannot strand a new VM.
+ if not args.resume:
   pending=output_file(WORK/'checks.pending.tar')
   with tarfile.open(pending,'w') as tf:
    for name in ['image','tests','scripts','build']:
@@ -153,6 +158,7 @@ def main():
      if p.is_file():tf.add(p,arcname=p.relative_to(ROOT),recursive=False)
   source_hash=hashlib.sha256(pending.read_bytes()).hexdigest()
   pending.replace(checks);source_lock.write_text(source_hash+'\n')
+  run([str(qimg),'create','-f','qcow2','-F','qcow2','-b',str(cloud),str(disk),'24G'])
  proxy=urllib.parse.urlsplit(env.get('HTTPS_PROXY',env.get('https_proxy','')))
  proxy_guest=''
  if proxy.hostname in ['127.0.0.1','localhost'] and proxy.port:
