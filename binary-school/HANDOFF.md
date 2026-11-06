@@ -1,35 +1,25 @@
-# Binary School checkpoint
+# Binary School handoff
 
-All work stays inside `binary-school/`; preserve sibling projects and existing lesson IDs. Runtime: Python standard library + buildless HTML/CSS/JS.
+## Scope and authorization
+
+The user requested completion of all previously discussed tasks, regular commits/pushes, and independent subagent reviews. All repository edits must remain inside `binary-school/`; preserve sibling projects, root files, existing lesson IDs and personal progress. Runtime remains Python standard library plus buildless HTML/CSS/JS. No further permission gate is required for authorized implementation work.
 
 ## Completed
 
-PR #1: autosaving notes, setup first, separate progress evidence, richer practicals and unfamiliar finals. PR #2: safe backup previews/merge/replacement/recovery.
+- PR #1: autosave, setup-first order, separate evidence tracking, deeper practicals, fresh mock finals and computational patch validation.
+- PR #2: non-destructive backup preview, merge/confirmed replacement and recovery.
+- PR #3: prerequisite diagnostic, foundation/revision paths, weekly evidence/prerequisite map, search, platform wording and full syllabus AI policy.
+- PR #4: keyboard/mobile navigation structure, heading focus, skip link, labeled progress and keyboard backup chooser.
+- PR #5: malformed startup progress recovery, original-text preservation and truthful save-failure feedback/export controls.
+- PR #6: source-free GDB routes, scoped metadata-verified video library, original Windows walkthroughs/diagram, handled-exception lab, separate PDB paths and native Windows acceptance kit.
+- Final polish: neutral command/listing disclosure label, verification record and desktop screenshot. The latest independent review found no release-blocking frontend error or critical syllabus contradiction.
 
-Current checkpoint: prerequisite diagnostic, foundation and focused syllabus-revision paths, weekly prerequisites/effort/evidence targets, four-outcome matrix, complete syllabus AI-policy summary, expanded instructional/practical search and corrected platform wording. Diagnostic results do not grant lesson credit; path/diagnostic fields survive progress backups.
+## Acceptance status
 
-## Authorized next work
+See `VERIFICATION.md` for actual completed checks and limitations. Eleven Python tests and all six Node suites pass. Supported desktop-browser checks now pass; earlier unsupported-loopback preview failures are superseded. Native Windows/MSVC/debugger execution remains pending because this environment has no Windows runner. Live GDB inferior tracing is blocked by ptrace policy, while static disassembly works. No security settings were changed.
 
-The user authorized taking on the next tasks, with subagents reviewing the website and regular commits/pushes. Accessibility checkpoint completed: skip navigation, route-heading focus, current-page/progress labels, mobile lesson disclosure, keyboard backup chooser, and post-action focus. Structural/focus-flow regressions pass; live assistive-technology QA remains pending. Remaining tasks include accurately scoped video support and native Windows/MSVC validation. Use a fresh syllabus-only reviewer on a pushed checkpoint, finish the active issue, then report findings and ask for next steps.
+Do not claim Windows acceptance from expected observations or cross-compilation. On an available Windows host, run `site/labs/windows-acceptance/Verify-Windows.ps1` in matching x86/x64 Native Tools sessions and complete its manual checklist. Reports stay in ignored `.qa/` within this project. Screen-reader/mobile-device acceptance also remains pending.
 
-## Checks and limits
+## Maintenance
 
-Run all Python tests, `node tests/test_course.cjs`, `node tests/test_import.cjs`, `node tests/test_paths.cjs`, `node tests/test_accessibility.cjs`, and `node --check site/app.js`. Keep checksum manifests current.
-
-Linux binaries and automated HTTP/frontend tests are verified. Live Windows/MSVC and rendered browser/keyboard/mobile behavior remain unverified. Supplied native PE downloads are MinGW GCC, not MSVC output; the native MSVC scripts require Windows.
-
-## Fresh review returned
-
-A fresh syllabus-only reviewer examined main `8a51658ea21d211a44b24db842d7ed27afb881e9`. It found no critical curriculum contradiction. It reported six P2 items: keyboard-inaccessible backup chooser; route focus/skip navigation; source-free GDB instructions incorrectly relying on unavailable C; successful interactions ignoring failed persistence; malformed valid stored JSON preventing startup; native Windows acceptance still unverified. The first two are addressed in the current accessibility checkpoint. Other findings remain pending. Finish/push this issue, report the review and ask the user for next steps before beginning another issue.
-
-## Completion authorization and reliability checkpoint
-
-The user now explicitly requests finishing all previously discussed tasks; this supersedes the earlier pause-and-ask checkpoint. Progress startup recovery and truthful storage-failure feedback are implemented and tested. Continue through source-free GDB teaching, appropriately scoped media/walkthroughs, Windows acceptance tooling, supported browser QA, and a final independent review. Do not claim native Windows execution without actually running it. Keep pushing checkpoints.
-
-## Final content/verification checkpoint
-
-All discussed implementation fixes are now implemented: startup recovery, truthful persistence feedback, source-free flag workflows, scoped/metadata-verified videos, original native-debugger walkthroughs and diagram, a handled-exception source, and reproducible native Windows acceptance tooling. A focused subagent checked the Windows kit; its ordering and evidence-recording issues were corrected. A fresh syllabus-only final site review is running.
-
-The supported managed preview now works through `sites-preview`; actual browser tests confirmed heading focus, keyboard skip navigation, section search and notebook survival across navigation/reload. Prior cloud-loopback failures are superseded for this supported preview. Live GDB execution remains blocked by host ptrace policy; static disassembly works. Native MSVC/x86/x64 debugger execution still requires a Windows host. Do not mark those manual acceptance items passed.
-
-Run all six `tests/test_*.cjs` suites, the 11 Python tests and JS syntax checks. Commit/push this checkpoint, resolve any concrete final-review errors, and provide a candid completion report without another permission gate.
+Run `python3 -m unittest discover -s tests -v`, every `tests/test_*.cjs`, and `node --check site/app.js`. Refresh integrity manifests with `python3 tools/update_checksums.py`; add `--packages` for flag/full/Windows acceptance pack changes. Readiness kit packages use `tools/package_readiness.py`. Keep source and compiler/architecture labels honest; never bundle professor PDFs or textbook pages.

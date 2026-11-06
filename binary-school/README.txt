@@ -217,4 +217,6 @@ exported patch; it never executes uploads. These are ungraded rehearsals.
 
 Verification: new Linux guided/stripped practical behavior and final repairs
 were executed. PE architecture/imports were checked statically. Live Windows
-execution, MSVC builds, and visual browser QA remain unverified on this host.
+execution and MSVC builds remain unverified on this host. Supported desktop
+browser checks now verify rendering, heading focus, keyboard skip navigation,
+search and note persistence. See VERIFICATION.md for remaining acceptance checks.
