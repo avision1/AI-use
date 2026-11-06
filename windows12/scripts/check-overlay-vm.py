@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Check current overlay source in a disposable VM using cached inputs only."""
+"""Check current overlay source in a disposable VM; optionally probe its proxy."""
+import atexit
 import argparse
 import errno
 import fcntl
@@ -12,6 +13,7 @@ from pathlib import Path
 import re
 import secrets
 import shutil
+import ssl
 import stat
 import subprocess
 import tarfile
@@ -121,10 +123,11 @@ def snapshot():
     return data, files
 
 
-GUEST = r'''import hashlib,http.client,io,json,os,pathlib,subprocess,tarfile,traceback,urllib.request
+GUEST = r'''import hashlib,http.client,io,json,os,pathlib,shutil,ssl,subprocess,tarfile,traceback,urllib.request
 origin=ORIGIN
 expected=EXPECTED
 nonce=NONCE
+proxy_probe=PROXY_PROBE
 root=pathlib.Path('/root/windows12-checks')
 report={'schema':1,'nonce':nonce,'source_sha256':expected,'passed':False,'iso_verified':False}
 log=bytearray()
@@ -169,6 +172,25 @@ try:
  if len(raw)>33554432 or hashlib.sha256(raw).hexdigest()!=expected:raise ValueError('Source digest/length differs')
  root.mkdir(mode=0o700)
  with tarfile.open(fileobj=io.BytesIO(raw)) as archive:archive.extractall(root,filter='data')
+ if proxy_probe['enabled']:
+  context=ssl.create_default_context()
+  context.load_verify_locations(cadata=proxy_probe['certificate'])
+  class NoRedirect(urllib.request.HTTPRedirectHandler):
+   def redirect_request(self,*args,**kwargs):raise ValueError('Metadata redirects are refused')
+  opener=urllib.request.build_opener(urllib.request.ProxyHandler({'https':proxy_probe['url']}),urllib.request.HTTPSHandler(context=context),NoRedirect())
+  url='https://deb.debian.org/debian/dists/trixie/InRelease'
+  with opener.open(url,timeout=60) as response:
+   if response.status!=200 or response.geturl()!=url:raise ValueError('Unexpected metadata response or redirect')
+   metadata=response.read(524289)
+  if not 0<len(metadata)<=524288:raise ValueError('Metadata probe exceeds bound')
+  probe_dir=root/'.work/proxy-probe';probe_dir.mkdir(parents=True)
+  release=probe_dir/'InRelease';release.write_bytes(metadata)
+  verifier=shutil.which('gpgv') or shutil.which('sqv')
+  if not verifier:raise ValueError('Guest signature verifier unavailable')
+  keyring='/usr/share/keyrings/debian-archive-keyring.gpg'
+  if pathlib.Path(verifier).name=='gpgv':run([verifier,'--homedir',str(probe_dir),'--keyring',keyring,str(release)])
+  else:run([verifier,'--keyring',keyring,'--output',str(probe_dir/'Release.verified'),'--cleartext',str(release)])
+  report['proxy_probe']={'https_verified':True,'signature_verified':True,'url':url,'metadata_sha256':hashlib.sha256(metadata).hexdigest(),'certificate_sha256':proxy_probe['certificate_sha256']}
  run(['python3','-B','-m','unittest','discover','-s','tests','-v'])
  report['unit_tests_passed']=True
  run(['python3','-B','scripts/package-desktop.py'])
@@ -195,6 +217,7 @@ finally:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--timeout', type=int, default=600)
+    parser.add_argument('--probe-proxy', action='store_true', help='Explicitly fetch bounded signed Debian metadata through the inherited proxy; no package installation')
     args = parser.parse_args()
     if not 60 <= args.timeout <= 1800:
         parser.error('--timeout must be 60..1800 seconds')
@@ -240,6 +263,28 @@ def main():
     env.update(LD_LIBRARY_PATH=str(lib)+':'+str(tools/'lib/x86_64-linux-gnu'),QEMU_MODULE_DIR=str(lib/'qemu'),PYTHONDONTWRITEBYTECODE='1')
     qemu = path(tools/'usr/bin/qemu-system-x86_64')
     qimg = path(tools/'usr/bin/qemu-img')
+    proxy_transport = None
+    proxy_helper_hash = None
+    proxy_probe = {'enabled': False}
+    if args.probe_proxy:
+        helper = path(ROOT/'scripts/guest-proxy.py')
+        helper_bytes = read(helper,1024*1024)
+        proxy_helper_hash = sha(helper_bytes)
+        namespace = {'__file__':str(helper), '__name__':'overlay_guest_proxy'}
+        exec(compile(helper_bytes,str(helper),'exec'),namespace)
+        proxy_transport = namespace['GuestProxy'](env.get('HTTPS_PROXY',env.get('https_proxy','')))
+        certificate_path = env.get('CODEX_PROXY_CERT')
+        if not certificate_path:
+            raise ValueError('Explicit proxy probe requires the configured public CODEX_PROXY_CERT')
+        with Path(certificate_path).open('rb') as certificate_file:
+            certificate_bytes = certificate_file.read(1024*1024+1)
+        if len(certificate_bytes)>1024*1024:raise ValueError('Proxy certificate exceeds bound')
+        certificate = certificate_bytes.decode('ascii')
+        ssl.create_default_context().load_verify_locations(cadata=certificate)
+        atexit.register(proxy_transport.close)
+        proxy_transport.__enter__()
+        if not proxy_transport.guest_url:raise ValueError('Explicit proxy probe requires a configured proxy')
+        proxy_probe = {'enabled':True,'url':proxy_transport.guest_url,'certificate':certificate,'certificate_sha256':sha(certificate_bytes)}
     disk = out / 'check.qcow2'
     subprocess.run([str(qimg),'create','-f','qcow2','-F','qcow2','-b',str(cloud),str(disk),'4G'],env=env,check=True,timeout=30)
     received = set()
@@ -285,7 +330,7 @@ def main():
     server = http.server.HTTPServer(('127.0.0.1',0),Handler)
     port = server.server_port
     origin = 'http://10.0.2.2:'+str(port)
-    guest = GUEST.replace('ORIGIN',repr(origin)).replace('EXPECTED',repr(sha(source))).replace('NONCE',repr(nonce)).replace('PORT',str(port))
+    guest = GUEST.replace('ORIGIN',repr(origin)).replace('EXPECTED',repr(sha(source))).replace('NONCE',repr(nonce)).replace('PORT',str(port)).replace('PROXY_PROBE',repr(proxy_probe))
     shell = "#!/bin/sh\ntrap 'sync; poweroff -f' EXIT\npython3 -B /root/check.py\n"
     data = '#cloud-config\nwrite_files:\n'
     for target, content in [('/run/windows12-build-vm','overlay-check\n'),('/root/check.py',guest),('/root/check.sh',shell)]:
@@ -299,6 +344,7 @@ def main():
                '-smbios','type=1,serial=ds=nocloud-net;s='+origin+'/seed/']
     record = {'schema':1,'nonce':nonce,'source_sha256':sha(source),'files':files,'cloud_sha512':config['sha512'],'command':command,'wrapper_sha256':sha(read(Path(__file__).absolute(),1024*1024)),'network':'static on-link guest config; guest removes and verifies absence of IPv4/IPv6 forwarding default routes before checks; initial cloud-init networking not independently isolated; no package download commands','started':time.time()}
     write(out/'run.json',json.dumps(record,indent=2).encode())
+    write(out/'proxy-probe.json',json.dumps({'enabled':args.probe_proxy,'transport':proxy_transport.provenance if proxy_transport else None,'helper_sha256':proxy_helper_hash}).encode())
     thread = threading.Thread(target=server.serve_forever,daemon=True)
     thread.start()
     child = None
@@ -328,12 +374,21 @@ def main():
             raise ValueError('Fresh guest proof failed; inspect output')
         if identity(cloud.stat())!=identity(after):
             raise ValueError('Cached backing image identity changed during check')
+        if args.probe_proxy:
+            proof = result.get('proxy_probe',{})
+            if (any(proof.get(flag) is not True for flag in ('https_verified','signature_verified'))
+                    or proof.get('url')!='https://deb.debian.org/debian/dists/trixie/InRelease'
+                    or proof.get('certificate_sha256')!=proxy_probe['certificate_sha256']
+                    or not isinstance(proof.get('metadata_sha256'),str)
+                    or not re.fullmatch(r'[0-9a-f]{64}',proof['metadata_sha256'])):
+                raise ValueError('Guest proxy HTTPS/signature proof missing or mismatched')
         print('Guest overlay tests and deterministic package checks passed:',out)
     except BaseException as exception:
         error = str(exception)
         raise
     finally:
         server.shutdown();server.server_close();thread.join(timeout=5)
+        if proxy_transport is not None:proxy_transport.close()
         write(out/'host-result.json',json.dumps({'schema':1,'nonce':nonce,'error':error,'finished':time.time(),'qemu_stopped':child is None or child.poll() is not None}).encode())
         lock.close()
 

@@ -1,7 +1,11 @@
 # Runbook
 
 ## Current approved workspace — 2026-11-05 America/Chicago
-Current project: `/workspace/AI-use/windows12/`. User approved this restore after the old checkout was absent. All 102 project blobs/modes match main b9913c7 exactly. Native clone failed at the configured proxy; local baseline 6a686c3 has independent history. Use the authenticated GitHub connection with fresh upstream parent/base for checkpoints; never push the independent local history to main. Shell package bootstrap currently fails with curl 7 (proxy unreachable), distinct from the historical allowlist denial. About7.42GiB was free before preparation; reassess build/export headroom before launch. Runtime inputs/ISO are absent. Do not use historical resume plans/nonces. See HANDOFF and docs/RESTORE_2026-11-05.md.
+Project: `/workspace/AI-use/windows12/`. Upstream ancestry is restored at 9107ef1; only windows12 is materialized, other index paths remain sparse. User authorizes useful subagents and default main publication for windows12-only commits. Native filtered fetch works; nonforced GitHub checkpoints remain available.
+
+Use network-enabled execution for all socket/network commands, preserving inherited proxy and TLS trust. Authenticated VM/ISO tools and pinned cloud image are cached. Controller now relays the inherited nonlocalhost HTTP proxy through QEMU's host-loopback alias; guest TLS and Debian signature verification actually passed, as did 36 guest tests and deterministic preview4 packaging. See HANDOFF and docs/PROXY_TRANSPORT.md.
+
+Current filesystem total 7.84 GiB cannot hold the full build and installation validation. User is arranging 40+ GiB. Observe actual expanded capacity, reconcile jobs/locks/QMP, then launch `python3 -B scripts/build-vm.py` fresh with the environment below; do not use --resume. No full disk or ISO currently exists. The fresh controller refuses less than 8 GiB free; monitor 6 GiB pause and installation 8 GiB heuristic are retained. These are minimum safeguards, not a sufficient total build budget.
 
 ## Contained setup
 

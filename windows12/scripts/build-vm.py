@@ -107,6 +107,8 @@ def main():
    print('Resuming frozen source snapshot',source_hash,flush=True)
   elif disk.exists():
    raise SystemExit('Build disk exists. Preserve it and choose an explicit --resume operation; no automatic deletion.')
+  elif shutil.disk_usage(ROOT).free<8*1024**3:
+   raise SystemExit('Fresh image build requires at least 8 GiB free before dependency access or disk creation; the installation gate alone requires that much. Use a 40+ GiB project filesystem and retain build/export headroom.')
 
  env=os.environ.copy()
  env.update(HOME=str(WORK/'home'),TMPDIR=str(WORK/'tmp'),XDG_CACHE_HOME=str(WORK/'cache'),XDG_CONFIG_HOME=str(WORK/'config'),XDG_DATA_HOME=str(WORK/'data'),XDG_STATE_HOME=str(WORK/'state'),PYTHONDONTWRITEBYTECODE='1')
@@ -147,6 +149,18 @@ def main():
  if h.hexdigest()!=expected:raise SystemExit('Builder SHA512 mismatch; cached input left untouched for investigation.')
  output_file(OUT/'input-provenance.json').write_text(json.dumps({'url':lock['url'],'sha512':expected,'verification':'official HTTPS SHA512SUMS; detached signature not verified','tools_lock':'build/tools-lock.json'},indent=2)+'\n')
  if args.prepare:return
+ # Expose only the configured HTTP proxy through QEMU's host-loopback alias.
+ # Remote sidecar names are not necessarily resolvable/reachable in the guest.
+ # Parse/start before a fresh disk is created; no direct-egress fallback.
+ proxy_helper=bounded(ROOT/'scripts/guest-proxy.py')
+ if proxy_helper.is_symlink():raise SystemExit('Proxy helper symlink refused')
+ proxy_bytes=proxy_helper.read_bytes();proxy_helper_hash=hashlib.sha256(proxy_bytes).hexdigest()
+ proxy_namespace={'__file__':str(proxy_helper),'__name__':'windows12_guest_proxy'}
+ exec(compile(proxy_bytes,str(proxy_helper),'exec'),proxy_namespace)
+ proxy_transport=proxy_namespace['GuestProxy'](env.get('HTTPS_PROXY',env.get('https_proxy','')))
+ atexit.register(proxy_transport.close)
+ proxy_transport.__enter__()
+ proxy_guest=proxy_transport.guest_url
  # Resume uses the immutable archive already verified above. Validate fresh
  # source before creating a disk, so rejected source cannot strand a new VM.
  if not args.resume:
@@ -159,10 +173,6 @@ def main():
   source_hash=hashlib.sha256(pending.read_bytes()).hexdigest()
   pending.replace(checks);source_lock.write_text(source_hash+'\n')
   run([str(qimg),'create','-f','qcow2','-F','qcow2','-b',str(cloud),str(disk),'24G'])
- proxy=urllib.parse.urlsplit(env.get('HTTPS_PROXY',env.get('https_proxy','')))
- proxy_guest=''
- if proxy.hostname in ['127.0.0.1','localhost'] and proxy.port:
-  proxy_guest=f'http://10.0.2.2:{proxy.port}'
  with tarfile.open(checks) as tf:guest=tf.extractfile('build/guest-build.sh').read().decode()
  package_inputs=None;package_stage_nonce=None;stage_inputs_hash=None
  catalog_refresh_hash=None;catalog_refresh_nonce=None
@@ -315,11 +325,12 @@ def main():
   if fifo.exists():fifo.unlink()
   os.mkfifo(fifo,0o600)
  cmd=common+['-qmp','pipe:'+str(qmp),'-serial','stdio','-drive',f'file={disk},if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=','-smbios','type=1,serial=ds=nocloud-net;s=http://10.0.2.2:8765/seed/']
- output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'package_stage_only':bool(args.continue_package_stage),'package_stage_nonce':package_stage_nonce,'package_stage_inputs':package_inputs.provenance if package_inputs is not None else None,'stage_inputs_helper_sha256':stage_inputs_hash,'package_planning':args.plan_package_downloads,'catalog_refresh':args.refresh_package_catalogs,'catalog_refresh_helper_sha256':catalog_refresh_hash,'catalog_refresh_nonce':catalog_refresh_nonce,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'package_stage_inspection':args.package_stage,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
+ output_file(OUT/'run.json').write_text(json.dumps({'command':cmd,'disk':str(disk),'output':str(OUT),'resume':args.resume,'package_stage_only':bool(args.continue_package_stage),'package_stage_nonce':package_stage_nonce,'package_stage_inputs':package_inputs.provenance if package_inputs is not None else None,'stage_inputs_helper_sha256':stage_inputs_hash,'package_planning':args.plan_package_downloads,'catalog_refresh':args.refresh_package_catalogs,'catalog_refresh_helper_sha256':catalog_refresh_hash,'catalog_refresh_nonce':catalog_refresh_nonce,'planning_helper_sha256':planning_hash,'planning_nonce':planning_nonce,'inspection':args.inspect_resume,'package_stage_inspection':args.package_stage,'inspection_helper_sha256':inspection_hash,'inspection_nonce':inspection_nonce,'continue_after_bootstrap':args.continue_after_bootstrap,'refresh_target_indexes':args.refresh_target_indexes,'recovery_nonce':recovery_nonce,'recovery_helper_sha256':recovery_hashes,'guest_recipe_sha256':guest_recipe_hash,'source_sha256':source_hash,'proxy_guest':proxy_guest,'proxy_transport':proxy_transport.provenance,'proxy_helper_sha256':proxy_helper_hash,'host_wrapper_sha256':HOST_WRAPPER_SHA256},indent=2)+'\n')
  try:
   with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
  finally:
   server.shutdown()
+  proxy_transport.close()
   if package_inputs is not None:package_inputs.close()
  status=OUT/'build.exit'
  if not status.exists() or status.read_text().strip()!='0':raise SystemExit('Build/task incomplete or failed; inspect '+str(OUT/'serial.log')+' and guest-build.log')
