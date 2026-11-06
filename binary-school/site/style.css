@@ -14,3 +14,5 @@ aside{overflow-y:auto}.lessonoutline>summary{cursor:pointer;font-weight:bold;pad
 .progressnotice{margin:20px 43px 0}.progressnotice[hidden]{display:none}@media(max-width:900px){.progressnotice{margin:16px 18px 0}}
 
 .stats{grid-template-columns:repeat(3,minmax(0,1fr))}.stat,.stat>div,.lessoncontent{min-width:0}.stat small{overflow-wrap:anywhere}@media(max-width:900px){.stats{grid-template-columns:1fr}}
+
+.lessonjumps{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.lessonjumps .btn{min-height:44px}.lessoncontent [id^="lesson-"]{scroll-margin-top:20px}
