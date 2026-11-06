@@ -105,7 +105,7 @@ def canonical_url(value):
     if ('%' in path or not path.isascii() or '\\' in path or
             any(piece in ('', '.', '..') for piece in path.split('/')[1:])):
         raise ValueError('noncanonical package URL path')
-    prefixes = ('/debian/pool/', '/debian-security/pool/') if parsed.netloc == 'deb.debian.org' else ('/debian-security/pool/',)
+    prefixes = ('/debian/pool/', '/debian-security/pool/') if parsed.netloc == 'deb.debian.org' else ('/debian-security/pool/', '/pool/updates/')
     if not path.startswith(prefixes) or not NAME.fullmatch(path.rsplit('/', 1)[-1]):
         raise ValueError('package URL is not an official pool .deb path')
     if not re.fullmatch(r'/[A-Za-z0-9/_.+~:-]+', path):

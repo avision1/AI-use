@@ -246,7 +246,7 @@ def main():
   with output_file(OUT/'serial.log').open('a') as log:run(cmd,stdout=log,stderr=subprocess.STDOUT)
  finally:server.shutdown()
  status=OUT/'build.exit'
- if not status.exists() or status.read_text().strip()!='0':raise SystemExit('Build incomplete/failed; inspect artifacts/vm-build/serial.log and guest-build.log')
+ if not status.exists() or status.read_text().strip()!='0':raise SystemExit('Build/task incomplete or failed; inspect '+str(OUT/'serial.log')+' and guest-build.log')
  if args.plan_package_downloads:
   report=output_file(OUT/'package-download-plan.json')
   if not report.is_file() or not 0<report.stat().st_size<=2*1024**2:raise SystemExit('Missing/oversized package plan')

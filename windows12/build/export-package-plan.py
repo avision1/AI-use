@@ -18,6 +18,35 @@ BUILD = Path('/root/windows12-build')
 ROOT = BUILD / 'chroot'
 OUT = Path('/project-output')
 MAX = 2 * 1024 * 1024
+# Exact reviewed live-build release hooks; aliases are inventoried, never executed.
+EXPECTED_HOOKS = {
+    "/usr/share/live/build/hooks/live/0010-disable-kexec-tools.hook.chroot": "fee8b3be4d7beb02e672baafb2d45dcb5019fcbf8f2d4418a789f21f012d88d0",
+    "/usr/share/live/build/hooks/live/0050-disable-sysvinit-tmpfs.hook.chroot": "e464e8ef2a17486f0d030d2e4b49fd7808ddd837b715829b3708dc23b542c910",
+    "/usr/share/live/build/hooks/normal/1000-create-mtab-symlink.hook.chroot": "c61b7443477c033b7a1674d4cb5f107ae3aba9cf96522fe19c712e2813c574dd",
+    "/usr/share/live/build/hooks/normal/1010-enable-cryptsetup.hook.chroot": "97c6adbc9340fc61ca9f7d73ad7f0421a2040a9d97465234300616e125df97c2",
+    "/usr/share/live/build/hooks/normal/1020-create-locales-files.hook.chroot": "c1d39733b743f4862fb60b6d46e2686f5696420508fd6dd8f38ea7a4240c6b9d",
+    "/usr/share/live/build/hooks/normal/5000-update-apt-file-cache.hook.chroot": "a5fd0c201660ace5e42b0349924e08d4acc3eb5641b718bdb1a2255a63137070",
+    "/usr/share/live/build/hooks/normal/5010-update-apt-xapian-index.hook.chroot": "c22027c25636e893b7237d1f18169e207488f7de22649269a8b8873424899639",
+    "/usr/share/live/build/hooks/normal/5020-update-glx-alternative.hook.chroot": "8d30b7abab450403d2b563e84280229b181144b587b07d84bcd5a4330990bcd8",
+    "/usr/share/live/build/hooks/normal/5030-update-plocate-database.hook.chroot": "6d49216d8567cfdb5efbdae5d7a51a4956c82f34b9dadbd9e35ffe93d103c3d1",
+    "/usr/share/live/build/hooks/normal/5040-update-nvidia-alternative.hook.chroot": "5a8a51a4f0422327911320ce5d2ba2cb19308cde411e2d6b36d2badaf5ec3782",
+    "/usr/share/live/build/hooks/normal/5050-dracut.hook.chroot": "d93bbc1d07e4adc0117d3257cba4bcf5c0ea75e651e3a5d192859e8c39b5b61f",
+    "/usr/share/live/build/hooks/normal/8000-remove-adjtime-configuration.hook.chroot": "28459f07aeee024c3b27319d825107dde4a924fa421ad94b21cdbbd6ddcf0236",
+    "/usr/share/live/build/hooks/normal/8010-remove-backup-files.hook.chroot": "ff9b0b3acc6da035d244f6b3f4207defa10efec86faa6cb177921e02c11bde15",
+    "/usr/share/live/build/hooks/normal/8020-remove-dbus-machine-id.hook.chroot": "3628dde00fb7aea9be4ed36afccf03928ca89a873b8822bbfebcbf5c0f0cd5ed",
+    "/usr/share/live/build/hooks/normal/8030-truncate-log-files.hook.chroot": "034e22076e493384ba588c79eef577222775218b601d33c356424c5ce444b63d",
+    "/usr/share/live/build/hooks/normal/8040-remove-mdadm-configuration.hook.chroot": "e8ed438565ecd1bbb5ce057ad60ab8cbefe4be5058e93fc74126a07ae1da601d",
+    "/usr/share/live/build/hooks/normal/8050-remove-openssh-server-host-keys.hook.chroot": "dafcf58b1e78e545dcc0dd257fb024d8468650fe70b693ec3e63d6d23f56499e",
+    "/usr/share/live/build/hooks/normal/8060-remove-systemd-machine-id.hook.chroot": "ca5f55bb939986ba0130a3516e3d0e4dc882cf0a8e1faa99a522d89d21bc208d",
+    "/usr/share/live/build/hooks/normal/8070-remove-temporary-files.hook.chroot": "bc1f1a27053f428fd61417069ba7368090a80121d412acc9e21b2587b7d37571",
+    "/usr/share/live/build/hooks/normal/8080-reproducible-glibc.hook.chroot": "1c8724bfad32cde5426a7af487aecff4cf6778b54837df4424fa0a237aa4b888",
+    "/usr/share/live/build/hooks/normal/8090-remove-ssl-cert-snakeoil.hook.chroot": "1c5a6f27be4386aa144a80f9fbd8efc92219de7c0822ce5faed713f6a563ccc8",
+    "/usr/share/live/build/hooks/normal/8100-remove-udev-persistent-cd-rules.hook.chroot": "ca525ec0887ba3f89f17efd8c1a64457dc077e8127938f0a1cac85b305b00e48",
+    "/usr/share/live/build/hooks/normal/8110-remove-udev-persistent-net-rules.hook.chroot": "b135ecd88708d705c9e48a211b53a805795d406820888c93236d1ac66436ed0b",
+    "/usr/share/live/build/hooks/normal/9000-remove-gnome-icon-cache.hook.chroot": "c6770f96ff70861dfb1fd716205108c24029a876b8124819755866d22bdfb8d8",
+    "/usr/share/live/build/hooks/normal/9010-remove-python-pyc.hook.chroot": "dbad666c84484afe5d1c2e55aca0be0db281f6a1b957665488a0580997effb7a",
+    "/usr/share/live/build/hooks/normal/9020-remove-man-cache.hook.chroot": "19b09d42c75108c5cf14f6a5b524da89d96f34c970104314cb7eef755d9ae043"
+}
 
 
 def regular(path, limit=MAX):
@@ -83,6 +112,8 @@ def paragraphs(raw):
 def provenance():
     paths = [ROOT / 'var/lib/dpkg/status', ROOT / 'var/lib/apt/extended_states']
     visited = 0
+    hook_links = []
+    hook_bytes = 0
     for directory in [ROOT / 'etc/apt', BUILD / 'config', BUILD / '.build']:
         if directory.exists():
             for p in directory.rglob('*'):
@@ -90,13 +121,30 @@ def provenance():
                 if visited > 4096 or len(p.relative_to(directory).parts) > 16:
                     raise ValueError('Provenance traversal exceeds bounded scope')
                 info = p.lstat()
-                if stat.S_ISLNK(info.st_mode) or not (stat.S_ISREG(info.st_mode) or stat.S_ISDIR(info.st_mode)):
+                if stat.S_ISLNK(info.st_mode):
+                    relative = p.relative_to(BUILD / 'config/hooks') if p.is_relative_to(BUILD / 'config/hooks') else None
+                    if relative is None or len(relative.parts) != 2:
+                        raise ValueError('Unreviewed provenance alias: ' + str(p))
+                    expected = '/usr/share/live/build/hooks/' + relative.as_posix()
+                    if expected not in EXPECTED_HOOKS or os.readlink(p) != expected:
+                        raise ValueError('Unreviewed hook alias target: ' + str(p))
+                    target = evidence(expected, 1024 * 1024)
+                    if target['sha256'] != EXPECTED_HOOKS[expected]:
+                        raise ValueError('Installed hook differs from reviewed source: ' + expected)
+                    hook_bytes += target['size']
+                    if hook_bytes > 64 * 1024 * 1024:
+                        raise ValueError('Hook provenance bytes exceed bound')
+                    hook_links.append({'path': str(p), 'kind': 'reviewed-hook-symlink', 'target': expected, 'target_evidence': target})
+                    if len(paths) + len(hook_links) > 512:
+                        raise ValueError('Too many provenance files')
+                    continue
+                if not (stat.S_ISREG(info.st_mode) or stat.S_ISDIR(info.st_mode)):
                     raise ValueError('Unsupported provenance path type: ' + str(p))
                 if stat.S_ISREG(info.st_mode):
                     paths.append(p)
-                    if len(paths) > 512:
+                    if len(paths) + len(hook_links) > 512:
                         raise ValueError('Too many provenance files')
-    result, total = [], 0
+    result, total = [], hook_bytes
     for p in sorted(set(paths)):
         if p.exists():
             item = evidence(p, 32 * 1024 * 1024)
@@ -104,7 +152,7 @@ def provenance():
             if total > 64 * 1024 * 1024:
                 raise ValueError('Provenance bytes exceed bound')
             result.append(item)
-    return result
+    return sorted(result + hook_links, key=lambda item: item['path'])
 
 
 def catalogs(workspace, env):
@@ -244,7 +292,9 @@ def main():
         if uri.scheme == 'file':
             local.append({'url': url, 'filename': filename, 'size': int(size), 'sha256': sha})
             continue
-        if uri.hostname not in ('deb.debian.org', 'security.debian.org') or uri.port is not None or not uri.path.startswith(('/debian/pool/', '/debian-security/pool/')):
+        roots = {'deb.debian.org': ('/debian/pool/', '/debian-security/pool/'),
+                 'security.debian.org': ('/debian-security/pool/', '/pool/updates/')}
+        if uri.hostname not in roots or uri.port is not None or not uri.path.startswith(roots[uri.hostname]):
             raise ValueError('Remote URI is outside reviewed Debian archives')
         if uri.scheme not in ('http', 'https') or uri.username or uri.password or uri.query or uri.fragment:
             raise ValueError('Unsupported remote URI')
