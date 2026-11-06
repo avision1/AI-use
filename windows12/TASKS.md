@@ -1,4 +1,19 @@
 # Stable tasks
+
+## Current task checkpoint — overrides historical status rows below
+
+Main before this update: `24f9ad931c190e0b3309beabbcd76a0943c307af`, clean; project `/home/avision/gitclone/AI-use/windows12/`; approximately73GiB free at parent observation.
+
+| Task | Current evidence and next acceptance |
+|---|---|
+| W12-005 | Real unchanged preview4 ISO, content audit, BIOS D-I installation/ISO-free root proof and reviewed basic installed GUI observations exist. Normal Calamares, remaining workflows and firmware/hardware acceptance remain open. |
+| W12-011 | Actual corrected D-I installation and ISO-free installed-root proof passed in `artifacts/install-passstdout-001/`; this is separate from Calamares and GUI acceptance. |
+| W12-022 | Installed graphical session51793 completed0/guest-exited with read-only baseline unchanged and no cleanup errors. `docs/INSTALLED_DESKTOP_PREVIEW4.md` records default Wayland login/layout/menu, Dolphin/Kate, basic DOCX save/reopen/public export and lock/logout/relogin observations; automatic flags remain false. Full Office corpus and broader application/hardware coverage remain pending. |
+| W12-040 next | Sole active VM75984: `artifacts/calamares-live-001/`, pristine ISO/new24GiB disk, KVM host CPU/2D virtio/BIOS/network none/7200s. Actual offline Calamares copy is running after reviewed vda-only summary and new public account. Poll/capture completion, preserve logs, then clean shutdown and subsequent ISO-free manual-disk child review. Do not start a duplicate guest. |
+| W12-006 | Source checkpoint on main above; parent must review these project-only memory changes before the next nonforced synchronization. Generated disks/ISO/logs remain ignored and need independent preservation. |
+
+Installed baseline SHA256 remains `58bcaea9b07c88797ac80fd8aed126862a1459561d061763a94764fecf74ffad`; ISO SHA256 remains `7d36b5847fba7240ee2795bb42ff3ea841652569b7eb983cfec6ea96968ae11c`. Normal UEFI/Secure Boot and physical hardware remain pending. No physical installation was performed.
+
 | ID | Task | Depends | Owner | Status | Acceptance |
 |---|---|---|---|---|---|
 | W12-001 | Boundaries and persistent memory | none | lead | done | Sole repo located; six memory files in project |

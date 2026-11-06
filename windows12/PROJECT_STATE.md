@@ -1,5 +1,16 @@
 # Project state — 2026-11-06 UTC
 
+## Current state — installed GUI evidence; normal installer acceptance pending
+
+Current sole project is `/home/avision/gitclone/AI-use/windows12/`. This overrides older runtime descriptions below. Clean main before this memory update: `24f9ad931c190e0b3309beabbcd76a0943c307af`; parent-observed free space approximately 73 GiB.
+
+The real preview4 hybrid ISO remains at `artifacts/vm-build/windows12-amd64-preview.iso`, SHA256 `7d36b5847fba7240ee2795bb42ff3ea841652569b7eb983cfec6ea96968ae11c`. Content/BIOS-menu evidence and the actual D-I installation plus ISO-free installed-root boot proof passed. The proven baseline SHA256 remains `58bcaea9b07c88797ac80fd8aed126862a1459561d061763a94764fecf74ffad`.
+
+Installed GUI session51793 completed0/`guest-exited`, preserved its read-only baseline, and recorded no cleanup or baseline errors. On an ISO-free/network-free KVM host-CPU/2D-virtio/BIOS child, without guest graphics workarounds, manual review observed default Wayland login/layout/menu, Dolphin and Kate, basic DOCX save/reopen and public export, lock/unlock and logout/relogin. See `docs/INSTALLED_DESKTOP_PREVIEW4.md`. Automatic success flags remain false; reviewed observations are separate evidence and do not establish full Office-format compatibility, native Microsoft Office support or general hardware support.
+
+Sole active VM: **75984**, pristine-ISO manual Calamares live run under `artifacts/calamares-live-001/`, new 24 GiB disk, KVM/host CPU/2D virtio/BIOS, no network, 7200-second deadline. It has reached actual offline installation after normal icon launch and reviewed partition/account summary. Next: poll that existing session and capture actual progress/completion; do not send boot-menu input during installation. Following clean shutdown, use a separate sealed-baseline/read-only-parent child for ISO-free manual disk review. Calamares installation acceptance and normal UEFI/Secure Boot remain pending; no physical installation is authorized or claimed.
+
+
 ## Installed disk boot passed — 2026-11-06
 
 This supersedes older active-install checkpoints. Main before this update: 1fb50c2a67191b81c7b0030a97a4b6370dc749e2. Sole project remains /home/avision/gitclone/AI-use/windows12 on supported Mint22.3/Noble; approximately74GiB free. Installation session93139 has exited0: artifacts/install-passstdout-001/result.json reports installed-root-boot-proof-passed, install_verified=true and disk_boot_verified=true. Both installer and ISO-free boot returned0 without timeout. The real installed-root marker reports /dev/vda1 and windows12-desktop0.1.0~preview4; graphical.target, SDDM and absence of known build CA/proxy entries passed. GUI runtime remains unverified. The proof service disabled itself and reported its persistent one-shot stamp. Stopped baseline: disposable-install.qcow2,9391964160bytes, SHA25658bcaea9b07c88797ac80fd8aed126862a1459561d061763a94764fecf74ffad. Preserve it; graphical tests must use a new child above this sealed readonly baseline.

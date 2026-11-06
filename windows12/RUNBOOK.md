@@ -1,5 +1,22 @@
 # Runbook
 
+## Current continuation — sole Calamares live guest75984
+
+Project boundary is `/home/avision/gitclone/AI-use/windows12/`. Clean main before this memory update was `24f9ad931c190e0b3309beabbcd76a0943c307af`; approximately 73 GiB free was observed by the parent. Preserve the project-local HOME/TMP/XDG environment described below. Use only existing KVM access; no host installation or setup is needed.
+
+Installed graphical session51793 has completed0 with `guest-exited`, `baseline_unchanged: true`, and no error/cleanup/baseline-error fields. Its baseline remains SHA256 `58bcaea9b07c88797ac80fd8aed126862a1459561d061763a94764fecf74ffad`. Actual reviewed default Wayland/login/layout/menu, file/editor, basic DOCX/public-export and session-lock/logout observations are in `docs/INSTALLED_DESKTOP_PREVIEW4.md`; automatic success flags remain false. This does not close the normal Calamares installer, full Office corpus or hardware gates.
+
+The sole live VM is **session75984**, output `artifacts/calamares-live-001/`, launched from the unchanged ISO SHA256 `7d36b5847fba7240ee2795bb42ff3ea841652569b7eb983cfec6ea96968ae11c` with a new 24 GiB disk, KVM/host CPU/2D virtio/BIOS, network none and timeout7200. Actual offline installation is running after normal launcher, Chicago/US settings, new public w12qa account and reviewed vda-only ext4/MSDOS/GRUB summary. Reconcile/poll this existing handle rather than launching another guest. Capture progress/completion and preserve the installer log before shutdown. No physical disk or boot-setting action is part of this procedure.
+
+After the Calamares session has cleanly stopped and its final `result.json`/`run.json` exist, a new TTY-backed ISO-free review may use the separate manual provenance path:
+
+```sh
+python3 -B scripts/manual-disk-review.py --live-result artifacts/calamares-live-001/result.json --output artifacts/calamares-installed-review-001 --accelerator kvm --cpu-profile host --video virtio --timeout 1800
+```
+
+The output must be new; the wrapper refuses a reused directory, active/ambiguous prior ownership, unproven live provenance or altered inputs. It seals the standalone candidate, creates a fresh writable child above an explicitly read-only baseline, and retains false automatic verification flags. Do not pass a manual result to `--installed-result` or fabricate the D-I callback/root proof. Keep the original disk and any firmware variables unchanged. This continuation is BIOS-only; UEFI variable-store continuation and Secure Boot are separate pending work. See `docs/PREVIEW4_ISO_EVIDENCE.md` and `docs/INSTALLED_DESKTOP_PREVIEW4.md` for measured scope. All older running-job examples below are historical unless reconciled independently.
+
+
 ## Installed disk boot passed — 2026-11-06
 
 This supersedes older active-install checkpoints. Main before this update: 1fb50c2a67191b81c7b0030a97a4b6370dc749e2. Sole project remains /home/avision/gitclone/AI-use/windows12 on supported Mint22.3/Noble; approximately74GiB free. Installation session93139 has exited0: artifacts/install-passstdout-001/result.json reports installed-root-boot-proof-passed, install_verified=true and disk_boot_verified=true. Both installer and ISO-free boot returned0 without timeout. The real installed-root marker reports /dev/vda1 and windows12-desktop0.1.0~preview4; graphical.target, SDDM and absence of known build CA/proxy entries passed. GUI runtime remains unverified. The proof service disabled itself and reported its persistent one-shot stamp. Stopped baseline: disposable-install.qcow2,9391964160bytes, SHA25658bcaea9b07c88797ac80fd8aed126862a1459561d061763a94764fecf74ffad. Preserve it; graphical tests must use a new child above this sealed readonly baseline.

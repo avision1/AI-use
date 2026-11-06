@@ -96,3 +96,8 @@ The expanded KVM/normal-UEFI/manual-disk controller suite is now running in a se
 ## Expanded harness checks
 
 The first expanded run2e5f15f759bd4fbc5a770de8f78cd814 ran82 tests but stopped1 on two manual-review fixture failures. The fixture patched contextlib wrapper globals instead of exclusive_runner.__wrapped__.__globals__; no runtime lock was removed or mocked away. After correcting only the test fixture, artifacts/overlay-check-cab87aa07f654e7123fe1234a8e50838 passed all82 guest tests, deterministic9970-byte preview4 package/dpkg checks and confirmed QEMU shutdown. Source SHA256b5cab90cce74b440d596cb68636ccb4b0d8d26c9a5beed9032f10955ae838434; package hash remains cf4652f5ef2054388a6377e908c2673c78a7c003cee9362e003a9c61f4aa8075. Installed GUI session51793 is now active in artifacts/installed-desktop-virtio-001 using KVM/host/plain2Dvirtio and a NEW child over the sealed baseline; actual login/workflow evidence is pending.
+
+
+## Installed desktop and normal live installer follow-up
+
+Actual default installed Wayland desktop review completed0 with unchanged baseline; docs/INSTALLED_DESKTOP_PREVIEW4.md records login/layout/menu/file editing, basic offline DOCX save/reopen, lock/unlock and logout/relogin, exported public files/hashes and remaining workflow limits. Automatic harness flags remainfalse; manually reviewed observations are separate. A new pristine-ISO KVM/host/virtio live guest75984 rendered its default desktop without guest graphics tweaks and launched Calamares from Install Debian. Its actual offline installation is now copying to the only new24GiB virtual disk after reviewed partition/account summary. Evidence artifacts/calamares-live-001; completion, Calamares-installed ISO-free boot and UEFI validation remain pending.
