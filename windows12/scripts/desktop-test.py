@@ -203,7 +203,7 @@ def installed_source(value):
             or audit.get('default_target') != 'graphical.target' or audit.get('display_manager_unit') != 'sddm.service'
             or audit.get('build_proxy_ca_absent') is not True or audit.get('build_proxy_entries_absent') is not True):
         raise ValueError('Installed proof token, package or configuration disagrees')
-    expected_device = 'virtio-blk-pci,drive=install-disk,serial=W12' + token
+    expected_device = 'virtio-blk-pci,drive=install-disk,serial=W12' + token[:17]
     if any(command.count(expected_device) != 1 for command in commands.values()):
         raise ValueError('Prior disk serial does not match installed proof token')
     iso_snapshot = file_snapshot(iso, 'iso')

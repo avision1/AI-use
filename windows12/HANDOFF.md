@@ -1,5 +1,15 @@
 # Windows12 restart handoff — 2026-11-06 UTC
 
+## Actual ISO checkpoint — 2026-11-06
+Sole project `/home/avision/gitclone/AI-use/windows12/`; source main before this work `81b7db446a6457904ed94e02e9c5867a405cb7b6`. The existing builder completed0 and stopped. A real hybrid amd64 ISO exists: `artifacts/vm-build/windows12-amd64-preview.iso`, 3579805696bytes, SHA256 `7d36b5847fba7240ee2795bb42ff3ea841652569b7eb983cfec6ea96968ae11c`. Source archive SHA256 `027051ef7e6da1be12cabb3664a06ce5be0801a307acfc89bd7cb2dfa288b6e9`. Original logs/package manifest/checksums retained; do not rebuild or resume the completed builder. Approximately91GiB free at reconciliation. Prior builder9951, monitor79065 and queue65173 all terminated; they are not active jobs now.
+
+Content audit PASSED in `artifacts/candidate-gates-1793950554450406600/audit/`; BIOS and UEFI bootable El Torito entries present. BIOS captures reached the boot menu only. First D-I test powered off before partitioning with WRONG_DISK_GUARD: harness serial was27bytes but virtio-blk exposes20. Exact disk/name/serial guard retained; fixed serial to W12+17hex, retaining full24hex callback/proof token, updated installed-desktop expected device and fixture. Corrected source passed52 guest tests, byte-identical preview4 packaging/dpkg checks and confirmed shutdown: `artifacts/overlay-check-5c78814e281bf549335a6647bffc1de9/`, source SHA256 `3ab2bd35eb5c9269b48f65f34a67455fc8bd211f5dd3b416782e3f0d14192524`. Existing ISO bytes unaffected by harness fix.
+
+New corrected install launch did NOT execute: automatic permission approval review timed out (functions cell182). No `artifacts/install-serial20-001/` or new disk/log created. User requests no permission questions; skip blocked steps and continue available work. Actual live GUI harness started under ordinary sandbox permissions: owner root session **41066**, `artifacts/live-desktop-001/`, no writable disk/network. Enter sent at boot menu; Linux/systemd startup observed. Runtime desktop/workflows and installation proof remain pending. Do not start another guest while41066 holds runner.lock. See `docs/PREVIEW4_ISO_EVIDENCE.md` for precise acceptance and input preservation.
+
+Next: poll41066, use screenshot then inspect it; complete live desktop workflows, stop owned live guest, then try corrected install-test with ordinary permissions and a NEW output if possible. Preserve all failed evidence. No physical disk, host package or boot-setting change is authorized.
+
+
 ## Local Mint execution checkpoint — 2026-11-06
 Sole project is `/home/avision/gitclone/AI-use/windows12/`; this supersedes the historical `/workspace` runtime location. Host is Linux Mint 22.3 / Ubuntu Noble base, x86_64, Python 3.12.3. Observed storage: 234 GiB total, 117 GiB available. Initial worktree clean at `05caa8b2d7a84528ff426b5210524f8497750c49`; fresh origin/main matched. No `.work` or `artifacts` survived here and process inventory contained no prior build workers; historical supervisor handles do not apply.
 

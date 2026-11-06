@@ -67,7 +67,7 @@ class InstalledDesktopTests(unittest.TestCase):
             command = [str(PROJECT / '.work/builder/tools/usr/bin/qemu-system-x86_64')]
             for node in disk_nodes + (iso_nodes if phase == 'install' else []):
                 command += ['-blockdev', json.dumps(node)]
-            command += ['-device', 'virtio-blk-pci,drive=install-disk,serial=W12' + self.token]
+            command += ['-device', 'virtio-blk-pci,drive=install-disk,serial=W12' + self.token[:17]]
             command += ['-kernel', str(self.prior / 'vmlinuz'), '-initrd', str(self.prior / 'initrd')] if phase == 'install' else ['-boot', 'order=c', '-nic', 'none']
             self.records[phase] = {'pid': 1234567, 'command': command}
         self.save()

@@ -290,7 +290,10 @@ def execute(args, iso, output):
             subprocess.run([str(TOOLS / 'usr/bin/qemu-img'), 'create', '-f', 'qcow2', str(disk), args.disk_size],
                            env=env, cwd=output, stdout=log, stderr=subprocess.STDOUT, check=True)
         token = secrets.token_hex(12)
-        serial_id = 'W12' + token
+        # virtio-blk exposes at most 20 serial bytes to the guest. Keep the
+        # full token for callback/proof freshness and a distinct bounded ID
+        # for the exact pre-partition disk guard.
+        serial_id = 'W12' + token[:17]
         marker = 'WINDOWS12_INSTALLED_BOOT_OK:' + token
         complete = threading.Event()
         served = {}
