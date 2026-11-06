@@ -37,4 +37,4 @@
 
 | W12-029 | Read-only stopped-builder inventory mode | 028 | lead/fixture_review_nov05/inspect_wrapper_review | done: inspection25448 exit0/fresh report/no errors; no cleanup or ISO claims | Separate nonce-bound report, no recipe/cleanup, guarded existing disk, no false ISO success |
 
-| W12-030 | Preserve/refresh corrupted target APT index cache | 028,029 | fixture_review_nov05/lead | freshdiversion80287 passed; strict classifier implemented; read-only72465 active; cache mutation still pending | Actual cache evidence; bounded quarantine; target dpkg/stages preserved; signed refresh and resumed build |
+| W12-030 | Preserve/refresh corrupted target APT index cache | 028,029 | fixture_review_nov05/lead | fresh classifier72465 passed14hashes; independent review no blocker; guarded26570/monitor18459 active | Actual cache evidence; bounded quarantine; target dpkg/stages preserved; signed refresh and resumed build |
