@@ -1,3 +1,8 @@
+1.6.1 — Final independent-review polish
+- Use a neutral disclosure label for commands as well as instruction listings.
+- Record actual desktop-browser checks, test results and reviewer findings.
+- Preserve explicit Windows, live-tracing and assistive-technology acceptance limits.
+
 1.6 — Source-free debugging and native-tool teaching
 - Give all 13 flag lessons a binary-only GDB route, with optional source steps.
 - Explain missing source, stripped symbols and managed ptrace restrictions.

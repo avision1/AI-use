@@ -74,7 +74,7 @@ Notebook and practical-report drafts save as you type. Storage failures display 
 
 Maintainers can rebuild the new binaries with `python3 tools/build_readiness.py` using GCC plus MinGW-w64 GCC/binutils; `--mingw-cc` selects the cross compiler. `python3 tools/package_readiness.py` refreshes their ZIPs and lab checksums without rebuilding. Neither tool nor Node.js is needed by students.
 
-Keyboard support includes a skip link, route-heading focus, current-page labels, a native mobile lesson-list disclosure, and a real button for the backup chooser. Structural/focus-flow regressions pass; live keyboard, screen-reader and mobile visual acceptance remain to be performed.
+Keyboard support includes a skip link, route-heading focus, current-page labels, a native mobile lesson-list disclosure, and a real button for the backup chooser. Structural/focus-flow regressions pass. Live desktop checks verified heading focus, keyboard skip navigation, search and notebook persistence. Full screen-reader/mobile-device acceptance remains pending.
 
 Malformed stored progress is recovered before the interface starts. The original text is preserved and downloadable from the recovery banner or Resources. If saving fails, results remain available for the current visit and an export control stays visible. Do not close the page before exporting when that warning appears.
 
@@ -83,3 +83,5 @@ Flag-lab starters now work without C source: disassemble functions and use instr
 The native Windows acceptance kit is at `site/labs/windows-acceptance/`. It builds/tests the original programs with MSVC from x86/x64 Native Tools sessions and emits project-local logs and JSON evidence, while leaving manual debugger/repair acceptance pending. The Linux host cannot establish a native Windows pass. Compiler and linker PDB paths are separate.
 
 Maintainers can refresh integrity manifests with `python3 tools/update_checksums.py`, or add `--packages` after editing flag/full/Windows-acceptance downloads. Readiness packs use `tools/package_readiness.py`.
+
+See `VERIFICATION.md` for tested behavior, independent-review results and explicit native Windows/assistive-technology limits. A captured desktop overview is in `docs/desktop-preview.png`.
