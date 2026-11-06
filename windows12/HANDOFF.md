@@ -17,3 +17,6 @@ Frozen .work/builder/checks.tar SHA256 f045e04aff5ae2c730e171dc10b559655ad90724d
 
 ## Git / durable state
 Latest project checkpoint09c8b925a1c5b0d32cc927e4d0bea0432f6f0cb0; main subsequently advanced with Binary School work to cdb0aaa05da7a4a73053ad4fde72b4ec744b13d8. Preserve its tree and actual latest parent when pushing. GitHub create_tree/create_commit/nonforced update_ref works; omit broken optional expected_sha. Native push lacks credentials. Inspect staged names, only windows12. Generated ignored disks/artifacts are not Git-durable; source/memory is. Local main may have equivalent source but different commit/other-project tree: reconcile project subtree, never overwrite sibling history.
+
+## Active read-only inspection — supersedes stopped-job statement
+Root-owned inspection80287 now boots the existing disk using captured preclassifier inspectorSHA25663ae98b91c6448f3e1f559863e6f6b6dde7709d7fd27b900803928c8a55763c5. Output artifacts/builder-inspect-1793926736922616808, nonce92ba8e003500cde8cc06b402ce426c27; wrapper log .work/diversion-inspection-2026-11-06.log. No package/cache/stage mutation. Do not launch another VM; no monitor/queue. Wait for actual exported report/exit/shutdown, then review diversion/vendor/derivedbytes facts. Classifier agent may finish newer source, which this captured boot does not use.

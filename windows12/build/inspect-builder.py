@@ -134,6 +134,129 @@ def apt_index(path):
     return item
 
 
+def diversion_inventory():
+    path = BUILD / 'chroot/var/lib/dpkg/diversions'
+    item = observe(path)
+    if not item['exists']:
+        return {**item, 'raw_text': None, 'triples': [], 'parse_complete': True}
+    if item['type'] != 'regular' or item['uid'] != 0 or item['links'] != 1:
+        raise ValueError('Unsafe target diversions metadata; no content followed')
+    raw = read_regular(path, 64 * 1024)
+    try:
+        text = raw.decode('utf-8')
+        valid_utf8 = True
+    except UnicodeError:
+        text = raw.decode('utf-8', errors='replace')
+        valid_utf8 = False
+    lines = text.splitlines()
+    count = len(lines) // 3
+    triples = [{'path': lines[i], 'diverted_to': lines[i + 1], 'package': lines[i + 2]}
+               for i in range(0, min(count, 128) * 3, 3)] if valid_utf8 else []
+    return {**item, 'sha256': hashlib.sha256(raw).hexdigest(), 'raw_text': text,
+            'raw_utf8_valid': valid_utf8, 'raw_prefix_hex': raw[:256].hex(),
+            'triples': triples, 'triple_count': count, 'triples_truncated': count > 128,
+            'unparsed_line_count': len(lines) % 3,
+            'parse_complete': valid_utf8 and len(lines) % 3 == 0 and count <= 128}
+
+
+def image_os_release(literal):
+    root = no_alias(BUILD / 'chroot')
+    allowed = {'/etc/os-release', '/etc/os-release.debootstrap', '/usr/lib/os-release'}
+    if literal not in allowed:
+        raise ValueError('Unapproved os-release inspection path')
+    initial = root / literal.lstrip('/')
+    result = {'image_path': literal, 'lstat': observe(initial), 'link_steps': []}
+    if not result['lstat']['exists']:
+        result['resolution'] = 'absent'
+        return result
+    def normal(parts):
+        resolved = []
+        for part in parts:
+            if part in ('', '.'):
+                continue
+            if part == '..':
+                if not resolved:
+                    raise ValueError('Relative symlink escapes target image')
+                resolved.pop()
+            else:
+                resolved.append(part)
+        return resolved
+    parts = normal(literal.split('/'))
+    for _ in range(17):
+        prefix = []
+        changed = False
+        for index, part in enumerate(parts):
+            candidate = root.joinpath(*prefix, part)
+            item = observe(candidate)
+            if not item['exists']:
+                result.update(resolution='missing-link-target', unresolved_image_path='/' + '/'.join(parts))
+                return result
+            if item['type'] == 'symlink':
+                target = os.readlink(candidate)
+                result['link_steps'].append({'image_path': '/' + '/'.join(prefix + [part]),
+                                             'target_literal': target[:4096], 'target_truncated': len(target) > 4096})
+                if target.startswith('/'):
+                    result['resolution'] = 'unsupported-absolute-symlink-not-followed'
+                    return result
+                if len(target) > 4096:
+                    result['resolution'] = 'unsupported-oversized-symlink-not-followed'
+                    return result
+                try:
+                    parts = normal(prefix + target.split('/') + parts[index + 1:])
+                except ValueError:
+                    result['resolution'] = 'unsupported-relative-symlink-escape-not-followed'
+                    return result
+                changed = True
+                break
+            prefix.append(part)
+        if changed:
+            continue
+        resolved_literal = '/' + '/'.join(parts)
+        resolved = root.joinpath(*parts)
+        if not resolved.is_relative_to(root) or resolved_literal not in allowed:
+            result.update(resolution='unsupported-target-outside-exact-os-release-set',
+                          resolved_image_path=resolved_literal)
+            return result
+        final = observe(resolved)
+        result.update(resolved_image_path=resolved_literal, resolved_lstat=final)
+        if final.get('type') != 'regular':
+            result['resolution'] = 'unsupported-nonregular-target-not-read'
+            return result
+        raw = read_regular(resolved, 16 * 1024)
+        result.update(resolution='image-contained-regular', sha256=hashlib.sha256(raw).hexdigest(),
+                      md5=hashlib.md5(raw, usedforsecurity=False).hexdigest(), content_bytes=len(raw),
+                      content_bound_bytes=16 * 1024)
+        try:
+            result['content_utf8'] = raw.decode('utf-8')
+        except UnicodeError:
+            result['content_utf8'] = None
+            result['content_hex'] = raw.hex()
+        return result
+    result['resolution'] = 'unsupported-symlink-chain-limit'
+    return result
+
+
+def base_files_os_release_md5sums():
+    path = BUILD / 'chroot/var/lib/dpkg/info/base-files.md5sums'
+    item = observe(path)
+    if not item['exists'] or item['type'] != 'regular' or item['uid'] != 0 or item['links'] != 1:
+        raise ValueError('Expected bounded root-owned base-files checksum metadata')
+    raw = read_regular(path, 2 * 1024 * 1024)
+    matches = []
+    malformed = 0
+    for line in raw.decode('utf-8').splitlines():
+        match = re.fullmatch(r'([0-9a-f]{32})[ \t]+(.+)', line)
+        if not match:
+            malformed += 1
+            continue
+        filename = match[2].removeprefix('*').removeprefix('./')
+        if filename in ('etc/os-release', 'etc/os-release.debootstrap', 'usr/lib/os-release'):
+            matches.append({'path': filename, 'expected_md5': match[1], 'raw_line': line})
+    return {**item, 'sha256': hashlib.sha256(raw).hexdigest(), 'matches': matches,
+            'malformed_line_count': malformed,
+            'note': 'Stored expected MD5 only; no classification, security verification or diversion repair.'}
+
+
 def processes():
     result = []
     unreadable = []
@@ -202,6 +325,10 @@ def main():
     report['bootstrap_cache'] = attempt(report, 'cache/bootstrap', lambda: entries(BUILD / 'cache/bootstrap', 64))
     report['chroot'] = attempt(report, 'chroot', lambda: entries(BUILD / 'chroot', 64))
     report['chroot_dpkg'] = attempt(report, 'target dpkg/status', lambda: package_summary(BUILD / 'chroot/var/lib/dpkg/status'))
+    report['target_dpkg_diversions'] = attempt(report, 'target diversions', diversion_inventory)
+    report['target_os_release_files'] = [attempt(report, literal, lambda literal=literal: image_os_release(literal))
+                                       for literal in ('/etc/os-release', '/etc/os-release.debootstrap', '/usr/lib/os-release')]
+    report['base_files_os_release_md5sums'] = attempt(report, 'base-files os-release expected checksum', base_files_os_release_md5sums)
     report['target_apt_archives'] = attempt(report, 'target apt archives', lambda: entries(BUILD / 'chroot/var/cache/apt/archives', 256))
     report['target_apt_partial'] = attempt(report, 'target apt partial', lambda: entries(BUILD / 'chroot/var/cache/apt/archives/partial', 128))
     report['bootstrap_package_cache'] = attempt(report, 'bootstrap packages', lambda: entries(BUILD / 'cache/packages.bootstrap', 128))

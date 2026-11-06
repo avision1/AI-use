@@ -42,6 +42,8 @@ SCRIPTS = {
     'build': '79d5b86f0c16b2ff060f8a8669eea214412dda481692d751c65d23480fc4717e',
     'bootstrap': 'f12a5e4e113cf85a0c96a1064e16e154c4c6d18a77f9af73fb9ff8e87e963b60',
     'bootstrap_cache': '299df8cc92f69e036c600eec599213a2e7deaff392dcab648255abc56e0b1f09',
+    'bootstrap_debootstrap': '0397f1e77a01f82d83cbf479cf63954c1eb138c8cbba721247f93b03341db8a3',
+    'chroot_hacks': '1dac3a0aee51d35119aa649cf3001faac31dbbe940cc847fe8d4695033607dc9',
     'chroot': 'abd9f5fae349d4e9a56300899861e12f891cdfb7abf44c5a4a203d6ea0ca8dd4',
     'chroot_prep': '98ccba668f5f69edd19aa28604d4d9e467554b3dc49b5a2ec99d452cd0530513',
     'chroot_cache': '7f9801543e735aba87fa66ebd4f906ebe8dd5d6eca90b229b32eb7c4b03f98e1',
@@ -205,8 +207,8 @@ def validate(inventory, nonce):
     if not 0 < uptime < 1800 or not re.fullmatch(r'[0-9a-f-]{36}', inventory['boot_id']):
         raise ValueError('Explicit fresh-boot inventory required')
     payload = inventory.get('target_payload_verification')
-    if not isinstance(payload, dict) or payload.get('available_md5_no_reported_differences') is not True:
-        raise ValueError('Target payload checksum differences/unknown coverage require review before recovery')
+    if not isinstance(payload, dict) or payload.get('available_md5_no_unexplained_differences') is not True:
+        raise ValueError('Unexplained target payload differences/unknown coverage require review before recovery')
     overrides = inventory['live_build_overrides']
     if overrides.get('environment_set') or overrides.get('environment_value') is not None or any(
             overrides[name].get('exists') is not False for name in
@@ -265,7 +267,8 @@ def validate(inventory, nonce):
 
 def summary(inventory):
     names = ('boot_id', 'uptime', 'lock', 'stage_flags', 'config', 'source_functions', 'live_build_version',
-             'live_build_overrides', 'chroot_dpkg', 'active_build_package_processes', 'build_mounts', 'target_payload_verification')
+             'live_build_overrides', 'chroot_dpkg', 'active_build_package_processes', 'build_mounts', 'target_payload_verification',
+             'target_dpkg_diversions', 'target_os_release_files', 'base_files_os_release_md5sums')
     value = {name: inventory[name] for name in names}
     for name in ('target_apt_archives', 'target_apt_partial', 'bootstrap_package_cache', 'bootstrap_cache', 'chroot'):
         value[name] = {key: item for key, item in inventory[name].items() if key != 'entries'}
@@ -364,7 +367,8 @@ def main():
         if before_retained != after_retained or after['lock'].get('exists'):
             raise ValueError('Completed stages were not preserved or stale lock remains')
         for key in ('config', 'source_functions', 'chroot_dpkg', 'target_apt_archives', 'target_apt_partial',
-                    'bootstrap_package_cache', 'bootstrap_cache', 'chroot'):
+                    'bootstrap_package_cache', 'bootstrap_cache', 'chroot', 'target_payload_verification',
+                    'target_dpkg_diversions', 'target_os_release_files', 'base_files_os_release_md5sums'):
             if before[key] != after[key]:
                 raise ValueError('Preserved builder state changed: ' + key)
         if args.refresh_target_indexes:
