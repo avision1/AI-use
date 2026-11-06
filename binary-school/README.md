@@ -26,7 +26,7 @@ Lessons, exercises, downloads, flag checks, and patch practice work offline. You
 
 ## Progress
 
-Progress is stored in the browser for this exact hostname and port. Use **Resources → Export progress / Import backup** to move between installations, browsers, or laptops. Personal progress is not committed to this repository. Existing lesson IDs stay stable across content updates.
+Progress is stored in the browser for this exact hostname and port. Use **Resources → Export progress / Choose backup to preview** to move between installations, browsers, or laptops. Selecting a backup only previews it. **Merge** combines completion/check records and preserves conflicting notes/reports by appending imported text; **Replace** requires explicit confirmation and uses only the selected backup. Before applying either, the site stores a pre-import recovery snapshot and requests a download of your current progress. **Preview pre-import recovery** lets you inspect and restore that snapshot. Storage/download failures abort the import without changing current progress. Check that the requested download actually saved; browsers can block or prompt for it. Personal progress is not committed to this repository. Existing lesson IDs stay stable across content updates.
 
 ## Lab platforms and verification
 
@@ -53,6 +53,7 @@ No frontend build step is required. Edit the files under `site/` and refresh.
 python3 -m unittest discover -s tests -v
 # Optional maintainer checks when Node.js is installed:
 node tests/test_course.cjs
+node tests/test_import.cjs
 node --check site/app.js
 ```
 

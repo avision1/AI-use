@@ -1,3 +1,11 @@
+1.3.1 — Safe progress imports (medium-priority issue)
+- Preview backup counts without changing current progress.
+- Merge completion/check records and preserve conflicting notes/reports.
+- Require explicit confirmation before replacing the current record.
+- Store a pre-import recovery snapshot and request a backup download first.
+- Abort cleanly on storage/download failure; validate legacy backups.
+- Add regressions for preview/cancel, conflicts, recovery, failures and stale reads.
+
 1.3 — High-priority independent-review fixes
 - Autosave notebook drafts and preserve them on navigation/page lifecycle.
 - Show storage errors, preserve in-memory text and warn before closing.

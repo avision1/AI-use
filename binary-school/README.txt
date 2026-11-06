@@ -67,11 +67,19 @@ also removes it. Export backups regularly.
 To move from the hosted Binary School or another laptop:
 1. On the OLD site/laptop: Resources -> Export progress.
 2. Save the downloaded binary-school-progress.json alongside your own backups.
-3. On the NEW local site: Resources -> Import backup -> select that JSON file.
-   Import replaces the current browser's course progress and notes.
-4. Confirm that your completed lessons and notebook entries appear.
+3. On the NEW local site: Resources -> Choose backup to preview.
+   Selecting a file does not change progress. Review its entry counts.
+4. Choose Merge to combine records and append conflicting notes/reports,
+   or explicitly confirm Replace to use only the backup.
+5. Applying either stores a recovery snapshot and requests a download of the
+   current progress first. Check that the download actually saved.
+6. Resources -> Preview pre-import recovery lets you inspect/restore the
+   preceding record. Only the most recent snapshot is kept in this browser.
+   Import is aborted without changing progress if storage/download requests fail.
+7. Confirm that your completed lessons and notebook entries appear.
 Existing lesson IDs are preserved. Older 42-lesson backups import into the
-expanded curriculum; new lessons start incomplete.
+expanded curriculum; new lessons start incomplete. Unsupported fields and
+unknown lesson IDs are ignored. Files must be valid JSON, no larger than5 MB.
 Do not place personal backups in site/ if you do not want them served locally.
 The server does not scan or execute progress backups or uploaded binaries.
 
