@@ -51,6 +51,15 @@ Before starting another process, check recorded tool session/job and QEMU state.
 
 `--resume` is intended to reboot the same contained builder disk with a new cloud-init instance and rerun the recipe using the preserved source tarball, regardless of newer working-tree files; it is not a saved-memory CPU resume. It remains experimental and its first attempted rerun was inconclusive; do not treat it as verified recovery. Building newer source requires preserving the old disk and starting a separate deliberate build. Do not silently delete existing VM state. If a recorded job is alive, continue monitoring it instead of using `--resume`.
 
+## Installed desktop continuation
+After a real successful install-test produces a sealed stopped baseline, use:
+
+```bash
+python3 -B scripts/desktop-test.py --installed-result artifacts/<install-run>/result.json --output artifacts/installed-desktop-001 --timeout 1800
+```
+
+Use a TTY-backed network-enabled supervising session. This boots a fresh writable child without ISO, validates the original proof/hash/phase records, preserves the read-only baseline and records captures without claiming GUI success. Baselines from old unsealed results are refused. See docs/DESKTOP_TEST.md. All graphical controllers explicitly reference the authenticated local VGA ROM; preserve that file beside the SeaBIOS firmware. The latest 52-test candidate and real firmware/block-graph smoke passed, but actual image installation/login remains unperformed.
+
 ## Tests and packaging
 
 Run runtime tests only inside the contained VM. The guest uses:

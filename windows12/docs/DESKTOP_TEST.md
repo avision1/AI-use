@@ -1,8 +1,8 @@
 # Interactive contained desktop validation
 
-W12-020 owner: `/root/desktop_audit`. Status: source implemented; AST/static review passed, runtime execution pending parent review and a real ISO. No desktop success is claimed. Owned files are this document and `scripts/desktop-test.py` only. Every writable directory remains within `/workspace/scratch/3c38ab731138/AI-use/windows12/`. Parent owns integration and commits.
+W12-020/W12-022 status: source implemented; live/installed GUI execution requires a real ISO and retained successful installation proof. No desktop success is claimed. Every writable directory stays beneath this `windows12/` project.
 
-The harness reuses the reviewed containment, shared runner lock and single-client QMP helpers from `boot-test.py` via `runpy`. It requires a real, existing project ISO, a new output directory, and optionally one new disposable VM disk. No current builder, host device, host mount, existing disk or shared host directory may be used. Static review must complete before parent authorizes any VM execution.
+The harness reuses containment, the shared runner lock and single-client QMP helpers from `boot-test.py` via `runpy`. It accepts either a real project ISO or a sealed successful `install-test.py` result, plus a new output directory. Installed mode opens the proven baseline read-only and writes a new disposable child. No current builder, host device, host mount or shared host directory is attached.
 
 ## Start one owned guest
 
@@ -16,11 +16,27 @@ The existing authenticated project QEMU/SeaBIOS toolset must be prepared already
 
 Optional flags:
 
-- `--disk-size 24G` creates a **new** `disposable-install.qcow2` within the new output directory. Sizes8G–128G are accepted; existing disks are never accepted. The disk is retained after shutdown. This does not automate or certify installation, and this version cannot boot an existing installed disk.
+- `--disk-size 24G` creates a **new** `disposable-install.qcow2` within the new live-ISO output directory. Sizes8G–128G are accepted. The disk is retained after shutdown. This does not automate or certify installation; installed mode uses the separate proof-based path below.
 - `--network user` explicitly enables QEMU user-mode NAT with one emulated NIC. Default is `--network none`. There are no forwards, host filesystem shares, clipboard or authentication integration. NAT does not import this environment's managed proxy or CA configuration, so Internet access may still fail in a restricted environment. Never disable TLS checks to make a web test pass.
 - `--memory` accepts1024–8192MiB. `--timeout` accepts1–7200seconds, default1800. The guest-session deadline includes QMP handshake and interaction; cleanup has additional bounded QMP/process waits. Initial ISO hashing occurs before the guest starts.
 
 All paths are checked before output creation. Internal symlink aliases, escaping paths, existing output directories/files, invalid ISO signature, missing tools and non-TTY input are refused. At least1GiB free is required without a disk,8GiB with a new disk. Screenshots additionally require512MiB free; these are conservative starting guards, not storage reservation. The shared builder `runner.lock` is held for the whole session and cleanup; live/ambiguous legacy QMP controls also refuse a launch. Do not run other project VMs concurrently.
+
+## Inspect an installed desktop without modifying its proven baseline
+
+First complete the contained installation and ISO-free one-shot proof in [INSTALL_TEST.md](INSTALL_TEST.md). Then start a new **TTY-backed** desktop session using that successful run's `result.json`:
+
+```sh
+python3 -B scripts/desktop-test.py --installed-result artifacts/install-review-001/result.json --output artifacts/installed-desktop-review-001 --timeout 1800
+```
+
+Supply either the live ISO positional argument or `--installed-result`. Installed mode refuses `--disk-size` and never accepts an arbitrary existing disk. The prior result must report successful installer completion, ISO-free disk boot, the disabled one-shot proof service and its reported completion stamp. Its exact single serial token, package version and graphical-target/SDDM/configuration audit must agree with the report and both retained phase commands. Both phase results must have exited0 without timeout. Prior phase PIDs must be absent; a reused or otherwise live PID is conservatively refused. The shared runner guard also refuses an active project VM before source validation or output creation.
+
+The result, phase command records, serial log, original ISO and baseline disk must be regular project-contained files without symlink aliases or multiple hard links. The ISO must still match its recorded SHA256 and the installer block graph. The baseline must match `installed_disk` (`path`, `sha256`, `bytes`, `device`, `inode`, `mtime_ns`) sealed by the current installer controller after shutdown, and match both phase block graphs. Older unsealed results are refused; obtain a new successful installation proof. The baseline must be a clean standalone qcow2 without backing or external-data features. Missing, contradictory, duplicated or ambiguous evidence is refused before creating output or a child.
+
+The controller creates a new `installed-desktop.qcow2` with the proven disk as its backing image. It attaches only this child and an explicitly read-only baseline graph; the baseline's own backing is explicitly disabled. The boot command uses the disk boot order and attaches no ISO, direct kernel or initrd. Network remains off unless `--network user` is explicitly selected. At least8GiB free is required. The baseline's SHA256 and full immutable stat identity are checked again before child creation, immediately before launch and after owned-process cleanup. A change produces a failed `baseline-changed-not-certified` result. Reading can update access time, which is deliberately excluded from the identity. Keep the baseline and its original path with the retained child; the child is not standalone.
+
+Use captures and bounded input below to inspect SDDM, log in using only the public disposable account documented by the installation harness, and exercise the installed desktop gates in [DESKTOP_AUDIT.md](DESKTOP_AUDIT.md). The prior one-shot proof has disabled itself, so this boot can remain at the graphical desktop. A prior configuration proof, successful QMP interaction or screenshot does not certify login, application behavior or overall usability. All new guest verification flags start and remain false pending separately reviewed evidence.
 
 ## Operate through the existing TTY handle
 
@@ -36,25 +52,25 @@ Send newline-terminated commands to that harness's supervising tool handle; do n
 | `help` | Print the fixed command summary. |
 | `stop` | End interaction and stop only the guest created by this process. Its optional disposable disk and evidence remain. |
 
-To open a selected file reliably, use a reviewed `click` followed by `keys ret`. Two `click` commands may produce a double-click, but their intervening safety captures can exceed the guest's double-click interval; no timing success is promised. A screenshot also does not prove that a target remained unchanged. A terminal inside the guest can be operated using these same input methods, but no command is executed by a host shell. Do not use UI automation to select physical devices: the guest exposes only its read-only ISO and optional new disk.
+To open a selected file reliably, use a reviewed `click` followed by `keys ret`. Two `click` commands may produce a double-click, but their intervening safety captures can exceed the guest's double-click interval; no timing success is promised. A screenshot also does not prove that a target remained unchanged. A terminal inside the guest can be operated using these same input methods, but no command is executed by a host shell. The guest exposes only the selected live-ISO/new-disk or installed-child arrangement; no physical devices are present.
 
 **Public disposable data only.** Command logs redact key/text payloads, but screenshots show guest contents and the TTY may echo input. This harness provides no private credential entry, secret redaction, secure login handoff or authenticated Microsoft account testing. Do not type real passwords, tokens, personal documents or other private material. Authenticated Office acceptance requires a separate suitable human-controlled workflow; unauthenticated landing pages are not a substitute.
 
 ## Evidence and termination
 
-- `run.json`: immutable startup provenance, PID, exact QEMU command, ISO hash, network mode, timeout and new-disk path.
+- `run.json`: immutable startup provenance, PID, exact QEMU command, source ISO hash, network mode, timeout and new-disk path. Installed mode also records the source result/phase/serial hashes, proof token/configuration, baseline hash/stat identity and new child path. The recorded command shows the actual ISO-free block graph.
 - `commands.jsonl`: accepted/rejected command metadata and input payload lengths/counts, with text/key payloads redacted.
 - `qmp-events.jsonl`: replies and events observed by the sole reused QMP client. The helper records responses, not typed request arguments.
 - `screen-NNNN.ppm`: retained binary framebuffer captures, including the extra safety capture before clicks. QEMU's P6/255 header, dimensions and exact pixel length are checked.
 - `serial.log`, `qemu.log`, `qemu-debug.log`: guest/emulator diagnostics. A live ISO may have no serial console; silence is not a failure or success.
-- `result.json`: termination outcome, captures, QEMU return code and errors. Setup failures after output creation also retain a result. `boot_verified`, `login_verified`, `install_verified` and `workflows_verified` remain **false**; a reviewer must create separate evidence-based validation results.
+- `result.json`: termination outcome, captures, QEMU return code and errors, plus `baseline_unchanged` after installed-mode cleanup. Setup failures after output creation also retain a result. `boot_verified`, `login_verified`, `install_verified` and `workflows_verified` remain **false**; a reviewer must create separate evidence-based validation results. Prior proof is nested in source provenance and does not become a new GUI success claim.
 
 `stop`, stdin EOF, Ctrl+C, deadline and failures all enter owned-process cleanup. QMP quit is attempted first, then bounded terminate/kill fallbacks on the stored `Popen` object; no name-based process killing occurs. The lock remains held until cleanup and result writing finish. An external kill or environment teardown can bypass this controller: inspect recorded PID/command, lock/QMP state and evidence before another run. Do not reuse the output directory or assume an unknown tool handle means termination.
 
-Exit0 means the interaction ended normally or the emulator exited0, not that any workflow passed. Timeout returns124, interrupt130 and caught failures1. `-no-reboot` means a guest reboot request can end this emulator rather than starting a second boot; record that distinction. Installation acceptance still needs an ISO-free installed-disk boot through a separately reviewed path.
+Exit0 means the interaction ended normally or the emulator exited0, not that any workflow passed. Timeout returns124, interrupt130 and caught failures1. `-no-reboot` means a guest reboot request can end this emulator rather than starting a second boot; record that distinction. Installed GUI acceptance still needs reviewed login/application evidence from this ISO-free child boot.
 
 ## Review and validation status
 
-AST syntax parsing and source review completed. No harness import, test suite, QMP request, emulator, server, package preparation or actual ISO boot was performed for this implementation. Required next validation: parent reviews source; after a real ISO exists and the builder stops, launch one session, inspect firmware/boot captures, exercise screenshot/status, verify US text/chord input and absolute click accuracy on harmless UI, then perform the desktop gates in `DESKTOP_AUDIT.md`/`VALIDATION.md`. Retain exact failures rather than changing flags to claim success.
+The installed-mode suite in `tests/test_installed_desktop.py` skips outside `/run/windows12-build-vm`. It uses project-local synthetic evidence to check producer seal compatibility, tampered/replaced disks, changed ISOs, incomplete and ambiguous proof, source aliases, indirect qcow2 refusal, active runners/PIDs, command construction, child creation and false guest-verification flags. The child creation/session test mocks QEMU and qemu-img; it does not boot a guest or validate a real disk image. Run the suite only in the disposable contained test VM. Real ISO boot, installation, SDDM/login, input accuracy and application workflows remain runtime gates; retain exact failures rather than changing flags to claim success.
 
 QMP interfaces and qcodes were checked against official primary documentation: [QEMU QMP reference, send-key and input events](https://www.qemu.org/docs/master/interop/qemu-qmp-ref.html#command-send-key), [input-send-event](https://www.qemu.org/docs/master/interop/qemu-qmp-ref.html#command-input-send-event), and [QKeyCode enumeration](https://www.qemu.org/docs/master/interop/qemu-qmp-ref.html#enum-qkeycode). The documentation defines simultaneous key arrays and absolute coordinates0–0x7fff; actual input behavior with the project's QEMU8.2 toolset remains a runtime gate. Attempts to retrieve the exact v8.2 source through web URLs were unavailable, so no claim of source-level version certification is made.

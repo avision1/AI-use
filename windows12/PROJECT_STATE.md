@@ -16,6 +16,16 @@ Current blocker: filesystem total 7.84 GiB, free approximately6.82GiB. User is a
 
 Next: observe expanded capacity, reconcile workers/runner lock/QMP again, then from this project with RUNBOOK's project-local writable environment and network-enabled execution run `python3 -B scripts/build-vm.py` (fresh, no --resume). Cached tools/cloud input are ready. Start the existing storage monitor with auto-cleanup. After actual ISO/export require content audit, BIOS/live GUI, disposable installation, ISO-free installed boot and application workflows. See `docs/PROXY_TRANSPORT.md`. Mint remains an optional environment; bootstrap explicitly supports Debian13/Ubuntu24.04 and must be adapted/verified before claiming Mint support.
 
+## Current installed-desktop validation checkpoint
+The final combined candidate passed all 52 tests in the disposable VM, including 16 installed-desktop proof/child/cleanup tests. Evidence: `artifacts/overlay-check-b7f9782b360e7911f2de5bafdf5ecd2a/`; source SHA256 `f05f9ded24ef5216ecbceed14e71b94b17e3c8a22d2a7c4f5d52d67e4dea349c`. Real guest proxy TLS and Debian signature verification passed again, preview4 package stayed byte-identical, and shutdown was confirmed. No current test worker remains active.
+
+The installer now seals the stopped proven baseline by SHA256 and file identity. `desktop-test.py --installed-result <successful-result.json>` validates that seal, original ISO/phase provenance and serial proof, creates a fresh child with an explicitly read-only baseline, boots without ISO/direct kernel, and checks baseline preservation after cleanup. It retains false GUI/login/workflow flags until actual manual evidence. No real installed baseline exists yet.
+
+An actual QEMU graph probe first found missing default VGA ROM lookup in locally extracted tools. All three graphical controllers now name the authenticated project-local SeaBIOS VGA ROM explicitly. The corrected real QEMU smoke accepted the read-only baseline/writable child graph, ran firmware, stopped, and left the baseline hash/stat unchanged: `artifacts/installed-graph-probe-3262f4ceb78252c8/`. This was a tiny synthetic disk firmware probe, not OS boot or GUI validation.
+
+Public Office QA originals are regenerated under `artifacts/office-fixtures/`; all four pinned Windows QA installers are cached and verified, including the required Notepad++ publisher signature, under `.work/compat/`. None has executed in an app. Verified source main before this checkpoint: `bbb0471d30c8f32a44b9478ecc8199f254d450ec`. Native Git ancestry is now available without sibling materialization. The earlier waiting-only supervisor was cancelled before this reviewed source iteration; no full builder disk/ISO was created. Storage remains 7.84 GiB total; expansion is still required before the full build.
+
+
 ## Historical execution interruption
 A resume attempt found the supplied checkout at old project commit 696bc1c, with no windows12/.work/builder or windows12/artifacts directories. The committed preview3 source on GitHub is intact (remote main759c468e750c405f93d60e0e858429384d3cd97e at inspection); later sibling changes were preserved.
 
@@ -46,3 +56,6 @@ Windows-like desktop conventions are implemented but untested graphically. Linux
 
 ## Next action
 Follow HANDOFF current checkpoint; historical plan/nonce files are missing. Restore permitted package access, complete authenticated inputs, execute guarded chroot, cover installer inputs, finish ISO and run boot/install/desktop gates. Do not launch a stage on incomplete cache or claim source/tests are a release. User authorizes helpful subagents and regular project-only commits/pushes to main without reasking.
+
+## Owned waiting build supervisor
+Owner `/root`, unified execution session `50558`, Python PID `4619`. `.work/work/fresh-supervisor.json` currently records `waiting-storage`, `build_started=false`; minimum available storage32GiB. It will recheck the frozen source inventory, refuse an existing builder disk, then invoke the guarded fresh build, start the existing storage monitor and run sequential content/BIOS/install gates only after successful ISO export. GUI/workflow certification remains separate. Do not launch a duplicate. Read the owned session/state/controller logs and reconcile PID/runner lock/QMP before any restart. While still waiting, `.work/work/cancel-fresh-supervisor` cancels only this supervisor before launch. Unknown handles are not proof of termination. The watcher and transient inputs are ignored and do not survive pruning; source/memory are preserved on main.

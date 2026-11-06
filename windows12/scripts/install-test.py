@@ -32,6 +32,29 @@ TOOLS = ROOT / '.work/builder/tools'
 ISO_TOOLS = ROOT / '.work/builder/iso-tools'
 
 
+def seal_installed_disk(value):
+    """Bind successful stopped-disk proof to the exact retained regular file."""
+    raw = Path(value)
+    if raw.is_symlink():
+        raise ValueError('Installed disk symlink refused')
+    disk = contained(raw)
+    descriptor = os.open(disk, os.O_RDONLY | os.O_NOFOLLOW)
+    with os.fdopen(descriptor, 'rb') as stream:
+        before = os.fstat(stream.fileno())
+        if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or before.st_size <= 0:
+            raise ValueError('Installed disk must be a nonempty single-link regular file')
+        digest = hashlib.sha256()
+        for block in iter(lambda: stream.read(2 ** 20), b''):
+            digest.update(block)
+        after = os.fstat(stream.fileno())
+    fields = ('st_dev','st_ino','st_mode','st_nlink','st_size','st_mtime_ns','st_ctime_ns')
+    identity = lambda info: tuple(getattr(info, field) for field in fields)
+    if identity(before) != identity(after) or identity(before) != identity(disk.lstat()):
+        raise ValueError('Installed disk changed while sealing the stopped baseline')
+    return {'path':str(disk),'sha256':digest.hexdigest(),'bytes':before.st_size,
+            'device':before.st_dev,'inode':before.st_ino,'mtime_ns':before.st_mtime_ns}
+
+
 def environment(output, toolroot):
     env = os.environ.copy()
     for key, leaf in {'HOME': 'home', 'TMPDIR': 'tmp', 'XDG_CACHE_HOME': 'cache',
@@ -229,7 +252,7 @@ def main():
     output = contained(args.output or ROOT / 'artifacts' / f'install-test-{time.time_ns()}')
     if output.exists():
         raise ValueError('Refusing existing output directory; no disk/output reuse supported')
-    for path in (TOOLS / 'usr/bin/qemu-system-x86_64', TOOLS / 'usr/bin/qemu-img', TOOLS / 'usr/share/seabios/bios-256k.bin'):
+    for path in (TOOLS / 'usr/bin/qemu-system-x86_64', TOOLS / 'usr/bin/qemu-img', TOOLS / 'usr/share/seabios/bios-256k.bin', TOOLS / 'usr/share/seabios/vgabios-stdvga.bin'):
         if not contained(path).is_file():
             raise ValueError('Project QEMU/SeaBIOS tools missing')
     with exclusive_runner():
@@ -427,7 +450,7 @@ d-i preseed/late_command string wget -O /tmp/windows12-late.sh {endpoint}/late-{
         common = [str(TOOLS / 'usr/bin/qemu-system-x86_64'), '-machine', 'pc,accel=tcg,smm=off',
                   '-cpu', 'max', '-smp', '2', '-m', '4096', '-bios', str(TOOLS / 'usr/share/seabios/bios-256k.bin'),
                   '-L', str(TOOLS / 'usr/share/qemu'), '-no-user-config', '-nodefaults', '-no-reboot',
-                  '-display', 'none', '-monitor', 'none', '-device', 'VGA',
+                  '-display', 'none', '-monitor', 'none', '-device', 'VGA,romfile='+str(TOOLS/'usr/share/seabios/vgabios-stdvga.bin'),
                   '-blockdev', json.dumps({'driver': 'file', 'filename': str(disk), 'node-name': 'disk-file'}),
                   '-blockdev', json.dumps({'driver': 'qcow2', 'file': 'disk-file', 'node-name': 'install-disk'}),
                   '-device', 'virtio-blk-pci,drive=install-disk,serial=' + serial_id]
@@ -460,7 +483,8 @@ d-i preseed/late_command string wget -O /tmp/windows12-late.sh {endpoint}/late-{
             raise RuntimeError('Installed configuration audit did not pass')
         result.update(install_verified=True, disk_boot_verified=True, configuration_audit=audit,
                       installed_package_version=proof.group(1), proof_service_one_shot=True,
-                      proof_stamp_reported=True, outcome='installed-root-boot-proof-passed')
+                      proof_stamp_reported=True, installed_disk=seal_installed_disk(disk),
+                      outcome='installed-root-boot-proof-passed')
         return 0
     except KeyboardInterrupt:
         result['outcome'] = 'interrupted'

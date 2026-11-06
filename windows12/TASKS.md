@@ -5,7 +5,7 @@
 | W12-002 | Architecture and compatibility research | 001 | research agent | done | Primary sources; supported/partial/alternative/unsupported; no untested claims |
 | W12-003 | Contained build feasibility and implementation | 001 | build agent | implemented; restored25 guest tests and package gates pass | Runnable tooling; image writes isolated; verified inputs; fail closed |
 | W12-004 | Desktop overlay and Office web integration | 002 | lead | preview4:36 guest tests/deterministic package pass; GUI pending | Runnable launchers, welcome/help, Windows-style desktop defaults |
-| W12-005 | Integrate, build and validate milestone image | 003,004 | lead/build agent | tools/cloud/guest network ready; 36 tests and preview4 package pass; fresh build awaits 40+ GiB storage; no ISO | Build logs/checksums; boot and install results or precise blockers |
+| W12-005 | Integrate, build and validate milestone image | 003,004 | lead/build agent | tools/cloud/guest network ready; 52 tests and preview4 package pass; fresh build awaits 40+ GiB storage; no ISO | Build logs/checksums; boot and install results or precise blockers |
 | W12-006 | Release checkpoint and sync | 005 | lead | source checkpoints synchronized; release pending | Memory current; reviewed project-only commit synchronized |
 | W12-007 | BIOS ISO evidence capture harness | 003,005 | research agent | guard integrated; all25 guest tests pass; ISO capture pending | Real contained ISO, screenshots/logs, new disposable disk only; no false success claim |
 | W12-008 | Freeze release inputs and harden provenance | 005 | release_inputs/lead | cloud signature research complete (upstream missing); snapshots pending | Snapshot repositories/input authentication; reproducibility records and repeat build |
@@ -22,7 +22,7 @@
 | W12-019 | Real ISO content audit | 003,005 | boot_guard/lead | implemented/reviewed; authenticated tools startup passed; actual ISO pending | Frozen source/payload/core package/permissions/proxy/CA evidence; no boot claims |
 | W12-020 | Interactive desktop validation harness | 003,005 | desktop_audit/lead | implemented/reviewed; real ISO execution pending | Sole contained VM, safe QMP input/captures, new disk only, no false GUI pass |
 | W12-021 | Controlled post-build image iteration plan | 005 | boot_guard/lead | source research complete; implementation/runtime pending | Preserve baseline/source; correct installer regeneration and manifests; version gates |
-| W12-022 | ISO-free installed desktop QA | 011,020 | desktop_audit/lead | one-shot proof source reimplemented/syntax checked; validated-disk GUI/helper/tests pending | One-shot proof stamp, validated prior test disk, new writable child, baseline preserved; real reboot/GUI evidence |
+| W12-022 | ISO-free installed desktop QA | 011,020 | desktop_audit/lead | sealed proof producer/installed GUI child mode implemented/reviewed; 52 guest tests and actual QEMU graph pass; real installation/login pending | One-shot proof stamp, validated prior test disk, new writable child, baseline preserved; real reboot/GUI evidence |
 
 | W12-023 | Fast contained unittest runner | 003 | lead/overlay_vm | done: third disposable VM35105 passed31tests/deterministic preview3 package/dpkg inspection; stopped | Fresh VM/source and bounded results; no host suite execution |
 | W12-024 | Debian 13 host bootstrap | 014 | lead | done: prep72608 and TCG probe pass;91 authenticated packages | Native signed repositories/keyring; local extraction; actual startup and TCG probe; no host installs |
@@ -51,3 +51,5 @@
 | W12-036 | Reject impossible resume before dependency access | 035 | lead/rebuild_review | source fixed; syntax and negative CLI checks passed; guest runtime pending | Retained disk/source/hash checked before tool/download/provenance; source validation before fresh disk; reject resume+prepare/probe |
 
 | W12-037 | Managed sidecar proxy transport and bounded guest network proof | 035 | lead/proxy_helper/release_review | implemented/reviewed; real guest HTTPS/signature,36tests/package and shutdown passed | Fixed inherited upstream only; localhost relay; normal TLS and archive signatures; bounded connections; no direct fallback; provenance and actual contained evidence |
+
+| W12-038 | Explicit contained VGA firmware for graphical gates | 012,020,022 | lead | actual missing-ROM failure reproduced; all 3 controllers fixed; real QEMU graph/readonly-baseline smoke and 52 guest tests pass | Only authenticated local VGA ROM; firmware startup and baseline preservation; OS/GUI validation still separate |

@@ -157,7 +157,8 @@ def capture(args):
     qemu = contained(tools / 'usr/bin/qemu-system-x86_64')
     firmware = contained(tools / 'usr/share/seabios/bios-256k.bin')
     datadir = contained(tools / 'usr/share/qemu')
-    if not qemu.is_file() or not firmware.is_file() or not datadir.is_dir():
+    vgabios = contained(firmware.parent/'vgabios-stdvga.bin')
+    if not qemu.is_file() or not firmware.is_file() or not vgabios.is_file() or not datadir.is_dir():
         raise ValueError('Project QEMU/SeaBIOS tools missing; see scripts/build-tools.py')
     output = contained(args.output or ROOT / 'artifacts' / f'boot-test-{time.time_ns()}')
     if output.exists():
@@ -182,7 +183,7 @@ def capture(args):
                '-L', str(datadir), '-no-user-config', '-nodefaults',
                '-display', 'none', '-monitor', 'none', '-no-reboot',
                '-D', str(contained(output / 'qemu-debug.log')),
-               '-device', 'VGA', '-nic', 'none', '-boot', 'order=d,menu=off',
+               '-device', 'VGA,romfile='+str(firmware.parent/'vgabios-stdvga.bin'), '-nic', 'none', '-boot', 'order=d,menu=off',
                '-serial', 'file:' + str(serial),
                '-blockdev', json.dumps({'driver': 'file', 'filename': str(iso),
                                        'node-name': 'iso-file', 'read-only': True}),

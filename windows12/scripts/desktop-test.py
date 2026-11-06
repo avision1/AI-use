@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Interact with one contained live-ISO guest; evidence is never a boot/pass claim.
+"""Interact with one contained live or installed guest; captures never certify it.
 
 Use a TTY-backed supervising session. Only public disposable test data may be
 typed: screenshots can contain typed text, and the terminal may echo input.
@@ -13,6 +13,7 @@ import re
 import runpy
 import select
 import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -59,6 +60,179 @@ def write_new(path, value):
     with fresh(path).open('x') as stream:
         json.dump(value, stream, indent=2)
         stream.write('\n')
+
+
+def identity(info):
+    return tuple(getattr(info, field) for field in
+                 ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_size', 'st_mtime_ns', 'st_ctime_ns'))
+
+
+def checked_open(value):
+    path = strict_path(value)
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    stream = os.fdopen(descriptor, 'rb')
+    info = os.fstat(stream.fileno())
+    if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_size <= 0:
+        stream.close()
+        raise ValueError('Evidence must be a nonempty single-link regular file: ' + str(path))
+    return path, stream, info
+
+
+def unchanged_file(path, stream, before):
+    if identity(before) != identity(os.fstat(stream.fileno())) or identity(before) != identity(strict_path(path).lstat()):
+        raise ValueError('Evidence changed while reading: ' + str(path))
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError('Duplicate evidence JSON key: ' + key)
+        result[key] = value
+    return result
+
+
+def read_evidence(value, json_record=True):
+    path, stream, before = checked_open(value)
+    with stream:
+        if before.st_size > 8 * 1024 ** 2:
+            raise ValueError('Evidence exceeds the 8MiB bound')
+        payload = stream.read(8 * 1024 ** 2 + 1)
+        unchanged_file(path, stream, before)
+    text = payload.decode('utf-8')
+    record = json.loads(text, object_pairs_hook=unique_object) if json_record else text
+    if json_record and not isinstance(record, dict):
+        raise ValueError('Evidence JSON must be an object')
+    return record, {'path': str(path), 'sha256': hashlib.sha256(payload).hexdigest()}
+
+
+def file_snapshot(value, kind):
+    """Hash a stopped regular file without updating it; reject indirect images."""
+    path, stream, before = checked_open(value)
+    with stream:
+        head = stream.read(65536)
+        if kind == 'iso' and (path.suffix.lower() != '.iso' or head[32769:32774] != b'CD001'):
+            raise ValueError('Prior ISO lacks the ISO9660 signature')
+        if kind == 'qcow2':
+            version = int.from_bytes(head[4:8], 'big')
+            if (head[:4] != b'QFI\xfb' or version not in (2, 3) or len(head) < (104 if version == 3 else 72)
+                    or int.from_bytes(head[8:20], 'big') != 0
+                    or int.from_bytes(head[24:32], 'big') == 0
+                    or (version == 3 and int.from_bytes(head[72:80], 'big') != 0)):
+                raise ValueError('Baseline must be a clean standalone qcow2 without backing/external data')
+        digest = hashlib.sha256(head)
+        for block in iter(lambda: stream.read(2 ** 20), b''):
+            digest.update(block)
+        unchanged_file(path, stream, before)
+    return {'path': str(path), 'sha256': digest.hexdigest(), 'bytes': before.st_size,
+            'device': before.st_dev, 'inode': before.st_ino, 'mtime_ns': before.st_mtime_ns,
+            'ctime_ns': before.st_ctime_ns, 'mode': before.st_mode, 'links': before.st_nlink}
+
+
+def stopped_run(record):
+    pid, command = record.get('pid'), record.get('command')
+    if type(pid) is not int or pid <= 0 or not isinstance(command, list) or not command or any(type(arg) is not str for arg in command):
+        raise ValueError('Prior run lacks unambiguous PID/command provenance')
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        pass
+    else:
+        raise ValueError('Prior run PID is active; refuse baseline use')
+    nodes = []
+    for index, arg in enumerate(command):
+        if arg == '-blockdev':
+            if index + 1 >= len(command):
+                raise ValueError('Incomplete prior block device command')
+            nodes.append(json.loads(command[index + 1], object_pairs_hook=unique_object))
+    if any(not isinstance(node, dict) for node in nodes):
+        raise ValueError('Invalid prior block graph')
+    return command, nodes
+
+
+def installed_source(value):
+    """Validate all prior proof/provenance before creating any output or child."""
+    result_path = strict_path(value)
+    report, report_provenance = read_evidence(result_path)
+    prior = result_path.parent
+    if result_path.name != 'result.json' or report.get('output') != str(prior):
+        raise ValueError('Installed result must belong to its recorded output directory')
+    required = ('install_verified', 'disk_boot_verified', 'proof_service_one_shot', 'proof_stamp_reported', 'completion_callback')
+    if any(report.get(key) is not True for key in required) or report.get('outcome') != 'installed-root-boot-proof-passed':
+        raise ValueError('Complete successful one-shot installed proof is required')
+    disk = strict_path(prior / 'disposable-install.qcow2')
+    if report.get('disk') != str(disk):
+        raise ValueError('Baseline disk differs from prior output disk')
+    if type(report.get('iso')) is not str:
+        raise ValueError('Prior ISO path is missing or malformed')
+    iso = strict_path(report['iso'])
+    if report.get('iso') != str(iso):
+        raise ValueError('Prior ISO must have an absolute canonical path')
+    phase_provenance, commands, node_sets = {}, {}, {}
+    for phase, key in (('install', 'install_run'), ('installed-boot', 'boot_run')):
+        phase_result = report.get(key)
+        if (not isinstance(phase_result, dict) or type(phase_result.get('returncode')) is not int
+                or phase_result['returncode'] != 0 or phase_result.get('timed_out') is not False
+                or phase_result.get('serial') != str(prior / (phase + '-serial.log'))):
+            raise ValueError('Prior installation/boot phase did not finish cleanly')
+        record, provenance = read_evidence(prior / (phase + '-run.json'))
+        command, nodes = stopped_run(record)
+        commands[phase], node_sets[phase], phase_provenance[phase] = command, nodes, provenance
+    disk_nodes = [{'driver': 'file', 'filename': str(disk), 'node-name': 'disk-file'},
+                  {'driver': 'qcow2', 'file': 'disk-file', 'node-name': 'install-disk'}]
+    iso_nodes = [{'driver': 'file', 'filename': str(iso), 'read-only': True, 'node-name': 'iso-file'},
+                 {'driver': 'raw', 'file': 'iso-file', 'read-only': True, 'node-name': 'live-iso'}]
+    if node_sets['install'] != disk_nodes + iso_nodes or node_sets['installed-boot'] != disk_nodes:
+        raise ValueError('Prior ISO/disk block provenance is incomplete or ambiguous')
+    boot = commands['installed-boot']
+    if (any(arg in boot for arg in ('-kernel', '-initrd', '-append', '-cdrom', '-drive', '-hda', '-hdb', '-hdd', '-fda', '-pflash'))
+            or boot.count('-boot') != 1 or boot[boot.index('-boot') + 1:boot.index('-boot') + 2] != ['order=c']
+            or boot.count('-nic') != 1 or boot[boot.index('-nic') + 1:boot.index('-nic') + 2] != ['none']
+            or '-netdev' in boot):
+        raise ValueError('Prior installed boot was not ISO-free and network-free')
+    serial, serial_provenance = read_evidence(prior / 'installed-boot-serial.log', False)
+    proofs = re.findall(r'WINDOWS12_INSTALLED_BOOT_OK:([0-9a-f]{24}) root=/dev/vda[0-9]+ package=([^\s]+) proof_once=([0-9a-f]{24})(?:\r?\n|$)', serial)
+    configurations = re.findall(r'WINDOWS12_INSTALLED_CONFIG:([0-9a-f]{24}) (\{[^\r\n]+\})', serial)
+    if (len(proofs) != 1 or len(configurations) != 1 or serial.count('WINDOWS12_INSTALLED_BOOT_OK:') != 1
+            or serial.count('WINDOWS12_INSTALLED_CONFIG:') != 1):
+        raise ValueError('Missing or ambiguous installed serial proof')
+    token, version, stamp = proofs[0]
+    audit = json.loads(configurations[0][1], object_pairs_hook=unique_object)
+    if (token != stamp or configurations[0][0] != token or report.get('installed_package_version') != version
+            or report.get('configuration_audit') != audit or not isinstance(audit, dict)
+            or audit.get('default_target') != 'graphical.target' or audit.get('display_manager_unit') != 'sddm.service'
+            or audit.get('build_proxy_ca_absent') is not True or audit.get('build_proxy_entries_absent') is not True):
+        raise ValueError('Installed proof token, package or configuration disagrees')
+    expected_device = 'virtio-blk-pci,drive=install-disk,serial=W12' + token
+    if any(command.count(expected_device) != 1 for command in commands.values()):
+        raise ValueError('Prior disk serial does not match installed proof token')
+    iso_snapshot = file_snapshot(iso, 'iso')
+    if iso_snapshot['sha256'] != report.get('iso_sha256'):
+        raise ValueError('Prior ISO SHA256 no longer matches')
+    baseline = file_snapshot(disk, 'qcow2')
+    seal = report.get('installed_disk')
+    if (not isinstance(seal, dict) or any(type(seal.get(key)) is not int for key in ('bytes', 'device', 'inode', 'mtime_ns'))
+            or any(seal.get(key) != baseline[key] for key in ('path', 'sha256', 'bytes', 'device', 'inode', 'mtime_ns'))):
+        raise ValueError('Installed disk seal no longer matches the stopped baseline')
+    return {'result': report_provenance, 'runs': phase_provenance, 'serial': serial_provenance,
+            'baseline': baseline, 'iso': str(iso), 'iso_sha256': iso_snapshot['sha256'],
+            'proof_token': token, 'installed_package_version': version, 'configuration_audit': audit}
+
+
+def disk_arguments(disk, source=None):
+    """Use an explicit read-only standalone baseline graph in installed mode."""
+    command = []
+    if source:
+        command += ['-blockdev', json.dumps({'driver': 'file', 'filename': source['baseline']['path'],
+                                           'node-name': 'baseline-file', 'read-only': True}),
+                    '-blockdev', json.dumps({'driver': 'qcow2', 'file': 'baseline-file', 'node-name': 'baseline',
+                                            'read-only': True, 'backing': None})]
+    node = {'driver': 'qcow2', 'file': 'disk-file', 'node-name': 'install-disk'}
+    if source:
+        node['backing'] = 'baseline'
+    return command + ['-blockdev', json.dumps({'driver': 'file', 'filename': str(disk), 'node-name': 'disk-file'}),
+                      '-blockdev', json.dumps(node),
+                      '-device', 'virtio-blk-pci,drive=install-disk,serial=windows12-desktop-test']
 
 
 def ppm_dimensions(path):
@@ -289,7 +463,8 @@ class DesktopSession:
 
 def run(args):
     # Preflight all fixed paths before creating output or launching anything.
-    iso, tools = strict_path(args.iso), strict_path(TOOLS)
+    source = installed_source(args.installed_result) if args.installed_result else None
+    iso, tools = strict_path(source['iso'] if source else args.iso), strict_path(TOOLS)
     output = fresh(args.output or ROOT / 'artifacts' / f'desktop-test-{time.time_ns()}')
     if not iso.is_file() or iso.suffix.lower() != '.iso':
         raise ValueError('An existing regular project ISO is required')
@@ -299,61 +474,87 @@ def run(args):
             raise ValueError('Input lacks the ISO9660 signature')
     qemu, firmware, datadir = (strict_path(tools / leaf) for leaf in
                               ('usr/bin/qemu-system-x86_64', 'usr/share/seabios/bios-256k.bin', 'usr/share/qemu'))
-    if not qemu.is_file() or not firmware.is_file() or not datadir.is_dir():
+    vgabios = strict_path(firmware.parent/'vgabios-stdvga.bin')
+    if not qemu.is_file() or not firmware.is_file() or not vgabios.is_file() or not datadir.is_dir():
         raise ValueError('Prepared project QEMU/SeaBIOS tools are missing')
     qimg = strict_path(tools / 'usr/bin/qemu-img')
-    if args.disk_size and not qimg.is_file():
+    if (args.disk_size or source) and not qimg.is_file():
         raise ValueError('Prepared project qemu-img is missing')
     for leaf in ('home', 'tmp', 'cache', 'config', 'data', 'state', 'runtime', 'serial.log',
                  'qemu.log', 'qemu-debug.log', 'qmp.in', 'qmp.out', 'qmp-events.jsonl',
-                 'commands.jsonl', 'run.json', 'result.json', 'disposable-install.qcow2', 'disk-create.log'):
+                 'commands.jsonl', 'run.json', 'result.json', 'disposable-install.qcow2',
+                 'installed-desktop.qcow2', 'disk-create.log'):
         fresh(output / leaf)
     free = shutil.disk_usage(output.parent if output.parent.exists() else ROOT).free
-    if free < (8 * 1024 ** 3 if args.disk_size else 1024 ** 3):
+    if free < (8 * 1024 ** 3 if args.disk_size or source else 1024 ** 3):
         raise ValueError('Insufficient free space for a retained desktop-test session')
     output.mkdir(parents=True, mode=0o700)
     try:
-        return launch(args, iso, qemu, qimg, firmware, datadir, output)
+        return launch(args, iso, qemu, qimg, firmware, datadir, output, source)
     except BaseException as error:
         # Retain a result even if local setup fails before the QEMU try/finally.
         if not (output / 'result.json').exists():
             write_new(output / 'result.json', {'iso': str(iso), 'output': str(output),
                       'outcome': 'setup-failed', 'error': str(error), 'finished_unix': time.time(),
+                      'mode': 'installed' if source else 'live', 'installed_source': source,
+                      'disposable_disk': str(output / 'installed-desktop.qcow2') if source else None,
                       'boot_verified': False, 'login_verified': False,
                       'install_verified': False, 'workflows_verified': False})
         raise
 
 
-def launch(args, iso, qemu, qimg, firmware, datadir, output):
-    env = environment(output)
-    disk = None
-    if args.disk_size:
-        disk = fresh(output / 'disposable-install.qcow2')
-        with fresh(output / 'disk-create.log').open('x') as log:
-            subprocess.run([str(qimg), 'create', '-f', 'qcow2', str(disk), args.disk_size],
-                           env=env, cwd=output, check=True, stdout=log, stderr=subprocess.STDOUT)
-    digest = hashlib.sha256()
-    with iso.open('rb') as stream:
-        for block in iter(lambda: stream.read(2 ** 20), b''):
-            digest.update(block)
-    serial = fresh(output / 'serial.log')
+def desktop_command(args, iso, qemu, firmware, datadir, output, disk=None, source=None):
+    serial = output / 'serial.log'
     command = [str(qemu), '-machine', 'pc,accel=tcg,smm=off', '-cpu', 'max', '-smp', '2',
                '-m', str(args.memory), '-bios', str(firmware), '-L', str(datadir),
                '-no-user-config', '-nodefaults', '-display', 'none', '-monitor', 'none', '-no-reboot',
-               '-device', 'VGA', '-device', 'qemu-xhci,id=usb', '-device', 'usb-tablet,bus=usb.0',
-               '-boot', 'order=d,menu=off', '-D', str(output / 'qemu-debug.log'), '-serial', 'file:' + str(serial),
-               '-blockdev', json.dumps({'driver': 'file', 'filename': str(iso), 'node-name': 'iso-file', 'read-only': True}),
-               '-blockdev', json.dumps({'driver': 'raw', 'file': 'iso-file', 'node-name': 'live-iso', 'read-only': True}),
-               '-device', 'ide-cd,drive=live-iso,id=cdrom']
+               '-device', 'VGA,romfile='+str(Path(firmware).parent/'vgabios-stdvga.bin'), '-device', 'qemu-xhci,id=usb', '-device', 'usb-tablet,bus=usb.0',
+               '-boot', 'order=c,menu=off' if source else 'order=d,menu=off',
+               '-D', str(output / 'qemu-debug.log'), '-serial', 'file:' + str(serial)]
+    if not source:
+        command += ['-blockdev', json.dumps({'driver': 'file', 'filename': str(iso), 'node-name': 'iso-file', 'read-only': True}),
+                    '-blockdev', json.dumps({'driver': 'raw', 'file': 'iso-file', 'node-name': 'live-iso', 'read-only': True}),
+                    '-device', 'ide-cd,drive=live-iso,id=cdrom']
     if args.network == 'user':
         command += ['-netdev', 'user,id=net0', '-device', 'virtio-net-pci,netdev=net0,romfile=']
     else:
         command += ['-nic', 'none']
     if disk:
-        command += ['-blockdev', json.dumps({'driver': 'file', 'filename': str(disk), 'node-name': 'disk-file'}),
-                    '-blockdev', json.dumps({'driver': 'qcow2', 'file': 'disk-file', 'node-name': 'install-disk'}),
-                    '-device', 'virtio-blk-pci,drive=install-disk,serial=windows12-desktop-test']
-    result = {'iso': str(iso), 'iso_sha256': digest.hexdigest(), 'output': str(output),
+        command += disk_arguments(disk, source)
+    return command
+
+
+def baseline_unchanged(source):
+    if file_snapshot(source['baseline']['path'], 'qcow2') != source['baseline']:
+        raise ValueError('Installed baseline changed; retained child is not certified')
+
+
+def launch(args, iso, qemu, qimg, firmware, datadir, output, source=None):
+    env = environment(output)
+    disk = None
+    if source or args.disk_size:
+        disk = fresh(output / ('installed-desktop.qcow2' if source else 'disposable-install.qcow2'))
+        create = [str(qimg), 'create', '-f', 'qcow2']
+        if source:
+            baseline_unchanged(source)
+            create += ['-F', 'qcow2', '-b', source['baseline']['path'], str(disk)]
+        else:
+            create += [str(disk), args.disk_size]
+        with fresh(output / 'disk-create.log').open('x') as log:
+            subprocess.run(create, env=env, cwd=output, check=True, stdout=log, stderr=subprocess.STDOUT)
+    if source:
+        digest = source['iso_sha256']
+    else:
+        hasher = hashlib.sha256()
+        with iso.open('rb') as stream:
+            for block in iter(lambda: stream.read(2 ** 20), b''):
+                hasher.update(block)
+        digest = hasher.hexdigest()
+    fresh(output / 'serial.log')
+    command = desktop_command(args, iso, qemu, firmware, datadir, output, disk, source)
+    result = {'iso': str(iso), 'iso_sha256': digest, 'output': str(output),
+              'mode': 'installed' if source else 'live', 'installed_source': source,
+              'baseline_unchanged': False if source else None,
               'disposable_disk': str(disk) if disk else None, 'network': args.network,
               'started_unix': time.time(), 'captures': [], 'boot_verified': False,
               'login_verified': False, 'install_verified': False, 'workflows_verified': False,
@@ -365,6 +566,8 @@ def launch(args, iso, qemu, qimg, firmware, datadir, output):
             deadline = time.monotonic() + args.timeout
             qmp = BoundedQMP(strict_path(output / 'qmp'), events, deadline)
             command += ['-qmp', 'pipe:' + str(qmp.prefix)]
+            if source:
+                baseline_unchanged(source)
             process = subprocess.Popen(command, env=env, cwd=output, stdout=log, stderr=subprocess.STDOUT)
             write_new(output / 'run.json', {**result, 'command': command, 'pid': process.pid})
             print(json.dumps({'output': str(output), 'pid': process.pid}), flush=True)
@@ -396,6 +599,14 @@ def launch(args, iso, qemu, qimg, firmware, datadir, output):
                         result['qmp_close_error'] = str(error)
             if process is not None:
                 result['qemu_returncode'] = process.poll()
+            if source:
+                try:
+                    baseline_unchanged(source)
+                    result['baseline_unchanged'] = True
+                except (OSError, ValueError) as error:
+                    result['baseline_error'] = str(error)
+                    result['outcome'] = 'baseline-changed-not-certified'
+                    exit_code = 1
             result['finished_unix'] = time.time()
             write_new(output / 'result.json', result)
     print('Desktop session ended; boot/login/install/workflow verification requires separate reviewed evidence.', flush=True)
@@ -404,13 +615,18 @@ def launch(args, iso, qemu, qimg, firmware, datadir, output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('iso', type=Path)
+    parser.add_argument('iso', type=Path, nargs='?')
+    parser.add_argument('--installed-result', type=Path, help='Successful sealed install-test result.json; boot a NEW child without ISO')
     parser.add_argument('--output', type=Path, help='New project-contained directory; never reused')
     parser.add_argument('--timeout', type=int, default=1800, help='1–7200seconds, default1800')
     parser.add_argument('--memory', type=int, default=4096, help='1024–8192MiB')
     parser.add_argument('--disk-size', help='Optional NEW disposable qcow2, 8G–128G; no existing disk accepted')
     parser.add_argument('--network', choices=('none', 'user'), default='none', help='No networking, or optional user NAT without forwards/shares')
     args = parser.parse_args()
+    if bool(args.iso) == bool(args.installed_result):
+        parser.error('Supply exactly one ISO or --installed-result')
+    if args.installed_result and args.disk_size:
+        parser.error('--disk-size is only supported for live ISO sessions')
     if not 1 <= args.timeout <= 7200 or not 1024 <= args.memory <= 8192:
         parser.error('timeout or memory outside supported bounds')
     if args.disk_size and (not re.fullmatch(r'[1-9][0-9]{0,2}G', args.disk_size) or not 8 <= int(args.disk_size[:-1]) <= 128):
