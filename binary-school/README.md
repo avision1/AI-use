@@ -9,6 +9,7 @@ A self-paced reverse engineering learning site that runs on localhost.
 - Six deeper practical programs, 34 additional guided/stripped ELF and native Windows PE binaries, and three unfamiliar mock-final variants.
 - Ungraded learning assignments, worked solutions, autosaving notes/reports, and browser-local progress.
 - Separate checkpoint, flag, practical evidence and self-reported readiness records.
+- A prerequisite diagnostic and selectable foundation/syllabus-revision paths with weekly evidence targets.
 
 ## Run locally
 
@@ -54,6 +55,7 @@ python3 -m unittest discover -s tests -v
 # Optional maintainer checks when Node.js is installed:
 node tests/test_course.cjs
 node tests/test_import.cjs
+node tests/test_paths.cjs
 node --check site/app.js
 ```
 

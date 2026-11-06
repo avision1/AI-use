@@ -1,3 +1,12 @@
+1.4 — Syllabus learning paths and discoverability
+- Add a prerequisite diagnostic and selectable foundation/revision routes.
+- Keep diagnostic results separate from course credit; preserve all existing IDs.
+- Add weekly prerequisites, effort estimates and practical evidence targets.
+- Connect all four syllabus outcomes to concrete investigations and rubric evidence.
+- Search teaching sections, tables and practical briefs without indexing answers.
+- Correct contradictory Linux/Windows practical instructions.
+- Complete the syllabus AI-policy summary.
+
 1.3.1 — Safe progress imports (medium-priority issue)
 - Preview backup counts without changing current progress.
 - Merge completion/check records and preserve conflicting notes/reports.

@@ -2468,7 +2468,7 @@
             "labs/readiness/practical-source-kit.zip"
           ]
         ],
-        "start": "Linux / WSL: chmod +x xref-guided-linux-x64\n./xref-guided-linux-x64 orbit 2\nWindows: xref-guided-mingw-x64.exe orbit 2\nUse the matching OS; Windows practical has no Linux ELF equivalent.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
+        "start": "Linux / WSL: chmod +x xref-guided-linux-x64\n./xref-guided-linux-x64 orbit 2\nWindows: xref-guided-mingw-x64.exe orbit 2\nUse the matching OS; Linux downloads are ELF; Windows downloads are PE. Execute each on its matching OS.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
         "prompts": [
           "Predict orbit 0, orbit 2, orbit 3 and a different name. Find all success cases rather than assuming one secret integer.",
           "Follow the result format string to its caller, identify dispatch arguments, and rename the table and loop index.",
@@ -2936,7 +2936,7 @@
             "labs/readiness/practical-source-kit.zip"
           ]
         ],
-        "start": "Linux / WSL: chmod +x records-guided-linux-x64\n./records-guided-linux-x64 3\nWindows: records-guided-mingw-x64.exe 3\nUse the matching OS; Windows practical has no Linux ELF equivalent.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
+        "start": "Linux / WSL: chmod +x records-guided-linux-x64\n./records-guided-linux-x64 3\nWindows: records-guided-mingw-x64.exe 3\nUse the matching OS; Linux downloads are ELF; Windows downloads are PE. Execute each on its matching OS.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
         "prompts": [
           "Identify offsets of enabled, amount, bias, name and the record stride from instruction evidence.",
           "Compare n=0,1,2,3; explain why the second row adds nothing and why the signed bias matters.",
@@ -3172,7 +3172,7 @@
             "labs/readiness/practical-source-kit.zip"
           ]
         ],
-        "start": "Linux / WSL: chmod +x trace-guided-linux-x64\n./trace-guided-linux-x64 3 -3 4\nWindows: trace-guided-mingw-x64.exe 3 -3 4\nUse the matching OS; Windows practical has no Linux ELF equivalent.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
+        "start": "Linux / WSL: chmod +x trace-guided-linux-x64\n./trace-guided-linux-x64 3 -3 4\nWindows: trace-guided-mingw-x64.exe 3 -3 4\nUse the matching OS; Linux downloads are ELF; Windows downloads are PE. Execute each on its matching OS.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
         "prompts": [
           "Use inputs 3 -3 4. Record total before the loop and after each of the three updates.",
           "Predict what 3 3 4 changes. Both totals match, but does the final success condition? Locate the second predicate.",
@@ -3461,7 +3461,7 @@
             "labs/readiness/practical-source-kit.zip"
           ]
         ],
-        "start": "Linux / WSL: chmod +x trace-guided-linux-x64\n./trace-guided-linux-x64 3 -3 4\nWindows: trace-guided-mingw-x64.exe 3 -3 4\nUse the matching OS; Windows practical has no Linux ELF equivalent.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
+        "start": "Linux / WSL: chmod +x trace-guided-linux-x64\n./trace-guided-linux-x64 3 -3 4\nWindows: trace-guided-mingw-x64.exe 3 -3 4\nUse the matching OS; Linux downloads are ELF; Windows downloads are PE. Execute each on its matching OS.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
         "prompts": [
           "Locate main via runtime entry or output cross-references, then locate the loop using disassembly.",
           "Stop before the second update, inspect the value -3 and its weighted delta -6, then predict the next total.",
@@ -4172,7 +4172,7 @@
             "labs/readiness/practical-source-kit.zip"
           ]
         ],
-        "start": "Linux / WSL: chmod +x protected-guided-linux-x64\n./protected-guided-linux-x64 guess 1\nWindows: protected-guided-mingw-x64.exe guess 1\nUse the matching OS; Windows practical has no Linux ELF equivalent.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
+        "start": "Linux / WSL: chmod +x protected-guided-linux-x64\n./protected-guided-linux-x64 guess 1\nWindows: protected-guided-mingw-x64.exe guess 1\nUse the matching OS; Linux downloads are ELF; Windows downloads are PE. Execute each on its matching OS.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
         "prompts": [
           "Begin with any five-letter token and probe=1; identify the early exit and record the path.",
           "Decode each byte, recover the actual comparison and distinguish the noise recurrence from dependencies of the return value.",
@@ -4754,7 +4754,7 @@
             "labs/readiness/practical-source-kit.zip"
           ]
         ],
-        "start": "Linux / WSL: chmod +x reconstruct-guided-linux-x64\n./reconstruct-guided-linux-x64 1 5\nWindows: reconstruct-guided-mingw-x64.exe 1 5\nUse the matching OS; Windows practical has no Linux ELF equivalent.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
+        "start": "Linux / WSL: chmod +x reconstruct-guided-linux-x64\n./reconstruct-guided-linux-x64 1 5\nWindows: reconstruct-guided-mingw-x64.exe 1 5\nUse the matching OS; Linux downloads are ELF; Windows downloads are PE. Execute each on its matching OS.\nSource kit: build-msvc-readiness.bat from an x86 or x64 Native Tools prompt.",
         "prompts": [
           "Recover Plan field types and offsets and write price in readable C. Explain mode selection, loop bounds and when the discount applies.",
           "Predict mode 0 with quantities 0,2,4 and mode 1 with quantities 3,5. Run your reconstruction and compare output and return status, including invalid mode and out-of-range quantity.",
@@ -5076,5 +5076,232 @@
     "workshop": 119,
     "secure": 120
   },
-  "edition": "Localhost 1.2"
+  "edition": "Localhost 1.2",
+  "studyPlan": {
+    "weeks": [
+      {
+        "week": "Week 1",
+        "topic": "Environment and analysis workflow",
+        "prerequisite": "C functions, command-line arguments and a working local toolchain",
+        "lessons": [
+          0,
+          129,
+          8,
+          9
+        ],
+        "module": "foundations",
+        "deliverable": "Record compiler/version, bitness, executable format, a hash and a breakpoint at main.",
+        "target": 129,
+        "effort": "1–3 hours"
+      },
+      {
+        "week": "Weeks 2–3",
+        "topic": "x86/x64 instructions and architecture",
+        "prerequisite": "C integers, pointers, hex and basic assembly",
+        "lessons": [
+          43,
+          44,
+          47,
+          84
+        ],
+        "module": "machine",
+        "deliverable": "Explain register widths, signed/unsigned decisions and an addressing mode using actual instructions.",
+        "target": 84,
+        "effort": "2–4 hours"
+      },
+      {
+        "week": "Week 4",
+        "topic": "Globals, locals and pointers",
+        "prerequisite": "Memory addresses, loads/stores and stack frames",
+        "lessons": [
+          48,
+          49,
+          85
+        ],
+        "module": "patterns",
+        "deliverable": "Recover storage lifetime and identify one global, one stack local and one indirect access.",
+        "target": 85,
+        "effort": "1–3 hours"
+      },
+      {
+        "week": "Week 5",
+        "topic": "Arithmetic and conversions",
+        "prerequisite": "Signedness, flags and expression evaluation",
+        "lessons": [
+          46,
+          122,
+          86
+        ],
+        "module": "machine",
+        "deliverable": "Reconstruct division/remainder and explain boundary and negative inputs.",
+        "target": 86,
+        "effort": "1–3 hours"
+      },
+      {
+        "week": "Week 6",
+        "topic": "Conditions and loops",
+        "prerequisite": "Comparison flags and conditional branches",
+        "lessons": [
+          51,
+          52,
+          123,
+          124
+        ],
+        "module": "patterns",
+        "deliverable": "Partition branch inputs and record loop initialization, bounds, updates and exits.",
+        "target": 124,
+        "effort": "2–4 hours"
+      },
+      {
+        "week": "Weeks 7–8",
+        "topic": "Calls, frames and ABI differences",
+        "prerequisite": "Stack growth, pointers and register liveness",
+        "lessons": [
+          55,
+          56,
+          58,
+          125,
+          87
+        ],
+        "module": "calls",
+        "deliverable": "Map caller arguments and return values in Linux x64, Windows x64 and a native MSVC x86 build.",
+        "target": 87,
+        "effort": "2–5 hours"
+      },
+      {
+        "week": "Week 9",
+        "topic": "Switches, arrays and strings",
+        "prerequisite": "Loop bounds, scaled indexes and pointer arithmetic",
+        "lessons": [
+          53,
+          54,
+          88
+        ],
+        "module": "patterns",
+        "deliverable": "Recover a switch and array bounds; test default, boundary and ordinary cases.",
+        "target": 88,
+        "effort": "1–3 hours"
+      },
+      {
+        "week": "Week 10",
+        "topic": "Structs and defensible C",
+        "prerequisite": "Field widths, alignment and indirect addressing",
+        "lessons": [
+          60,
+          63,
+          114,
+          89
+        ],
+        "module": "types",
+        "deliverable": "Recover a record layout and readable C, then compare behavior on several inputs.",
+        "target": 89,
+        "effort": "2–4 hours"
+      },
+      {
+        "week": "Week 11",
+        "topic": "Debugging and live state",
+        "prerequisite": "A working Linux debugger and basic static analysis",
+        "lessons": [
+          65,
+          67,
+          116,
+          90
+        ],
+        "module": "dynamic",
+        "deliverable": "Record a reproducible breakpoint, register/memory state and an experiment distinguishing two hypotheses.",
+        "target": 90,
+        "effort": "2–4 hours"
+      },
+      {
+        "week": "Weeks 12–13",
+        "topic": "Windows PE, APIs and debuggers",
+        "prerequisite": "Matching Windows tools, x86/x64 ABI and backed section addresses",
+        "lessons": [
+          70,
+          71,
+          73,
+          74,
+          117,
+          91
+        ],
+        "module": "windows",
+        "deliverable": "Build with native MSVC x86/x64, trace an API call, recover a struct and convert a backed RVA to file offset.",
+        "target": 91,
+        "effort": "3–6 hours"
+      },
+      {
+        "week": "Weeks 14–15",
+        "topic": "Recognize and defeat anti-analysis",
+        "prerequisite": "Control/data-flow reasoning and reproducible debugger experiments",
+        "lessons": [
+          76,
+          78,
+          118,
+          92
+        ],
+        "module": "anti",
+        "deliverable": "Decode protected data, explain the real Windows debugger-dependent path and distinguish a temporary bypass from a persistent repair.",
+        "target": 92,
+        "effort": "2–4 hours"
+      },
+      {
+        "week": "Final rehearsal",
+        "topic": "Complete-program reconstruction and repair",
+        "prerequisite": "Prior investigations and explicit limitations in your evidence",
+        "lessons": [
+          93,
+          119,
+          94
+        ],
+        "module": "workshop",
+        "deliverable": "Reconstruct an unfamiliar program, validate a persistent computational repair and use the post-attempt rubric.",
+        "target": 94,
+        "effort": "3–6 hours"
+      }
+    ],
+    "diagnostic": [
+      {
+        "id": "c",
+        "prompt": "C: int xs[3]={2,4,6}; int total=0; for(int i=0;i<3;i++) total+=xs[i]; What is total?",
+        "answer": "12",
+        "lesson": 5,
+        "explain": "The loop visits indexes 0,1,2; the total is 2+4+6."
+      },
+      {
+        "id": "endian",
+        "prompt": "Little-endian: bytes 34 12 represent a 16-bit unsigned value. Write the hexadecimal value with a 0x prefix.",
+        "answer": "0x1234",
+        "lesson": 42,
+        "explain": "The low byte is stored first, so the value is 0x1234."
+      },
+      {
+        "id": "pointer",
+        "prompt": "Intel syntax: mov eax, [rdi+8] loads data or computes only an address? Answer data or address.",
+        "answer": "data",
+        "lesson": 32,
+        "explain": "Square brackets request a memory load. lea computes an effective address."
+      },
+      {
+        "id": "signed",
+        "prompt": "After cmp eax, ebx, which branch tests signed less-than: jl or jb?",
+        "answer": "jl",
+        "lesson": 44,
+        "explain": "jl uses signed comparison flags; jb tests unsigned below."
+      },
+      {
+        "id": "abi",
+        "prompt": "Windows x64: which register carries the first 32-bit int argument?",
+        "answer": "ecx",
+        "lesson": 40,
+        "explain": "The Windows x64 first integer argument uses RCX, or ECX for a 32-bit int. Linux System V differs."
+      },
+      {
+        "id": "debug",
+        "prompt": "In GDB, which command sets a breakpoint at main?",
+        "answer": "break main|b main",
+        "lesson": 17,
+        "explain": "break main (or b main) sets a breakpoint; run starts the process."
+      }
+    ]
+  }
 }
