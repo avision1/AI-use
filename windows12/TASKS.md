@@ -31,10 +31,10 @@
 
 | W12-026 | Independent fixture-tool review | 025 | fixture_review_nov05/lead | done: reporting issue fixed; operational checks pass | Source review, bounded ownership, no false runtime claims |
 
-| W12-027 | Sequential post-build validation queue | 005,019,007,011 | lead/fixture_review_nov05 | source reviewed; waiting-cancel passed;77475 canceled before gates; requeue after resume | No concurrent guests; frozen source/ISO/controller identity; cooperative helper cleanup; distinct evidence flags; actual gates pending |
+| W12-027 | Sequential post-build validation queue | 005,019,007,011 | lead/fixture_review_nov05 | source reviewed; waiting-cancel passed;44581 waiting on current26570; actual gates pending | No concurrent guests; frozen source/ISO/controller identity; cooperative helper cleanup; distinct evidence flags; actual gates pending |
 
 | W12-028 | Stale live-build lock recovery | 010 | fixture_review_nov05/lead | done for observed lock: actual guard/quarantine/preservation passed; public chroot resumed; APT-cache blocker030 | Preserve original/cache/stage flags; guarded guest-only stale lock cleanup; actual resumed build evidence |
 
 | W12-029 | Read-only stopped-builder inventory mode | 028 | lead/fixture_review_nov05/inspect_wrapper_review | done: inspection25448 exit0/fresh report/no errors; no cleanup or ISO claims | Separate nonce-bound report, no recipe/cleanup, guarded existing disk, no false ISO success |
 
-| W12-030 | Preserve/refresh corrupted target APT index cache | 028,029 | fixture_review_nov05/lead | fresh classifier72465 passed14hashes; independent review no blocker; guarded26570/monitor18459 active | Actual cache evidence; bounded quarantine; target dpkg/stages preserved; signed refresh and resumed build |
+| W12-030 | Preserve/refresh corrupted target APT index cache | 028,029 | fixture_review_nov05/lead | guarded26570 passed exact4cache quarantine/preservation; public APT stage active; signed refresh pending | Actual cache evidence; bounded quarantine; target dpkg/stages preserved; signed refresh and resumed build |
