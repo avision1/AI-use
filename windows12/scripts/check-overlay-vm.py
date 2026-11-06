@@ -142,13 +142,29 @@ def upload(name,data):
  r.read();c.close()
 try:
  assert os.geteuid()==0 and pathlib.Path('/run/windows12-build-vm').is_file()
+ report['route_cleanup']={}
  for family in ('-4','-6'):
-  routes=subprocess.run(['ip','-j',family,'route','show','default'],capture_output=True,check=True,timeout=10)
-  if json.loads(routes.stdout):
-   subprocess.run(['ip',family,'route','flush','default'],check=True,timeout=10)
-  routes=subprocess.run(['ip','-j',family,'route','show','default'],capture_output=True,check=True,timeout=10)
-  if json.loads(routes.stdout):raise ValueError('Guest default route remains: '+routes.stdout.decode()[:2048])
- report['guest_default_routes_absent']=True
+  prefix='0.0.0.0/0' if family=='-4' else '::/0'
+  query=['ip','-j',family,'route','show','table','all','exact',prefix]
+  routes=subprocess.run(query,capture_output=True,check=True,timeout=10)
+  before=json.loads(routes.stdout)
+  report['route_cleanup'][family]={'before':before}
+  # Unreachable/blackhole/prohibit defaults cannot forward packets. IPv6
+  # may expose an immutable unreachable default; never flush that kernel row.
+  forwarding=[r for r in before if r.get('type','unicast') not in ('unreachable','blackhole','prohibit')]
+  for route in forwarding:
+   if route.get('type','unicast')!='unicast' or route.get('nexthops'):raise ValueError('Unsupported forwarding default route: '+repr(route))
+   command=['ip',family,'route','del','default']
+   if route.get('gateway'):command+=['via',route['gateway']]
+   if route.get('dev'):command+=['dev',route['dev']]
+   if 'metric' in route:command+=['metric',str(route['metric'])]
+   if 'table' in route:command+=['table',str(route['table'])]
+   subprocess.run(command,capture_output=True,check=True,timeout=10)
+  routes=subprocess.run(query,capture_output=True,check=True,timeout=10)
+  after=json.loads(routes.stdout)
+  report['route_cleanup'][family]['after']=after
+  if any(r.get('type','unicast') not in ('unreachable','blackhole','prohibit') for r in after):raise ValueError('Guest forwarding default route remains: '+routes.stdout.decode()[:2048])
+ report['guest_forwarding_defaults_absent']=True
  raw=urllib.request.urlopen(origin+'/source.tar',timeout=60).read(33554433)
  if len(raw)>33554432 or hashlib.sha256(raw).hexdigest()!=expected:raise ValueError('Source digest/length differs')
  root.mkdir(mode=0o700)
@@ -281,7 +297,7 @@ def main():
                '-L',str(path(tools/'usr/share/qemu')),'-no-user-config','-nodefaults','-display','none','-monitor','none','-no-reboot',
                '-serial','stdio','-drive','file='+str(disk)+',if=virtio,format=qcow2','-netdev','user,id=net0','-device','virtio-net-pci,netdev=net0,romfile=',
                '-smbios','type=1,serial=ds=nocloud-net;s='+origin+'/seed/']
-    record = {'schema':1,'nonce':nonce,'source_sha256':sha(source),'files':files,'cloud_sha512':config['sha512'],'command':command,'wrapper_sha256':sha(read(Path(__file__).absolute(),1024*1024)),'network':'static on-link guest config; guest removes and verifies absence of IPv4/IPv6 default routes before checks; initial cloud-init networking not independently isolated; no package download commands','started':time.time()}
+    record = {'schema':1,'nonce':nonce,'source_sha256':sha(source),'files':files,'cloud_sha512':config['sha512'],'command':command,'wrapper_sha256':sha(read(Path(__file__).absolute(),1024*1024)),'network':'static on-link guest config; guest removes and verifies absence of IPv4/IPv6 forwarding default routes before checks; initial cloud-init networking not independently isolated; no package download commands','started':time.time()}
     write(out/'run.json',json.dumps(record,indent=2).encode())
     thread = threading.Thread(target=server.serve_forever,daemon=True)
     thread.start()
@@ -305,7 +321,7 @@ def main():
         result = json.loads(read(out/'result.json',16384))
         if (result.get('schema')!=1 or result.get('nonce')!=nonce or result.get('source_sha256')!=sha(source)
                 or result.get('passed') is not True or result.get('iso_verified') is not False
-                or any(result.get(flag) is not True for flag in ('unit_tests_passed','deterministic_package','dpkg_inspection_passed','guest_default_routes_absent'))
+                or any(result.get(flag) is not True for flag in ('unit_tests_passed','deterministic_package','dpkg_inspection_passed','guest_forwarding_defaults_absent'))
                 or not isinstance(result.get('package_sha256'),str) or not re.fullmatch(r'[0-9a-f]{64}',result['package_sha256'])
                 or type(result.get('package_bytes')) is not int or not 0<result['package_bytes']<=16*1024*1024
                 or result.get('log_sha256')!=sha(read(out/'checks.log',MAX_LOG))):

@@ -24,7 +24,7 @@
 | W12-021 | Controlled post-build image iteration plan | 005 | boot_guard/lead | source research complete; implementation/runtime pending | Preserve baseline/source; correct installer regeneration and manifests; version gates |
 | W12-022 | ISO-free installed desktop QA | 011,020 | desktop_audit/lead | one-shot proof source reimplemented/syntax checked; validated-disk GUI/helper/tests pending | One-shot proof stamp, validated prior test disk, new writable child, baseline preserved; real reboot/GUI evidence |
 
-| W12-023 | Fast contained unittest runner | 003 | lead/overlay_vm | source implemented, parent VM session3723 active; result pending | Fresh VM/source and bounded results; no host suite execution |
+| W12-023 | Fast contained unittest runner | 003 | lead/overlay_vm | done: third disposable VM35105 passed31tests/deterministic preview3 package/dpkg inspection; stopped | Fresh VM/source and bounded results; no host suite execution |
 | W12-024 | Debian 13 host bootstrap | 014 | lead | done: prep72608 and TCG probe pass;91 authenticated packages | Native signed repositories/keyring; local extraction; actual startup and TCG probe; no host installs |
 
 | W12-025 | Pinned Windows QA installer inputs | 009 | lead | done: real hashes/signature/offline/negative checks; no app execution | Locked public fixtures, no host execution, reproducible cache and honest assurance |
@@ -43,5 +43,5 @@
 
 | W12-032 | Bounded verified dependency prefetch and delivery | 005,030 | lead/package_plan_nov06/package_prefetch_nov06/guard_review_nov06 | native catalog refresh and full 1946-input plan passed; bounded prefetch active; delivery/controller source reviewed and AST valid; guest stage pending | Actual signedcatalogSHA plan, bounded authorized batches, verified cache and nativeAPT verification after reviewed delivery; no signatures/TLS/permission bypass; actual resumed ISO build |
 
-| W12-033 | Preview3 desktop and optional Windows Apps integration | 004,009 | lead/desktop_polish/windows_apps | source implemented; AST/HTML valid; guest/GUI pending | Panel order, accessible offline help, installed Bottles routing with on-demand setup; no runtime preload |
+| W12-033 | Preview3 desktop and optional Windows Apps integration | 004,009 | lead/desktop_polish/windows_apps | implemented:31 guest tests and deterministic package pass; real GUI/app execution pending | Panel order, accessible offline help, installed Bottles routing with on-demand setup; no runtime preload |
 | W12-034 | Exact post-chroot image finish contract | 032 | iso_finish/lead | documented; new installer inputs and executable bootstrap cache trust remain blockers | Preserve completed chroot, authenticate remaining inputs, public installer/binary/source then real ISO SHA/export |

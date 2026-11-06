@@ -19,3 +19,5 @@ Source changes made by desktop_polish on 2026-11-06 UTC. These changes are a fut
 Only source inspection, HTML parsing and diff/whitespace checks were performed. No target module, test suite, package, desktop session, VM or network operation ran. No GUI success is claimed. The guide keeps its offline CSP, contains no scripts or external assets, and adds no dependencies, services, startup applications or network calls.
 
 Before including this candidate in a release: run the normal contained overlay/package checks; boot a fresh profile plus a deliberately partial disposable panel; verify menu/task ordering, no lost widgets and persistence across login. Inspect the offline guide at 320 CSS pixels, ordinary/high zoom and keyboard-only use; confirm the whole page stays within the viewport while only the table scrolls. Verify the selected Plasma version supports writable Widget.index as used by its scripting API. Existing-source tests are not GUI certification.
+
+Integrated verification:31 guest unit tests and deterministic preview3 package generation passed in the disposable checker. This does not close the explicit Plasma ordering/zoom/keyboard GUI gates above.
