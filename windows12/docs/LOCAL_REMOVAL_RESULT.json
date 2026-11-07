@@ -1,0 +1,19 @@
+{
+  "cleanup_complete": true,
+  "removed_directory": "/home/avision/gitclone/AI-use/windows12",
+  "allocated_bytes_removed": 64638685184,
+  "bytes_reclaimed": 64638681088,
+  "local_project_exists": false,
+  "running_project_vms": false,
+  "continue_skill_retained": true,
+  "obsolete_skill_backup_removed": true,
+  "shared_parent_git_metadata_retained": true,
+  "archive_tag": "windows12-local-archive-20261106",
+  "archive_draft": true,
+  "archive_url": "https://github.com/avision1/AI-use/releases/tag/untagged-e7017720e43e8c6d1b2c",
+  "archive_assets": 8,
+  "all_asset_server_sha256_verified": true,
+  "evidence_archive_files": 614,
+  "corrected_iso_completed": false,
+  "note": "All local project tooling, caches, ISO, disposable/partial VM disks and sources were removed after archive verification. Global continue skill and unrelated shared repository history were preserved. No host package or boot-setting changes required rollback."
+}
