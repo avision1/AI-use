@@ -1,5 +1,10 @@
 # Stable tasks
 
+## Current status — complete local removal requested
+
+The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.
+
+
 ## Current handover checkpoint — 2026-11-06
 
 Local/remote main before this update: `ed2d15e92484aabbe2a664745e2a3fc92bed5249`. The corrected clockfix-001 build was explicitly stopped during SquashFS compression. Guest shutdown was clean; controller1524 exited1 without build success, monitor7783 exited0, queue64013 exited130. No worker or QMP listener remains. Partial VM disk, frozen source archive, logs and interrupted queue result are preserved; there is no corrected ISO. The old preview ISO remains the only ISO artifact with documented BIOS install/installed-desktop, Calamares/basic workflow and UEFI live-boot evidence, but lacks the hwclock package fix and has no UEFI installation/Secure Boot/hardware certification. See HANDOFF.md for exact hashes and evidence.

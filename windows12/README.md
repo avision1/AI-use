@@ -1,5 +1,10 @@
 # Windows12 Linux project
 
+## Current status — complete local removal requested
+
+The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.
+
+
 An independent installable Linux distribution project for everyday Windows-style workflows. The first implementation targets Debian 13 amd64 and KDE Plasma, with a familiar taskbar, file manager, settings, Office web launchers and an offline office alternative. It is not a Microsoft product.
 
 **Development status:** a real hybrid preview ISO has passed a content audit, offline BIOS installation through Debian Installer and Calamares, and installed-disk boots without the ISO. Reviewed VM evidence includes the default Wayland desktop and basic DOCX/XLSX save/reopen workflows. Normal UEFI live boot also passed; UEFI installation, broader everyday workflows and hardware coverage remain pending. A replacement ISO containing the missing clock-utility fix is being built and must pass its own validation. See [PROJECT_STATE.md](PROJECT_STATE.md), [Calamares evidence](docs/CALAMARES_PREVIEW4.md) and [UEFI evidence](docs/UEFI_PREVIEW4.md). This is a development preview, without Windows application compatibility certification.

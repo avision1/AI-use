@@ -1,5 +1,10 @@
 # Windows12 restart handoff — 2026-11-06 America/Chicago
 
+## Current status — complete local removal requested
+
+The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.
+
+
 ## Current checkpoint — corrected build stopped and handed over
 
 Verified local main before this checkpoint: `ed2d15e92484aabbe2a664745e2a3fc92bed5249`, clean before these handoff edits. Linux Mint 22.3/Noble compatibility, authenticated project-local tools, KVM availability and the previous ISO's installation/desktop evidence are recorded below. At the user's explicit stop request, corrected build `clockfix-001` was shut down while compressing the SquashFS image. Its guest reached clean unmount and ACPI S5; this was an intentional interruption, not a build defect.

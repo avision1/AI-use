@@ -1,0 +1,11 @@
+# Local removal and GitHub archive
+
+The user explicitly requested deletion of all local Windows12 project files and thread-created build tooling, while keeping the continue skill. This overrides prior retention and resume guidance. No target package installation, host package installation, physical-disk change or boot-setting modification was performed; all image tooling and writable build state were contained in windows12.
+
+Source and current memory are on GitHub main. The draft release `windows12-local-archive-20261106` preserves the earlier preview ISO split into four numeric parts, the pinned pristine upstream Debian cloud image, `windows12-evidence-and-inputs.tar.gz`, `archive-manifest.json` and `SHA256SUMS`. All assets must be verified before deleting local state. The release is an archive, not a corrected distribution release.
+
+To recover the old ISO, download its four parts and concatenate them in order. The combined SHA256 must be `7d36b5847fba7240ee2795bb42ff3ea841652569b7eb983cfec6ea96968ae11c` (3,579,805,696 bytes). The evidence archive contains 614 selected regular files, including public QA screenshots/logs/results/documents, available signed metadata/packages, frozen original/corrected source and the static-only manual network/reboot drafts. The per-file manifest records sizes and SHA256; SHA256SUMS covers uploaded assets. Drafts remain unapplied and unvalidated at runtime.
+
+The corrected clockfix-001 build was intentionally stopped while compressing SquashFS. No corrected ISO was produced. Its disposable build disk, installed-test disks and extracted caches will be removed after successful archive verification. There is no supported continuation after removal; rebuild in a new contained VM. Original target .deb cache coverage is incomplete and repositories are mutable, so preservation is not a byte-identical reconstruction guarantee.
+
+The project working directory is deleted, and Windows12 index entries are marked skip-worktree to avoid accidental remote source deletion. Shared parent Git history/metadata is retained because it contains unrelated projects. The user-requested global continue skill and its global fallback remain installed; the obsolete backup created during its setup is removed. The existing GitHub CLI predates this project/thread and is retained. No global package/configuration rollback is needed.

@@ -1,4 +1,9 @@
 # Windows12 engineering instructions
+
+## Current status — complete local removal requested
+
+The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.
+
 Build an actual installable Linux distribution with a cohesive Windows-style experience. Support everyday workflows, including Microsoft Office via web applications where appropriate. Never claim Windows parity or tested support without evidence.
 
 ## Absolute boundary this run

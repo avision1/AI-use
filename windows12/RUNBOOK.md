@@ -1,5 +1,10 @@
 # Runbook
 
+## Current status — complete local removal requested
+
+The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.
+
+
 ## Current handover — corrected build stopped
 
 Sole project: `/home/avision/gitclone/AI-use/windows12/`; Linux Mint22.3/Noble x86_64; current free space approximately60GiB. Current main before these handoff edits was `ed2d15e92484aabbe2a664745e2a3fc92bed5249`. The user's stop request deliberately ended corrected build `clockfix-001` during SquashFS compression. Guest shutdown was clean. Owner1524 exited1 because no successful build/export marker existed; monitor7783 exited0; validation queue64013 exited130. A fresh process check found no build/QEMU/monitor/validation process; `python3 -B scripts/probe-qmp.py status` reports no QMP listener.

@@ -1,5 +1,10 @@
 # Project state — current handover, 2026-11-06 America/Chicago
 
+## Current status — complete local removal requested
+
+The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.
+
+
 ## Current state: clockfix-001 stopped; no corrected ISO
 
 Local/remote main before handoff edits: `ed2d15e92484aabbe2a664745e2a3fc92bed5249`. User explicitly stopped the corrected KVM build while SquashFS compression was underway. Owner session1524 exited1 because no successful build marker/export was produced; monitor7783 exited0; validation queue64013 exited130. The guest reached clean ACPI S5. Reconciliation now finds no build/QEMU/monitor/validation process and `scripts/probe-qmp.py status` reports no QMP listener.

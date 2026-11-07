@@ -1,5 +1,10 @@
 # Decisions
 
+## Current status — complete local removal requested
+
+The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.
+
+
 ## Current decision — basic installed GUI evidence is distinct from installer acceptance
 
 At clean source main `24f9ad931c190e0b3309beabbcd76a0943c307af`, the parent completed installed graphical review session51793: return0/guest-exited, unchanged sealed baseline and no cleanup/baseline errors. The ISO-free, network-free BIOS child used existing KVM access, host CPU and 2D virtio graphics without guest graphics workarounds. Reviewed default Wayland login/layout/menu, Dolphin/Kate, basic DOCX save/reopen/public export and lock/logout/relogin observations are recorded in `docs/INSTALLED_DESKTOP_PREVIEW4.md`. Preserve those observations as manual evidence while automatic flags remain false; do not inflate them into full Office-corpus, native Microsoft Office, general application or hardware certification.
