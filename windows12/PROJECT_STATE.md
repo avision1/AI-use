@@ -2,6 +2,8 @@
 
 ## 2026-11-20 restart
 
+The `clockfix-003` image also completed BIOS Calamares, ISO-free boot, signed repository upgrades and normal Discover authorization, Dolphin trash recovery, Writer save and reopen, and installed changes surviving a guest reboot. The Microsoft 365 launcher reached the public sign-in page. See [the daily-drive evidence](HANDOFF.md#daily-drive-validation--2026-11-20). Those results apply to `clockfix-003`. Preview5 adds the taskbar Guide and is pending a fresh build and acceptance.
+
 Windows12 source restored and local main synchronized to `b192efe31166c908ba10efe6b40d2fe96256a1cf` before this checkpoint. Prior runtime files were removed after archiving. The workspace had about 89 GiB free at restart, the package mirrors responded, and the existing KVM device is accessible. Project-local VM tools were prepared from verified archive inputs. W12-005 tracks the guest preflight and fresh corrected ISO under `clockfix-002`. See [RUNBOOK.md](RUNBOOK.md#rebuild-after-local-removal).
 
 All 97 contained guest checks and deterministic packaging passed. The guest shut down, its disposable disk was reclaimed, and its logs and frozen source remain local. The 3.58 GB `clockfix-003` ISO passed checksum and content audit. The BIOS retry showed the ISO boot menu. Normal UEFI Calamares installation, the RTC update, ISO-free installed boot and QA login to Wayland passed in KVM. LibreOffice Calc passed a basic formula check. Both test guests shut down, with the installed baseline and NVRAM preserved. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20) for evidence and remaining validation.

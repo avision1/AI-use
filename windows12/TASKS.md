@@ -2,7 +2,7 @@
 
 ## 2026-11-20 restart tasks
 
-- W12-005: `clockfix-003` passed checksum, content audit, BIOS menu capture, normal UEFI Calamares installation with RTC update, ISO-free UEFI installed boot and Wayland login. Corrected-image BIOS installation and broader workflow validation remain open. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20).
+- W12-005: `clockfix-003` passed checksum, content audit, normal UEFI and BIOS Calamares with RTC update, and ISO-free installed boot and Wayland login on both paths. BIOS daily workflows and same-disk reboot passed. Preview5 and installed Secure Boot acceptance are pending. See the [daily-drive evidence](HANDOFF.md#daily-drive-validation--2026-11-20).
 - W12-022: Normal UEFI manual-disk review passed with a read-only baseline and copied final NVRAM. Installed root, mounted EFI partition, QA login and a LibreOffice Calc formula were observed. Guest shutdown and original disk/NVRAM preservation passed.
 - W12-019: Passed against the corrected ISO. The content audit verified `/usr/sbin/hwclock` as a nonempty executable file in SquashFS and `util-linux-extra` as installed. The separate UEFI installation log records a successful RTC update.
 - W12-043: Use one VM at a time. Keep reusable authenticated inputs and evidence. Reclaim reviewed disposable outputs once pending gates no longer depend on them.
