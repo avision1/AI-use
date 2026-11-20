@@ -112,3 +112,5 @@ The user explicitly stopped `clockfix-001` during SquashFS compression for hando
 ## D049 — Rebuild from source with staged local resource use
 
 The 2026-11-20 restart supersedes the local removal request for source checkout. The archived `clockfix-001` disk contents are unavailable because the disk was deleted, so the corrected build uses a fresh run. Run inexpensive dependency and guest checks before the full build. Prepare validation tools when their checks are due and retire disposable outputs after their evidence and consumers have been checked. Preserve authenticated inputs with a concrete reuse or reconstruction purpose. Publish project-only source and evidence summaries as each meaningful checkpoint is ready.
+
+While the user is gaming, run a single KVM build confined to one available host CPU at low CPU and I/O priority. The content audit can check the RTC utility from SquashFS metadata it already reads. Calamares runtime acceptance still requires a contained installation and review of its clock step.

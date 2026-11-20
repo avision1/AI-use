@@ -374,6 +374,11 @@ def audit(args, iso, output, result):
             raise ValueError('Required core package missing, ambiguous or not installed: ' + package)
         core_versions[package] = candidates[0]['Version']
     result['installed_core_package_versions'] = core_versions
+    hwclock = '/usr/sbin/hwclock'
+    hwclock_entry = entries[resolve_image(hwclock, entries)]
+    if hwclock_entry['mode'][0] != '-' or hwclock_entry['mode'][3] != 'x' or not hwclock_entry['size']:
+        raise ValueError('Calamares RTC utility is not a nonempty owner-executable regular file: ' + hwclock)
+    result['calamares_hwclock'] = {'path': hwclock, 'mode': hwclock_entry['mode']}
     owned = set(read('/var/lib/dpkg/info/windows12-desktop.list').decode('utf-8').splitlines())
     os_release = read('/etc/os-release').decode('utf-8')
     if not re.search(r'^ID=(["\']?)debian\1$', os_release, re.M):
