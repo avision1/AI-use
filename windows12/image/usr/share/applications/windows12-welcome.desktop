@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Welcome to Windows12 Linux
-Comment=Desktop guide and compatibility notes (offline)
+Name=Windows12 Guide
+Comment=Offline desktop help and compatibility notes
 Exec=/usr/local/bin/windows12-welcome
 TryExec=/usr/local/bin/windows12-welcome
 Icon=help-browser

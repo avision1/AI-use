@@ -23,7 +23,13 @@ if (!tasks) tasks = panel.addWidget("org.kde.plasma.icontasks");
 launcher.index = 0;
 tasks.index = 1;
 tasks.currentConfigGroup = ["General"];
-tasks.writeConfig("launchers", ["applications:org.kde.dolphin.desktop", "applications:chromium.desktop", "applications:windows12-office.desktop", "applications:org.kde.discover.desktop"]);
+tasks.writeConfig("launchers", [
+    "applications:org.kde.dolphin.desktop",
+    "applications:chromium.desktop",
+    "applications:windows12-office.desktop",
+    "applications:org.kde.discover.desktop",
+    "applications:windows12-welcome.desktop"
+]);
 // Repair each missing essential widget even on a partially populated panel.
 if (!present["org.kde.plasma.systemtray"]) panel.addWidget("org.kde.plasma.systemtray");
 if (!present["org.kde.plasma.digitalclock"]) panel.addWidget("org.kde.plasma.digitalclock");
