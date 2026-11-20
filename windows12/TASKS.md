@@ -2,7 +2,7 @@
 
 ## 2026-11-20 restart tasks
 
-- W12-005: Signed VM tool preparation and 97 guest checks passed. `clockfix-002` was interrupted before export. The replacement `clockfix-003` is building at low priority on one host CPU. Confirm its export, content audit and BIOS capture before installation and desktop validation. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20).
+- W12-005: Signed VM tool preparation and 97 guest checks passed. `clockfix-002` was interrupted before export. The low-priority replacement `clockfix-003` reached SquashFS compression. Confirm its export, content audit and BIOS capture before installation and desktop validation. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20).
 - W12-019: The content audit now checks that `/usr/sbin/hwclock` resolves to a nonempty executable file in SquashFS. The Python syntax check passed. Run the gate against the corrected export when it exists.
 - W12-043: Use one VM at a time. Keep reusable authenticated inputs and evidence. Reclaim reviewed disposable outputs once pending gates no longer depend on them.
 - W12-044: Closed for `clockfix-001`. The archived removal checkpoint confirms its disk was deleted.
