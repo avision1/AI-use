@@ -1,5 +1,30 @@
 # Runbook
 
+## Rebuild after local removal
+
+The archive in [LOCAL_REMOVAL.md](docs/LOCAL_REMOVAL.md) preserves the original preview and selected evidence. The old builder disk was removed. Start the corrected candidate with a new run name. Leave the archived ISO and evidence remote unless a specific validation or debugging step needs them.
+
+From `windows12/`, use the project-local environment in [Contained setup](#contained-setup). First check that this shell can reach the signed host package index and the Debian target repository. For the current Noble-based Mint host:
+
+```bash
+curl -fsSI --max-time 10 https://archive.ubuntu.com/ubuntu/dists/noble/InRelease
+curl -fsSI --max-time 10 https://deb.debian.org/debian/dists/trixie/InRelease
+```
+
+Once access works, prepare just the VM tool profile and use the contained overlay check before allocating a full build disk:
+
+```bash
+python3 -B scripts/build-tools.py
+python3 -B scripts/build-vm.py --prepare
+python3 -B scripts/check-overlay-vm.py
+```
+
+Add `--probe-proxy` to the overlay check when the build uses an inherited HTTPS proxy. The probe verifies the guest can reach signed Debian metadata through that proxy.
+
+After a passing guest check and confirmed VM shutdown, run one full builder. Use `python3 -B scripts/build-vm.py --fresh-run clockfix-002 --accelerator kvm --cpu-profile host` when the existing KVM device is accessible. Otherwise select TCG explicitly with `python3 -B scripts/build-vm.py --fresh-run clockfix-002 --accelerator tcg --cpu-profile max`. Confirm the slug has never been used and budget free space for the builder disk, export and disposable validation before launch. Run only one VM at a time. Prepare ISO inspection tools after a real export and firmware tools when the UEFI gate is next.
+
+Use `python3 -B scripts/build-monitor.py --interval 60 --auto-cleanup` during the full build for the existing temporary-copy cleanup and free-space safeguard. After each stopped gate, save its result, logs, checksums and provenance. Reclaim only reviewed disposable disks and derived copies after checking that no process or backing chain uses them and that no pending gate needs them. Keep authenticated inputs or caches while they save a planned download or enable reconstruction. Keep the current candidate and the installation baseline until their acceptance checks finish. Push reviewed Windows12 source and evidence summaries to main at each meaningful checkpoint with a nonforced update. Keep large runtime files out of Git.
+
 ## Current status — complete local removal requested
 
 The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.

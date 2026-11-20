@@ -1,5 +1,9 @@
 # Windows12 engineering instructions
 
+## Current status — development resumed
+
+Use the [restart checkpoint](HANDOFF.md#restart-checkpoint--2026-11-20) and [rebuild runbook](RUNBOOK.md#rebuild-after-local-removal). The historical removal below explains why the prior VM and tools are absent. Keep one VM active at a time, retain inputs with a build or reconstruction purpose, and reclaim disposable outputs once their evidence is saved and no remaining gate depends on them. Push reviewed Windows12 checkpoints to main.
+
 ## Current status — complete local removal requested
 
 The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.

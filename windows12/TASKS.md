@@ -1,5 +1,12 @@
 # Stable tasks
 
+## 2026-11-20 restart tasks
+
+- W12-005: Signed VM tool preparation passed. Run the bounded guest overlay check before building `clockfix-002` in [the rebuild runbook](RUNBOOK.md#rebuild-after-local-removal).
+- W12-043: Use one VM at a time. Keep reusable authenticated inputs and evidence. Reclaim reviewed disposable outputs once pending gates no longer depend on them.
+- W12-044: Closed for `clockfix-001`. The archived removal checkpoint confirms its disk was deleted.
+- W12-006: Push reviewed Windows12 changes to main regularly using nonforced updates.
+
 ## Current status — complete local removal requested
 
 The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.

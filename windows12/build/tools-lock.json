@@ -22,9 +22,9 @@
   },
   "libc6": {
     "Package": "libc6",
-    "Version": "2.39-0ubuntu8.9",
-    "Filename": "pool/main/g/glibc/libc6_2.39-0ubuntu8.9_amd64.deb",
-    "SHA256": "ff5557d99b51f761c4b7c92368b9cc45565eda17df9bf9eb4b134d09825008be",
+    "Version": "2.39-0ubuntu8.12",
+    "Filename": "pool/main/g/glibc/libc6_2.39-0ubuntu8.12_amd64.deb",
+    "SHA256": "d821b41fc59cb4978ecd53bc83e5c964ac15d305c8d2ac4c8a35aebe55010fb9",
     "base": "https://archive.ubuntu.com/ubuntu"
   },
   "libgcc-s1": {
@@ -232,9 +232,9 @@
   },
   "libudev1": {
     "Package": "libudev1",
-    "Version": "255.4-1ubuntu8.18",
-    "Filename": "pool/main/s/systemd/libudev1_255.4-1ubuntu8.18_amd64.deb",
-    "SHA256": "6de7321adcc37068f8702fe6826473662df73c36377e00f07f7acfeca2e40d4a",
+    "Version": "255.4-1ubuntu8.19",
+    "Filename": "pool/main/s/systemd/libudev1_255.4-1ubuntu8.19_amd64.deb",
+    "SHA256": "bab9dc308d71f6a5d7b91a50503ff3de70d49bcdad5e3aacfcbf951c88bb9260",
     "base": "https://archive.ubuntu.com/ubuntu"
   },
   "libcap2": {
@@ -316,9 +316,9 @@
   },
   "libsystemd0": {
     "Package": "libsystemd0",
-    "Version": "255.4-1ubuntu8.18",
-    "Filename": "pool/main/s/systemd/libsystemd0_255.4-1ubuntu8.18_amd64.deb",
-    "SHA256": "2da3fa28302cf007075e89cdc3aabe6973916afcd62c3884b86f67b77c73a5b4",
+    "Version": "255.4-1ubuntu8.19",
+    "Filename": "pool/main/s/systemd/libsystemd0_255.4-1ubuntu8.19_amd64.deb",
+    "SHA256": "341983d7034366a9c2f34c2288805404802f2011032ffcdbcadb3194edbf161e",
     "base": "https://archive.ubuntu.com/ubuntu"
   },
   "liblzma5": {

@@ -1,5 +1,11 @@
 # Windows12 restart handoff — 2026-11-06 America/Chicago
 
+## Restart checkpoint — 2026-11-20
+
+The user resumed Windows12 and asked to limit local resource use, reclaim unneeded build files, and push progress regularly. Restored the 120-file Windows12 tree from GitHub main `b192efe31166c908ba10efe6b40d2fe96256a1cf` and verified every blob and executable mode. Native Git fetch failed at DNS, so the working files were restored through the GitHub connection while local Git refs remained stale.
+
+Native Git fetched and aligned local main with `b192efe31166c908ba10efe6b40d2fe96256a1cf`, preserving the restart edits and the sparse checkout. Both package mirrors responded, `/dev/kvm` was readable and writable, and the signed Noble indexes and package hashes verified for the project-local VM tools. The updated tool lock records the extracted versions. The archived removal below explains the missing VM and ISO. The fresh candidate is `clockfix-002`. Follow [the current runbook](RUNBOOK.md#rebuild-after-local-removal) for its preflight, build and storage retention.
+
 ## Current status — complete local removal requested
 
 The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.
