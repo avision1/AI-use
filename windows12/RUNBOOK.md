@@ -21,11 +21,20 @@ python3 -B scripts/check-overlay-vm.py
 
 Add `--probe-proxy` to the overlay check when the build uses an inherited HTTPS proxy. The probe verifies the guest can reach signed Debian metadata through that proxy.
 
-After a passing guest check and confirmed VM shutdown, run one full builder. Use `python3 -B scripts/build-vm.py --fresh-run clockfix-002 --accelerator kvm --cpu-profile host` when the existing KVM device is accessible. Otherwise select TCG explicitly with `python3 -B scripts/build-vm.py --fresh-run clockfix-002 --accelerator tcg --cpu-profile max`. Confirm the slug has never been used and budget free space for the builder disk, export and disposable validation before launch. Run only one VM at a time. Prepare ISO inspection tools after a real export and firmware tools when the UEFI gate is next.
+After a passing guest check and confirmed VM shutdown, set `build_run` to an unused run slug. Use `python3 -B scripts/build-vm.py --fresh-run "$build_run" --accelerator kvm --cpu-profile host` when the existing KVM device is accessible. Otherwise select TCG explicitly with `python3 -B scripts/build-vm.py --fresh-run "$build_run" --accelerator tcg --cpu-profile max`. Check the current [handoff](HANDOFF.md#restart-checkpoint--2026-11-20) for existing jobs, and budget free space for the builder disk, export and disposable validation before launch. Run only one VM at a time. Prepare ISO inspection tools after a real export and firmware tools when the UEFI gate is next.
 
 Use `python3 -B scripts/build-monitor.py --interval 60 --auto-cleanup` during the full build for the existing temporary-copy cleanup and free-space safeguard. After each stopped gate, save its result, logs, checksums and provenance. Reclaim only reviewed disposable disks and derived copies after checking that no process or backing chain uses them and that no pending gate needs them. Keep authenticated inputs or caches while they save a planned download or enable reconstruction. Keep the current candidate and the installation baseline until their acceptance checks finish. Push reviewed Windows12 source and evidence summaries to main at each meaningful checkpoint with a nonforced update. Keep large runtime files out of Git.
 
 `clockfix-002` is occupied by the interrupted run. While the game is active on this host, the replacement builder and monitor use the prefix `nice -n 19 ionice -c 3 taskset -c 11`. Check the allowed CPU list before reusing that prefix on another host. After `clockfix-003` exports a real ISO and the builder exits successfully, prepare the ISO tools with `python3 -B scripts/build-tools.py --profile iso`, then run `python3 -B scripts/validate-after-build.py` for the content audit and BIOS capture under the same resource limits.
+
+After reviewing the BIOS captures and confirming that guest and queue have stopped, prepare authenticated OVMF with `python3 -B scripts/build-tools.py --profile firmware`. For the normal UEFI Calamares gate, use a TTY and run the following commands one at a time under the same resource limits. Run the installed-disk review after Calamares completes, its session log is exported, and the live guest has shut down cleanly.
+
+```bash
+python3 -B scripts/desktop-test.py artifacts/vm-build-clockfix-003/windows12-amd64-preview.iso --output artifacts/calamares-uefi-clockfix-003 --disk-size 24G --accelerator kvm --cpu-profile host --video virtio --firmware-profile uefi --timeout 7200
+python3 -B scripts/manual-disk-review.py --live-result artifacts/calamares-uefi-clockfix-003/result.json --output artifacts/calamares-uefi-installed-clockfix-003 --accelerator kvm --cpu-profile host --video virtio --firmware-profile uefi
+```
+
+Keep evidence of the UEFI live session, the EFI partition and completed Calamares installation on the disposable disk, and the RTC step result in the installer log. In the ISO-free session, confirm EFI mode, the installed root and mounted EFI system partition, and the public test account login. Check the original disk and live NVRAM seals after shutdown. See [the desktop test guide](docs/DESKTOP_TEST.md#review-a-manually-installed-disk).
 
 ## Current status — complete local removal requested
 
