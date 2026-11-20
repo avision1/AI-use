@@ -27,6 +27,8 @@ Use `python3 -B scripts/build-monitor.py --interval 60 --auto-cleanup` during th
 
 `clockfix-002` is occupied by the interrupted run. For low-priority work on this host use `nice -n 19 ionice -c 3 taskset -c 8-11`. The original gaming limit used just CPU 11. Check the allowed CPU list before reusing that prefix on another host. After `clockfix-003` exports a real ISO and the builder exits successfully, the follow-on session prepares ISO tools with `python3 -B scripts/build-tools.py --profile iso`, then runs `python3 -B scripts/validate-after-build.py` for the content audit and BIOS capture under the same resource limits.
 
+For this run the user authorized 60 GB of total local project allocation, with space left free on the SSD and host responsiveness maintained. Use `du -sx -B1 .` and `df -B1 .` from `windows12/` to check both limits before allocating a new VM disk or retaining a large derived copy. Use the existing runner and monitor for active jobs and avoid overlapping heavy stages.
+
 After reviewing the BIOS captures and confirming that guest and queue have stopped, prepare authenticated OVMF with `python3 -B scripts/build-tools.py --profile firmware`. For the normal UEFI Calamares gate, use a TTY and run the following commands one at a time under the same resource limits. Run the installed-disk review after Calamares completes, its session log is exported, and the live guest has shut down cleanly.
 
 ```bash
