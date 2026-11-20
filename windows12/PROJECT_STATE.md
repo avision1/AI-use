@@ -4,7 +4,7 @@
 
 Windows12 source restored and local main synchronized to `b192efe31166c908ba10efe6b40d2fe96256a1cf` before this checkpoint. Prior runtime files were removed after archiving. The workspace had about 89 GiB free at restart, the package mirrors responded, and the existing KVM device is accessible. Project-local VM tools were prepared from verified archive inputs. W12-005 tracks the guest preflight and fresh corrected ISO under `clockfix-002`. See [RUNBOOK.md](RUNBOOK.md#rebuild-after-local-removal).
 
-All 97 contained guest checks and deterministic packaging passed. The guest shut down, its disposable disk was reclaimed, and its logs and frozen source remain local. The host reboot interrupted `clockfix-002` before export. The sole active KVM guest is `clockfix-003`. Desktop and installer package setup reached SquashFS compression. The two build vCPUs have a four-CPU affinity mask, low CPU priority and idle I/O priority. ISO export, content audit and BIOS capture are pending. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20) for session handles and provenance.
+All 97 contained guest checks and deterministic packaging passed. The guest shut down, its disposable disk was reclaimed, and its logs and frozen source remain local. The host reboot interrupted `clockfix-002` before export. Its replacement, `clockfix-003`, completed and shut down. The 3.58 GB ISO passed the checksum and content audit, which confirmed the executable `hwclock` in SquashFS. The BIOS capture is running. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20) for session handles and provenance.
 
 ## Current status — complete local removal requested
 

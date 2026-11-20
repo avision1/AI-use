@@ -2,8 +2,8 @@
 
 ## 2026-11-20 restart tasks
 
-- W12-005: Signed VM tool preparation and 97 guest checks passed. `clockfix-002` was interrupted before export. The low-priority replacement `clockfix-003` reached SquashFS compression. Confirm its export, content audit and BIOS capture before installation and desktop validation. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20).
-- W12-019: The content audit now checks that `/usr/sbin/hwclock` resolves to a nonempty executable file in SquashFS. The Python syntax check passed. Run the gate against the corrected export when it exists.
+- W12-005: Signed VM tool preparation and 97 guest checks passed. `clockfix-003` exported and passed its checksum and content audit. Review the queued BIOS capture before Calamares installation and desktop validation. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20).
+- W12-019: Passed against the corrected ISO. The content audit verified `/usr/sbin/hwclock` as a nonempty executable file in SquashFS and `util-linux-extra` as installed. The installer clock step is a separate runtime gate.
 - W12-043: Use one VM at a time. Keep reusable authenticated inputs and evidence. Reclaim reviewed disposable outputs once pending gates no longer depend on them.
 - W12-044: Closed for `clockfix-001`. The archived removal checkpoint confirms its disk was deleted.
 - W12-006: Push reviewed Windows12 changes to main regularly using nonforced updates.

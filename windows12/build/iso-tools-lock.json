@@ -15,9 +15,9 @@
   },
   "libc6": {
     "Package": "libc6",
-    "Version": "2.39-0ubuntu8.9",
-    "Filename": "pool/main/g/glibc/libc6_2.39-0ubuntu8.9_amd64.deb",
-    "SHA256": "ff5557d99b51f761c4b7c92368b9cc45565eda17df9bf9eb4b134d09825008be",
+    "Version": "2.39-0ubuntu8.12",
+    "Filename": "pool/main/g/glibc/libc6_2.39-0ubuntu8.12_amd64.deb",
+    "SHA256": "d821b41fc59cb4978ecd53bc83e5c964ac15d305c8d2ac4c8a35aebe55010fb9",
     "base": "https://archive.ubuntu.com/ubuntu"
   },
   "libgcc-s1": {
