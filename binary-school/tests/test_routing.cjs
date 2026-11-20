@@ -17,6 +17,15 @@ async function test(){
   b.nodes['#notes'].value='Retain the draft when a link is invalid';b.navigate('#lesson/999');assert.equal(JSON.parse(b.disk['binary-school-v1']).notes[0],'Retain the draft when a link is invalid');assert.equal(b.run('activeLessonId'),null);
   b.navigate('#courses');assert(b.nodes['#app'].innerHTML.includes('Build understanding'));b.navigate('#lesson/26');assert.equal(b.run('activeLessonId'),26);
  }
+ const catalog=browser('#catalog');await settled();
+ catalog.nodes['#lessonsearch'].value='push arguments stack';
+ catalog.nodes['#lessonsearch'].oninput();
+ const firstMatch=catalog.nodes['#searchresults'].innerHTML.match(/href="(#[^"]+)"/)[1];
+ catalog.navigate(firstMatch);
+ catalog.navigate('#catalog');
+ assert.equal(catalog.nodes['#lessonsearch'].value,'push arguments stack');
+ assert(catalog.nodes['#app'].innerHTML.includes('Stack arguments without push instructions'));
+ assert(!catalog.nodes['#app'].innerHTML.includes('137 matching lessons'));
  const b=browser('#home');b.run('home=()=>{throw Error("render failure")}');await settled();assert.match(b.nodes['#app'].innerHTML,/<h1>This view could not load\./);assert(b.nodes['#app'].innerHTML.includes('href="#resources"'));b.navigate('#lesson/0');assert.equal(b.run('activeLessonId'),0);
  b.run('lesson=()=>{throw Error("later failure")}');b.navigate('#lesson/26');assert(b.nodes['#app'].innerHTML.includes('This view could not load'));assert.equal(b.run('activeLessonId'),null);b.navigate('#courses');assert(b.nodes['#app'].innerHTML.includes('Build understanding'));
  console.log('Passed: missing lesson/course entry, accessible recovery links/focus, notebook preservation, startup and later rendering failures, and hash navigation recovery.');

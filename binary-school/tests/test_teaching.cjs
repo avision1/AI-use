@@ -1,5 +1,13 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert'),path=require('path');
 const root=path.join(__dirname,'..','site');let src=fs.readFileSync(path.join(root,'app.js'),'utf8');src=src.slice(0,src.lastIndexOf("fetch('curriculum.json')"));const el=()=>({value:'',style:{},setAttribute(){},classList:{toggle(){}}});const ctx={window:{addEventListener(){}},document:{querySelector:()=>el()},localStorage:{getItem:()=>null},setTimeout:()=>0};vm.createContext(ctx);vm.runInContext(src,ctx);const db=JSON.parse(fs.readFileSync(path.join(root,'curriculum.json'),'utf8'));vm.runInContext('db='+JSON.stringify(db),ctx);
+const setup=db.lessons.find(l=>l.id===0);
+assert.equal(setup.downloads[0][1],'labs/setup-lab.c');
+assert(setup.sections.filter(section=>section.code).every(section=>section.code.includes('setup-lab.c')));
+assert(setup.sections.find(section=>section.title.includes('Linux / WSL')).code.includes('next\nnext\nprint input\nprint result'));
+assert(runLesson(0).includes('Mark this lesson studied'));
+const firstFlag=runLesson(108);
+for(const id of [0,8,17])assert(firstFlag.includes('href="#lesson/'+id+'"'));
+function runLesson(id){return vm.runInContext('lesson('+id+')',ctx)}
 for(const l of db.lessons.filter(l=>l.flagDigest)){assert(l.code.includes('disassemble /r gate'));assert(l.code.includes('stepi'));assert(!l.code.includes('\nlist\n'));assert(l.sections.some(s=>s.title.includes('Optional source-level')));assert(l.sections.some(s=>s.text?.includes('ptrace')));}
 for(const id of [73,74,78,105]){const l=db.lessons.find(l=>l.id===id);assert.equal(l.videoRole,'background');const html=vm.runInContext('mediaPanel('+JSON.stringify(l)+')',ctx);assert(!html.includes('youtube-nocookie.com'));assert(l.sections?.length);}
 const library=vm.runInContext('videoLibrary()',ctx);assert.equal((library.match(/youtube-nocookie.com\/embed/g)||[]).length,6);assert(vm.runInContext('lesson(74)',ctx).includes('MinGW GCC debug information is not an MSVC PDB'));assert(fs.existsSync(path.join(root,'images/debugger-evidence.svg')));
