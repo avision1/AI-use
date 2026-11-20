@@ -2,7 +2,7 @@
 
 ## 2026-11-20 restart
 
-The `clockfix-003` image also completed BIOS Calamares, ISO-free boot, signed repository upgrades and normal Discover authorization, Dolphin trash recovery, Writer save and reopen, and installed changes surviving a guest reboot. The Microsoft 365 launcher reached the public sign-in page. See [the daily-drive evidence](HANDOFF.md#daily-drive-validation--2026-11-20). Those results apply to `clockfix-003`. Preview5 adds the taskbar Guide and is pending a fresh build and acceptance.
+The `clockfix-003` image also completed BIOS Calamares, ISO-free boot, signed repository upgrades and normal Discover authorization, Dolphin trash recovery, Writer save and reopen, and installed changes surviving a guest reboot. The Microsoft 365 launcher reached the public sign-in page. The same ISO booted with Secure Boot enabled and kernel integrity lockdown in Microsoft-enrolled OVMF. See [the daily-drive evidence](HANDOFF.md#daily-drive-validation--2026-11-20). Preview5 adds the taskbar Guide and passed 106 contained source and deterministic packaging checks. Its ISO build and runtime acceptance are pending. No VM remains active.
 
 Windows12 source restored and local main synchronized to `b192efe31166c908ba10efe6b40d2fe96256a1cf` before this checkpoint. Prior runtime files were removed after archiving. The workspace had about 89 GiB free at restart, the package mirrors responded, and the existing KVM device is accessible. Project-local VM tools were prepared from verified archive inputs. W12-005 tracks the guest preflight and fresh corrected ISO under `clockfix-002`. See [RUNBOOK.md](RUNBOOK.md#rebuild-after-local-removal).
 

@@ -2,7 +2,7 @@
 
 An independent installable Linux distribution project for everyday Windows-style workflows. The first implementation targets Debian 13 amd64 and KDE Plasma, with a familiar taskbar, file manager, settings, Office web launchers and an offline office alternative. It is not a Microsoft product.
 
-The archived preview ISO passed a content audit, offline BIOS installation through Debian Installer and Calamares, and installed-disk boots without the ISO. VM evidence includes default Wayland, basic DOCX/XLSX save and reopen, and normal UEFI live boot. The current milestone is a fresh ISO with the clock-utility fix, followed by validation of that ISO. UEFI installation, broader everyday workflows, hardware coverage, and Windows application compatibility certification remain pending. See [project state](PROJECT_STATE.md), [Calamares evidence](docs/CALAMARES_PREVIEW4.md), [UEFI evidence](docs/UEFI_PREVIEW4.md), and [the archive record](docs/LOCAL_REMOVAL.md).
+The `clockfix-003` preview passes the content audit, BIOS and normal UEFI Calamares installation, and installed-disk boot without the ISO. It set the hardware clock in both installers. The BIOS VM also passed software updates, file recovery, document reopening and reboot persistence. The live ISO booted with Secure Boot enforced in enrolled OVMF. Preview5 adds a taskbar shortcut to the offline guide and passed the contained source checks. Its ISO build, installed Secure Boot and target-device testing remain open. See [the daily-drive evidence](HANDOFF.md#daily-drive-validation--2026-11-20) and [project state](PROJECT_STATE.md).
 
 ## Start or resume engineering
 

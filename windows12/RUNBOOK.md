@@ -1,5 +1,39 @@
 # Runbook
 
+## Resume preview5 after the six-minute checkpoint
+
+No preview5 full build has started. The retained reference is `artifacts/vm-build-clockfix-003/windows12-amd64-preview.iso`, SHA256 `df8b15f269e4876d9ee1468e7912fdd87edc6a86bbe4eb21b4d6e28654f95d54`. Start with [the current handoff](HANDOFF.md#daily-drive-validation--2026-11-20) for the 106 passing source checks, retained evidence and stopped job state. Reconcile the runner lock and QMP before starting a VM. The 60 GB limit applies to total local project allocation. Check `du -sx -B1 .` and `df -B1 .` before the build and each further allocation. Keep one VM active and leave SSD headroom.
+
+From `windows12/` with the [contained environment](#contained-setup), verify that the source check for the exact candidate passed and its VM shut down. If a build input or covered source changed, run `nice -n 19 ionice -c 3 taskset -c 8-11 python3 -B scripts/check-overlay-vm.py` and wait for its result. Preserve the report and package proof before reclaiming the disposable check disk. With `.work/builder/runs/preview5` and `artifacts/vm-build-preview5` both unused, launch the fresh builder, then start the monitor in a separate TTY once `active-build.json` records `preview5`.
+
+```bash
+nice -n 19 ionice -c 3 taskset -c 8-11 python3 -Bu scripts/build-vm.py --fresh-run preview5 --accelerator kvm --cpu-profile host --vcpus 4
+nice -n 19 ionice -c 3 taskset -c 8-11 python3 -B scripts/build-monitor.py --interval 60 --auto-cleanup --project-byte-limit 57000000000
+```
+
+The optional 57 GB early guard leaves room below 60 GB. If the monitor pauses the guest, confirm QMP status and resolve the allocation before any explicit resume. It does not cover growth between polls or later audit and installation work, so budget those steps separately. After the builder and monitor stop, require `build.exit` of `0` and a matching ISO checksum. Use the stored authenticated ISO tools, or prepare them with `python3 -B scripts/build-tools.py --profile iso` if absent.
+
+```bash
+nice -n 19 ionice -c 3 taskset -c 8-11 python3 -B scripts/audit-iso.py artifacts/vm-build-preview5/windows12-amd64-preview.iso --source-archive .work/builder/runs/preview5/checks.tar --source-lock .work/builder/runs/preview5/build-source.sha256 --output artifacts/audit-preview5
+```
+
+Preserve a passing audit result, report and checksums before reclaiming its extracted SquashFS. Before allocating both installer disks, check whether the completed preview5 builder disk can be retired. Keep the export, frozen source, reports, signed inputs and all disk baselines still in use, and verify backing chains and stopped owners before deleting any disk. Prepare authenticated OVMF with `python3 -B scripts/build-tools.py --profile firmware` if required. Run the following commands one at a time in separate TTY sessions. Keep Calamares completion and RTC log evidence, confirm a clean live shutdown, and retain the recorded live disk and final NVRAM seal before starting the installed review.
+
+```bash
+nice -n 19 ionice -c 3 taskset -c 8-11 python3 -B scripts/desktop-test.py artifacts/vm-build-preview5/windows12-amd64-preview.iso --output artifacts/calamares-secure-preview5 --disk-size 20G --accelerator kvm --cpu-profile host --video virtio --firmware-profile uefi-secure --timeout 7200
+nice -n 19 ionice -c 3 taskset -c 8-11 python3 -B scripts/manual-disk-review.py --live-result artifacts/calamares-secure-preview5/result.json --output artifacts/calamares-secure-installed-preview5 --accelerator kvm --cpu-profile host --video virtio --firmware-profile uefi-secure
+```
+
+Record `SecureBoot=1`, `SetupMode=0` and kernel lockdown from both guests. Confirm the installed guest booted without the ISO, mounts its own root and EFI partitions, logs into Plasma, and opens Windows12 Guide from the fresh profile's taskbar. After shutdown, confirm the original disk, NVRAM and firmware seals. Use the same process for BIOS revalidation with empty output paths and a new disposable disk.
+
+```bash
+nice -n 19 ionice -c 3 taskset -c 8-11 python3 -B scripts/boot-test.py artifacts/vm-build-preview5/windows12-amd64-preview.iso --output artifacts/bios-menu-preview5 --timeout 75 --interval 15
+nice -n 19 ionice -c 3 taskset -c 8-11 python3 -B scripts/desktop-test.py artifacts/vm-build-preview5/windows12-amd64-preview.iso --output artifacts/calamares-bios-preview5 --disk-size 20G --accelerator kvm --cpu-profile host --video virtio --firmware-profile bios --timeout 7200
+nice -n 19 ionice -c 3 taskset -c 8-11 python3 -B scripts/manual-disk-review.py --live-result artifacts/calamares-bios-preview5/result.json --output artifacts/calamares-bios-installed-preview5 --accelerator kvm --cpu-profile host --video virtio --firmware-profile bios
+```
+
+Review guest evidence before recording a pass, and push source and evidence summaries at each completed gate. See [the desktop test guide](docs/DESKTOP_TEST.md#review-a-manually-installed-disk) for evidence capture, optional networking and reboot checks.
+
 ## Rebuild after local removal
 
 The archive in [LOCAL_REMOVAL.md](docs/LOCAL_REMOVAL.md) preserves the original preview and selected evidence. The old builder disk was removed. Start the corrected candidate with a new run name. Leave the archived ISO and evidence remote unless a specific validation or debugging step needs them.
@@ -38,7 +72,7 @@ python3 -B scripts/manual-disk-review.py --live-result artifacts/calamares-uefi-
 
 Keep evidence of the UEFI live session, the EFI partition and completed Calamares installation on the disposable disk, and the RTC step result in the installer log. In the ISO-free session, confirm EFI mode, the installed root and mounted EFI system partition, and the public test account login. Check the original disk and live NVRAM seals after shutdown. See [the desktop test guide](docs/DESKTOP_TEST.md#review-a-manually-installed-disk).
 
-Those UEFI sessions have completed. Their output paths are occupied and preserved as evidence. See [the current handoff](HANDOFF.md#restart-checkpoint--2026-11-20) before starting another VM. The next contained platform gate is the corrected ISO's BIOS Calamares installation and ISO-free boot, using new output paths and a new disposable disk.
+Those UEFI sessions have completed. Their output paths are occupied and preserved as evidence. See [the current handoff](HANDOFF.md#restart-checkpoint--2026-11-20) and [the preview5 procedure](#resume-preview5-after-the-six-minute-checkpoint) before starting another VM.
 
 ## Current status — complete local removal requested
 
