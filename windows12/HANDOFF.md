@@ -1,5 +1,13 @@
 # Windows12 restart handoff — 2026-11-06 America/Chicago
 
+## Daily-drive validation — 2026-11-20
+
+The user asked to continue through daily-drive readiness, use subagents as useful, push checkpoints, and keep the host responsive inside the 60 GB allocation. `clockfix-003` completed offline BIOS Calamares in SeaBIOS/KVM on a new 20 GiB disposable disk. Session `31922` exited 0 after the live-medium shutdown prompt. In `artifacts/calamares-bios-clockfix-003/`, `screen-0019.ppm` shows the MSDOS/ext4 plan and bootloader target `/dev/vda`, `screen-0023.ppm` confirms BIOS mode and the overlay root, and `screen-0027.ppm` shows completion. `calamares-session.log` SHA256 `8eb6e77ceb1ba0919ac071f8c977a46f9329afd3beb158346a6c2098f75d5d14` records a successful RTC update, BIOS GRUB installation and completion.
+
+The sole active review controller is `27970`, using `artifacts/calamares-bios-installed-clockfix-003/`. It boots a disposable writable child with the ISO detached and the baseline read-only. The two new opt-ins attach one user-mode NAT NIC and allow guest reboot in the same child. Installed DNS/TLS, repository access and authorization, file and document workflows, and persistence are pending. A separate diskless `uefi-secure` KVM test profile authenticates enrolled OVMF from the existing package lock. Its firmware preparation passed locally. Run live enforcement and the contained regression suite after the current VM stops.
+
+The next source package is `0.1.0~preview5`, with a taskbar shortcut for the offline Windows12 Guide. The previous ISO remains the runtime reference until the new image passes its own gates. Before another full build, verify that the completed `clockfix-003` builder disk has no live users or backing consumers. It currently holds 21.59 GB of intermediate build state backed directly by the pinned cloud image. Keep frozen source, logs, tools, checksums, both ISOs when available, and each retained installed baseline together with its child artifacts. Retiring that completed builder disk will make a new build and audit fit within the budget.
+
 ## Restart checkpoint — 2026-11-20
 
 The corrected ISO completed a contained offline UEFI Calamares installation. In `artifacts/calamares-uefi-clockfix-003/`, `screen-0007.ppm` shows UEFI, Wayland and the live overlay root. `screen-0023.ppm` shows GPT on the new `/dev/vda`, a 300 MiB FAT32 EFI partition mounted at `/boot/efi`, and an ext4 root. `screen-0034.ppm` shows All Done. The install used American English, the default America/New_York timezone and the public QA account with automatic login disabled.

@@ -30,6 +30,13 @@ UEFI_MEMBERS = {
     'template': 'usr/share/OVMF/OVMF_VARS_4M.fd',
     'descriptor': 'usr/share/qemu/firmware/60-edk2-x86_64.json',
 }
+SECURE_UEFI_MEMBERS = {
+    'code': 'usr/share/OVMF/OVMF_CODE_4M.secboot.fd',
+    'template': 'usr/share/OVMF/OVMF_VARS_4M.ms.fd',
+    'descriptor': 'usr/share/qemu/firmware/40-edk2-x86_64-secure-enrolled.json',
+}
+SECURE_UEFI_CODE_ALIAS = 'usr/share/OVMF/OVMF_CODE_4M.ms.fd'
+UEFI_PROFILES = {'uefi': UEFI_MEMBERS, 'uefi-secure': SECURE_UEFI_MEMBERS}
 CPU_PROFILES = ('max', 'Nehalem', 'host')
 ACCELERATORS = ('tcg', 'kvm')
 KVM_DEVICE = Path('/dev/kvm')
@@ -318,8 +325,8 @@ def binary_evidence(value, maximum):
                      'bytes': len(payload), 'identity': list(identity(before))}
 
 
-def uefi_paths():
-    return {name: strict_path(FIRMWARE_TOOLS / member) for name, member in UEFI_MEMBERS.items()}
+def uefi_paths(profile='uefi'):
+    return {name: strict_path(FIRMWARE_TOOLS / member) for name, member in UEFI_PROFILES[profile].items()}
 
 
 def firmware_sources_unchanged(record):
@@ -328,9 +335,13 @@ def firmware_sources_unchanged(record):
             raise ValueError('Original UEFI firmware input changed')
 
 
-def prepare_uefi(output, env, source=None):
-    """Authenticate normal OVMF data, then copy only its writable varstore."""
+def prepare_uefi(output, env, source=None, *, profile='uefi'):
+    """Authenticate the selected OVMF profile and make a private varstore."""
     try:
+        secure = profile == 'uefi-secure'
+        if secure and source:
+            raise ValueError('Secure Boot profile only supports live media')
+        selected = UEFI_PROFILES[profile]
         lock, lock_evidence = read_evidence(ROOT / 'build/firmware-tools-lock.json')
         entry = lock.get('ovmf')
         if (not isinstance(entry, dict) or entry.get('Package') != 'ovmf'
@@ -355,22 +366,31 @@ def prepare_uefi(output, env, source=None):
                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout
         if len(payload) > 64 * 1024 ** 2:
             raise ValueError('OVMF data stream exceeds its size bound')
-        wanted = set(UEFI_MEMBERS.values())
+        wanted = set(selected.values())
+        if secure:
+            wanted.add(SECURE_UEFI_CODE_ALIAS)
         members = {}
         with tarfile.open(fileobj=io.BytesIO(payload), mode='r:') as stream:
             for member in stream:
                 name = member.name.removeprefix('./')
                 if name not in wanted:
                     continue
-                if name in members or not member.isfile() or not 0 < member.size <= 8 * 1024 ** 2:
+                if name in members:
+                    raise ValueError('OVMF data members are ambiguous or invalid')
+                if secure and name == SECURE_UEFI_CODE_ALIAS:
+                    if not member.issym() or member.linkname != Path(selected['code']).name:
+                        raise ValueError('Unexpected OVMF Secure Boot code alias in locked package')
+                    members[name] = member.linkname
+                    continue
+                if not member.isfile() or not 0 < member.size <= 8 * 1024 ** 2:
                     raise ValueError('OVMF data members are ambiguous or invalid')
                 members[name] = stream.extractfile(member).read()
         if set(members) != wanted:
-            raise ValueError('Normal OVMF firmware data members missing')
+            raise ValueError('Selected OVMF firmware data members missing')
         inputs, verified_bytes = {}, {}
-        for name, path in uefi_paths().items():
+        for name, path in uefi_paths(profile).items():
             data, evidence = binary_evidence(path, 8 * 1024 ** 2)
-            if data != members[UEFI_MEMBERS[name]]:
+            if data != members[selected[name]]:
                 raise ValueError('Prepared OVMF ' + name + ' differs from its locked package')
             inputs[name], verified_bytes[name] = evidence, data
         descriptor = json.loads(verified_bytes['descriptor'].decode('utf-8'), object_pairs_hook=unique_object)
@@ -378,14 +398,19 @@ def prepare_uefi(output, env, source=None):
             raise ValueError('OVMF descriptor must be a JSON object')
         mapping = descriptor.get('mapping', {})
         features = descriptor.get('features', [])
+        required_features = {'requires-smm', 'secure-boot', 'enrolled-keys'} if secure else set()
+        allowed_features = {'acpi-s3', 'amd-sev', 'verbose-dynamic'} | required_features
+        descriptor_code = SECURE_UEFI_CODE_ALIAS if secure else selected['code']
         if (not isinstance(mapping, dict) or descriptor.get('interface-types') != ['uefi'] or mapping.get('device') != 'flash'
-                or mapping.get('executable') != {'filename': '/' + UEFI_MEMBERS['code'], 'format': 'raw'}
-                or mapping.get('nvram-template') != {'filename': '/' + UEFI_MEMBERS['template'], 'format': 'raw'}
+                or mapping.get('executable') != {'filename': '/' + descriptor_code, 'format': 'raw'}
+                or mapping.get('nvram-template') != {'filename': '/' + selected['template'], 'format': 'raw'}
                 or not isinstance(features, list)
                 or any(not isinstance(feature, str) for feature in features)
-                or not set(features).issubset({'acpi-s3', 'amd-sev', 'verbose-dynamic'})
+                or not required_features <= set(features) <= allowed_features
                 or not any(target.get('architecture') == 'x86_64' and 'pc-q35-*' in target.get('machines', [])
                            for target in descriptor.get('targets', []) if isinstance(target, dict))):
+            if secure:
+                raise ValueError('Expected enrolled Secure Boot OVMF descriptor for q35 with required SMM')
             raise ValueError('Expected normal non-Secure-Boot OVMF descriptor for q35 without required SMM')
         variable_bytes = verified_bytes['template']
         if source:
@@ -406,10 +431,10 @@ def prepare_uefi(output, env, source=None):
             destination.write(variable_bytes)
             destination.flush()
             os.fsync(destination.fileno())
-        record = {'profile': 'uefi', 'inputs_verified': True, 'lock': lock_evidence,
+        record = {'profile': profile, 'inputs_verified': True, 'lock': lock_evidence,
                   'package': {'version': entry.get('Version'), **archive_evidence}, 'inputs': inputs,
                   'vars_copy_initial': binary_evidence(variables, 8 * 1024 ** 2)[1],
-                  'secure_boot_requested': False, 'required_smm': False}
+                  'secure_boot_requested': secure, 'required_smm': secure}
         if source:
             record['vars_source'] = source['uefi_vars_baseline']
             manual_firmware_unchanged(source)
@@ -417,7 +442,7 @@ def prepare_uefi(output, env, source=None):
         write_new(output / 'firmware-verification.json', record)
         return record
     except Exception as error:
-        write_new(output / 'firmware-verification.json', {'profile': 'uefi', 'inputs_verified': False,
+        write_new(output / 'firmware-verification.json', {'profile': profile, 'inputs_verified': False,
                                                         'error': str(error)})
         raise ValueError('UEFI firmware verification failed: ' + str(error)) from error
 
@@ -611,8 +636,8 @@ def run(args):
     vgabios = strict_path(firmware.parent / video_rom)
     if not qemu.is_file() or not firmware.is_file() or not vgabios.is_file() or not datadir.is_dir():
         raise ValueError('Prepared project QEMU/SeaBIOS tools are missing')
-    if args.firmware_profile == 'uefi' and any(not path.is_file() for path in uefi_paths().values()):
-        raise ValueError('Prepared project normal OVMF firmware is missing')
+    if args.firmware_profile in UEFI_PROFILES and any(not path.is_file() for path in uefi_paths(args.firmware_profile).values()):
+        raise ValueError('Prepared project OVMF firmware is missing for ' + args.firmware_profile)
     qimg = strict_path(tools / 'usr/bin/qemu-img')
     if (args.disk_size or source) and not qimg.is_file():
         raise ValueError('Prepared project qemu-img is missing')
@@ -644,10 +669,13 @@ def run(args):
 def diagnostic_profiles(args):
     """Select only fixed contained emulation profiles; never accept QEMU fragments."""
     if (args.cpu_profile not in CPU_PROFILES or args.video not in VIDEO_PROFILES
-            or args.firmware_profile not in ('bios', 'uefi') or args.accelerator not in ACCELERATORS):
+            or args.firmware_profile not in ('bios', *UEFI_PROFILES) or args.accelerator not in ACCELERATORS):
         raise ValueError('Unsupported CPU, video, firmware or accelerator diagnostic profile')
     if args.cpu_profile == 'host' and args.accelerator != 'kvm':
         raise ValueError('The host CPU profile requires explicitly selected KVM acceleration')
+    if args.firmware_profile == 'uefi-secure' and (
+            args.accelerator != 'kvm' or getattr(args, 'disk_size', None) or getattr(args, 'installed_result', None)):
+        raise ValueError('Secure Boot requires KVM and a live ISO without an installed or disposable disk')
     return args.cpu_profile, VIDEO_PROFILES[args.video]
 
 
@@ -662,22 +690,32 @@ def require_accelerator(args):
 def desktop_command(args, iso, qemu, firmware, datadir, output, disk=None, source=None):
     serial = output / 'serial.log'
     cpu_profile, (video_device, video_rom) = diagnostic_profiles(args)
-    uefi = args.firmware_profile == 'uefi'
+    uefi = args.firmware_profile in UEFI_PROFILES
+    secure = args.firmware_profile == 'uefi-secure'
     require_source_firmware(args, source)
-    machine = ('q35' if uefi else 'pc') + ',accel=' + args.accelerator + ',smm=off'
+    if secure and disk:
+        raise ValueError('Secure Boot profile only supports diskless live media')
+    allow_reboot = getattr(args, 'allow_reboot', False)
+    if type(allow_reboot) is not bool or (allow_reboot and (not source or source.get('kind') != 'manual-live-disk')):
+        raise ValueError('Guest reboot opt-in requires a manual installed-disk review')
+    machine = ('q35' if uefi else 'pc') + ',accel=' + args.accelerator + (',smm=on' if secure else ',smm=off')
     if uefi:
         machine += ',pflash0=uefi-code,pflash1=uefi-vars'
     command = [str(qemu), '-machine', machine, '-cpu', cpu_profile, '-smp', '2', '-m', str(args.memory)]
+    if secure:
+        command += ['-global', 'driver=cfi.pflash01,property=secure,value=on']
     if not uefi:
         command += ['-bios', str(firmware)]
     command += ['-L', str(datadir),
-               '-no-user-config', '-nodefaults', '-display', 'none', '-monitor', 'none', '-no-reboot',
-               '-device', video_device + ',romfile=' + str(Path(firmware).parent / video_rom),
+                '-no-user-config', '-nodefaults', '-display', 'none', '-monitor', 'none']
+    if not allow_reboot:
+        command += ['-no-reboot']
+    command += ['-device', video_device + ',romfile=' + str(Path(firmware).parent / video_rom),
                '-device', 'qemu-xhci,id=usb', '-device', 'usb-tablet,bus=usb.0',
                '-boot', 'order=c,menu=off' if source else 'order=d,menu=off',
                '-D', str(output / 'qemu-debug.log'), '-serial', 'file:' + str(serial)]
     if uefi:
-        command += ['-blockdev', json.dumps({'driver': 'file', 'filename': str(uefi_paths()['code']),
+        command += ['-blockdev', json.dumps({'driver': 'file', 'filename': str(uefi_paths(args.firmware_profile)['code']),
                                              'node-name': 'uefi-code-file', 'read-only': True}),
                     '-blockdev', json.dumps({'driver': 'raw', 'file': 'uefi-code-file',
                                              'node-name': 'uefi-code', 'read-only': True}),
@@ -700,6 +738,8 @@ def desktop_command(args, iso, qemu, firmware, datadir, output, disk=None, sourc
 def require_source_firmware(args, source):
     if not source:
         return
+    if args.firmware_profile == 'uefi-secure':
+        raise ValueError('Secure Boot profile only supports live media')
     manual = source.get('kind') == 'manual-live-disk'
     profile = source.get('firmware_profile', 'bios') if manual else 'bios'
     if args.firmware_profile != profile or (profile == 'uefi' and not manual):
@@ -741,7 +781,8 @@ def launch(args, iso, qemu, qimg, firmware, datadir, output, source=None):
     require_source_firmware(args, source)
     require_accelerator(args)
     env = environment(output)
-    uefi = prepare_uefi(output, env, source) if args.firmware_profile == 'uefi' else None
+    uefi = (prepare_uefi(output, env, source, profile=args.firmware_profile)
+            if args.firmware_profile in UEFI_PROFILES else None)
     disk = None
     if source or args.disk_size:
         disk = fresh(output / ('installed-desktop.qcow2' if source else 'disposable-install.qcow2'))
@@ -849,7 +890,8 @@ def main():
     parser.add_argument('--cpu-profile', choices=CPU_PROFILES, default='max', help='Contained CPU diagnostic profile; host requires KVM, default max')
     parser.add_argument('--accelerator', choices=ACCELERATORS, default='tcg', help='TCG, or explicitly selected existing KVM access; no host setup or fallback')
     parser.add_argument('--video', choices=tuple(VIDEO_PROFILES), default='standard', help='Standard VGA or 2D virtio-vga; no host GPU access')
-    parser.add_argument('--firmware-profile', choices=('bios', 'uefi'), default='bios', help='BIOS or authenticated normal UEFI; UEFI is live-ISO-only, without Secure Boot')
+    parser.add_argument('--firmware-profile', choices=('bios', *UEFI_PROFILES), default='bios',
+                        help='BIOS, authenticated normal UEFI, or Secure Boot for diskless KVM live ISO')
     parser.add_argument('--disk-size', help='Optional NEW disposable qcow2, 8G–128G; no existing disk accepted')
     parser.add_argument('--network', choices=('none', 'user'), default='none', help='No networking, or optional user NAT without forwards/shares')
     args = parser.parse_args()
@@ -859,8 +901,10 @@ def main():
         parser.error('--disk-size is only supported for live ISO sessions')
     if args.installed_result and args.firmware_profile == 'uefi':
         parser.error('UEFI profile is live-ISO-only; installed proof is BIOS-specific')
-    if args.cpu_profile == 'host' and args.accelerator != 'kvm':
-        parser.error('The host CPU profile requires explicitly selected KVM acceleration')
+    try:
+        diagnostic_profiles(args)
+    except ValueError as error:
+        parser.error(str(error))
     if not 1 <= args.timeout <= 7200 or not 1024 <= args.memory <= 8192:
         parser.error('timeout or memory outside supported bounds')
     if args.disk_size and (not re.fullmatch(r'[1-9][0-9]{0,2}G', args.disk_size) or not 8 <= int(args.disk_size[:-1]) <= 128):

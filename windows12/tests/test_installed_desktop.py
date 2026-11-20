@@ -91,23 +91,30 @@ class InstalledDesktopTests(unittest.TestCase):
     def source(self):
         return self.module['installed_source'](self.result_path)
 
-    def uefi_fixture(self, features=None):
+    def uefi_fixture(self, features=None, *, secure=False, alias_target=None):
         firmware = self.root / '.work/builder/firmware-tools'
+        members = self.module['SECURE_UEFI_MEMBERS' if secure else 'UEFI_MEMBERS']
+        code_name = self.module['SECURE_UEFI_CODE_ALIAS'] if secure else members['code']
         descriptor = {'interface-types': ['uefi'], 'mapping': {'device': 'flash',
-                      'executable': {'filename': '/usr/share/OVMF/OVMF_CODE_4M.fd', 'format': 'raw'},
-                      'nvram-template': {'filename': '/usr/share/OVMF/OVMF_VARS_4M.fd', 'format': 'raw'}},
+                      'executable': {'filename': '/' + code_name, 'format': 'raw'},
+                      'nvram-template': {'filename': '/' + members['template'], 'format': 'raw'}},
                       'features': features or [], 'targets': [{'architecture': 'x86_64', 'machines': ['pc-q35-*']}]}
-        contents = {'code': b'parser-only normal firmware', 'template': b'parser-only empty varstore',
+        contents = {'code': b'parser-only firmware', 'template': b'parser-only varstore',
                     'descriptor': json.dumps(descriptor).encode()}
         payload = io.BytesIO()
         with tarfile.open(fileobj=payload, mode='w') as archive:
-            for name, relative in self.module['UEFI_MEMBERS'].items():
+            for name, relative in members.items():
                 path = firmware / relative
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(contents[name])
                 member = tarfile.TarInfo('./' + relative)
                 member.size = len(contents[name])
                 archive.addfile(member, io.BytesIO(contents[name]))
+            if secure:
+                alias = tarfile.TarInfo('./' + code_name)
+                alias.type = tarfile.SYMTYPE
+                alias.linkname = alias_target or Path(members['code']).name
+                archive.addfile(alias)
         archive_bytes = b'!<arch>\n' + hashlib.sha256(payload.getvalue()).digest()
         cached = self.root / '.work/builder/debs/ovmf_fixture_all.deb'
         cached.parent.mkdir(parents=True, exist_ok=True)
@@ -393,6 +400,54 @@ class InstalledDesktopTests(unittest.TestCase):
             spawn.assert_not_called()
             run_process.assert_not_called()
         self.assertFalse(self.output.exists())
+
+    def test_secure_uefi_requires_diskless_live_kvm_and_protects_pflash(self):
+        run = self.module['run']
+        self.args.firmware_profile, self.args.iso = 'uefi-secure', self.iso
+        for accelerator, disk_size, installed in (
+                ('tcg', None, None), ('kvm', '8G', None), ('kvm', None, self.result_path)):
+            with self.subTest(accelerator=accelerator, disk_size=disk_size, installed=installed):
+                self.args.accelerator, self.args.disk_size, self.args.installed_result = accelerator, disk_size, installed
+                with self.assertRaisesRegex(ValueError, 'Secure Boot requires KVM and a live ISO'):
+                    run(self.args)
+                self.assertFalse(self.output.exists())
+        self.args.disk_size = self.args.installed_result = None
+        command = self.module['desktop_command'](
+            self.args, self.iso, 'qemu', self.root / 'bios.bin', 'data', self.output)
+        self.assertIn('q35,accel=kvm,smm=on,pflash0=uefi-code,pflash1=uefi-vars', command)
+        self.assertEqual(command[command.index('-global') + 1], 'driver=cfi.pflash01,property=secure,value=on')
+        nodes = [json.loads(command[index + 1]) for index, arg in enumerate(command) if arg == '-blockdev']
+        self.assertEqual([node['node-name'] for node in nodes],
+                         ['uefi-code-file', 'uefi-code', 'uefi-vars-file', 'uefi-vars', 'iso-file', 'live-iso'])
+        self.assertTrue(nodes[0]['read-only'] and nodes[4]['read-only'])
+        self.assertTrue(nodes[0]['filename'].endswith('OVMF_CODE_4M.secboot.fd'))
+        self.assertEqual(nodes[2]['filename'], str(self.output / 'uefi-vars.fd'))
+
+    def test_secure_uefi_authenticates_enrolled_template_and_archive_alias(self):
+        required = ['requires-smm', 'secure-boot', 'enrolled-keys']
+        prepare = self.module['prepare_uefi']
+        for label, features, alias, failure in (
+                ('enrolled', required, None, None),
+                ('empty', required[:-1], None, 'Expected enrolled Secure Boot'),
+                ('wrong-alias', required, 'OVMF_CODE_4M.fd', 'Unexpected OVMF Secure Boot code alias')):
+            with self.subTest(label=label):
+                firmware, contents, _, payload, _ = self.uefi_fixture(features, secure=True, alias_target=alias)
+                output = self.root / label
+                output.mkdir()
+                with patch.dict(prepare.__globals__, {'ROOT': self.root, 'FIRMWARE_TOOLS': firmware}), patch(
+                        'shutil.which', return_value='/usr/bin/dpkg-deb'), patch(
+                        'subprocess.run', return_value=Mock(stdout=payload)):
+                    if failure:
+                        with self.assertRaisesRegex(ValueError, failure):
+                            prepare(output, {}, profile='uefi-secure')
+                        self.assertFalse((output / 'uefi-vars.fd').exists())
+                    else:
+                        record = prepare(output, {}, profile='uefi-secure')
+                        self.assertTrue(record['inputs_verified'] and record['secure_boot_requested'])
+                        self.assertTrue(record['required_smm'])
+                        self.assertEqual((output / 'uefi-vars.fd').read_bytes(), contents['template'])
+                    template = firmware / self.module['SECURE_UEFI_MEMBERS']['template']
+                    self.assertEqual(template.read_bytes(), contents['template'])
 
     def test_uefi_authentication_copy_and_startup_preserve_inputs_and_false_flags(self):
         firmware, contents, archive_bytes, payload, unused = self.uefi_fixture()

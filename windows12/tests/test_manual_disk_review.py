@@ -342,6 +342,7 @@ class ManualDiskReviewTests(unittest.TestCase):
             self.assertIs(summary[key], False)
         run = json.loads((self.output / 'run.json').read_text())
         self.assertNotIn(str(self.iso), run['command'])
+        self.assertIn('-no-reboot', run['command'])
         self.assertFalse(any(arg in run['command'] for arg in ('-kernel', '-initrd', '-append', '-drive', '-netdev')))
         nodes = [json.loads(run['command'][i + 1]) for i, arg in enumerate(run['command']) if arg == '-blockdev']
         self.assertEqual([node['node-name'] for node in nodes], ['baseline-file', 'baseline', 'disk-file', 'install-disk'])
@@ -350,6 +351,28 @@ class ManualDiskReviewTests(unittest.TestCase):
         self.assertIsNone(nodes[1]['backing'])
         self.assertEqual(nodes[-1]['backing'], 'baseline')
         self.assertEqual(run['installed_source']['kind'], 'manual-live-disk')
+
+    def test_manual_review_network_and_reboot_are_explicit(self):
+        self.args.network = 'tap'
+        self.refuse()
+
+        self.args.network = 'user'
+        self.args.allow_reboot = True
+        with patch.dict(self.desktop, {'launch': Mock(return_value=0)}):
+            self.assertEqual(self.module['review'](self.args), 0)
+            launch_args, iso, qemu, _, firmware, datadir, output, source = self.desktop['launch'].call_args.args
+        command = self.desktop['desktop_command'](launch_args, iso, qemu, firmware, datadir, output,
+                                                  output / 'installed-desktop.qcow2', source)
+        self.assertEqual(command[command.index('-netdev') + 1], 'user,id=net0')
+        self.assertIn('virtio-net-pci,netdev=net0,romfile=', command)
+        self.assertNotIn('-nic', command)
+        self.assertNotIn(str(self.iso), command)
+        self.assertNotIn('-no-reboot', command)
+        for other_source in (None, {**source, 'kind': 'di-proof'}):
+            with self.subTest(other_source=other_source is not None):
+                with self.assertRaisesRegex(ValueError, 'manual installed-disk review'):
+                    self.desktop['desktop_command'](launch_args, iso, qemu, firmware, datadir, output,
+                                                    output / 'installed-desktop.qcow2', other_source)
 
     def test_postseal_baseline_mutation_is_retained_as_failure(self):
         def changed(*args):

@@ -163,11 +163,15 @@ def manual_uefi_source(report, run, prior):
 
 
 def review(args):
+    network = getattr(args, 'network', 'none')
+    allow_reboot = getattr(args, 'allow_reboot', False)
     if (type(args.timeout) is not int or not 1 <= args.timeout <= 7200
             or type(args.memory) is not int or not 1024 <= args.memory <= 8192
             or args.cpu_profile not in DESKTOP['CPU_PROFILES'] or args.video not in DESKTOP['VIDEO_PROFILES']
             or args.accelerator not in ('tcg', 'kvm')):
         raise ValueError('Unsupported manual-review deadline, memory or diagnostic profile')
+    if network not in ('none', 'user'):
+        raise ValueError('Unsupported manual-review network mode')
     with DESKTOP['exclusive_runner']():
         profiles = argparse.Namespace(cpu_profile=args.cpu_profile, video=args.video,
                                       firmware_profile=getattr(args, 'firmware_profile', 'bios'), accelerator=args.accelerator)
@@ -186,7 +190,8 @@ def review(args):
         launch_args = argparse.Namespace(iso=Path(source['iso']), installed_result=None, disk_size=None,
                                          output=output, timeout=args.timeout, memory=args.memory,
                                          cpu_profile=args.cpu_profile, video=args.video,
-                                         firmware_profile=profiles.firmware_profile, network='none', accelerator=args.accelerator)
+                                         firmware_profile=profiles.firmware_profile, network=network,
+                                         accelerator=args.accelerator, allow_reboot=allow_reboot)
         try:
             for key in ('result', 'run'):
                 if read_evidence(source[key]['path'])[1] != source[key]:
@@ -221,6 +226,10 @@ def main():
     parser.add_argument('--accelerator', choices=('tcg', 'kvm'), default='tcg', help='KVM requires existing access to /dev/kvm')
     parser.add_argument('--firmware-profile', choices=('bios', 'uefi'), default='bios')
     parser.add_argument('--video', choices=tuple(DESKTOP['VIDEO_PROFILES']), default='standard')
+    parser.add_argument('--network', choices=('none', 'user'), default='none',
+                        help='No networking, or optional user NAT without forwards/shares')
+    parser.add_argument('--allow-reboot', action='store_true',
+                        help='Allow guest-initiated reboots on the same disposable disk within this session')
     args = parser.parse_args()
     if not sys.stdin.isatty():
         parser.error('A TTY-backed interactive session is required')
