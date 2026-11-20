@@ -14,7 +14,20 @@ ctx.location.hash='#paths';run('state.done=[0,129]');assert.equal(run('next().id
 buttons[0].onclick();assert.equal(run('activeStudyLessons().length'),db.lessons.filter(l=>l.course!=='secure').length);assert.deepEqual(plain('state.done'),[0,129]);
 run('bindStudyPaths()');db.studyPlan.diagnostic.forEach((q,i)=>(els['#diagnostic'+i]??=element()).value=q.answer.split('|')[0]);els['#diagnosticform'].onsubmit({preventDefault(){}});assert.equal(run('state.diagnostic.length'),6);assert.deepEqual(plain('state.done'),[0,129]);assert(els['#diagnosticfeedback'].innerHTML.includes('revision route'));
 els['#diagnostic0'].value='wrong';els['#diagnosticform'].onsubmit({preventDefault(){}});assert.equal(run('state.diagnostic.length'),5);assert(els['#diagnosticfeedback'].innerHTML.includes('foundation route'));
-assert(run('searchResults("Artifact checklist")').includes('#lesson/129'));assert(run('searchResults("competing runtime hypotheses")').includes('#lesson/116'));
+assert(run('searchResults(findCatalogLessons("Artifact checklist"))').includes('#lesson/129'));assert(run('searchResults(findCatalogLessons("competing runtime hypotheses"))').includes('#lesson/116'));
+assert.equal(run('findCatalogLessons("  PUSH   arguments STACK  ")[0].title'),'Stack arguments without push instructions');
+assert.equal(run('findCatalogLessons("Artifact checklist no_such_topic").length'),0);
+assert.deepEqual(plain('findCatalogLessons("   ").map(l=>l.id)'),db.lessons.map(l=>l.id));
+assert(run('catalog()').includes('id="searchcount" role="status"'));
+run('bind("catalog")');
+els['#lessonsearch'].value='PUSH arguments STACK';
+els['#lessonsearch'].oninput();
+assert(els['#searchresults'].innerHTML.includes('Stack arguments without push'));
+els['#lessonsearch'].value='no_such_topic';
+els['#lessonsearch'].oninput();
+assert.equal(els['#searchcount'].textContent,'0 matching lessons');
+assert(els['#searchresults'].innerHTML.includes('No lessons match'));
+assert.equal(run('catalogCount(1)'),'1 matching lesson');
 assert(!run('searchableLesson(db.lessons.find(l=>l.id===119))').includes('bs{workshop_')); // do not index worked flag answers
 for(const l of db.lessons.filter(l=>l.practical&&l.id!==117&&l.id!==94))assert(!l.practical.start.includes('no Linux ELF equivalent'));
 assert(run('syllabus()').includes('instructor permission'));assert(run('syllabus()').includes('substantive use'));assert(run('syllabus()').includes('Four outcomes, concrete evidence'));
