@@ -2,8 +2,8 @@
 
 ## 2026-11-20 restart tasks
 
-- W12-005: Signed VM tool preparation and 97 guest checks passed. `clockfix-003` exported and passed its checksum and content audit. Reviewed BIOS capture evidence reaches the boot menu. The contained UEFI Calamares session has reached GRUB. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20).
-- W12-019: Passed against the corrected ISO. The content audit verified `/usr/sbin/hwclock` as a nonempty executable file in SquashFS and `util-linux-extra` as installed. The installer clock step is a separate runtime gate.
+- W12-005: `clockfix-003` exported and passed its checksum and content audit. Reviewed BIOS capture evidence reaches the boot menu. Offline UEFI Calamares completed and its clock step succeeded. Confirm the ISO-free UEFI boot and installed desktop. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20).
+- W12-019: Passed against the corrected ISO. The content audit verified `/usr/sbin/hwclock` as a nonempty executable file in SquashFS and `util-linux-extra` as installed. The separate UEFI installation log records a successful RTC update.
 - W12-043: Use one VM at a time. Keep reusable authenticated inputs and evidence. Reclaim reviewed disposable outputs once pending gates no longer depend on them.
 - W12-044: Closed for `clockfix-001`. The archived removal checkpoint confirms its disk was deleted.
 - W12-006: Push reviewed Windows12 changes to main regularly using nonforced updates.
