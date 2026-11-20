@@ -2,7 +2,7 @@
 
 ## 2026-11-20 restart tasks
 
-- W12-005: Signed VM tool preparation passed. Run the bounded guest overlay check before building `clockfix-002` in [the rebuild runbook](RUNBOOK.md#rebuild-after-local-removal).
+- W12-005: Signed VM tool preparation and 97 guest checks passed. `clockfix-002` is building. Check its export and queued audit and BIOS capture before installation and desktop validation. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20).
 - W12-043: Use one VM at a time. Keep reusable authenticated inputs and evidence. Reclaim reviewed disposable outputs once pending gates no longer depend on them.
 - W12-044: Closed for `clockfix-001`. The archived removal checkpoint confirms its disk was deleted.
 - W12-006: Push reviewed Windows12 changes to main regularly using nonforced updates.

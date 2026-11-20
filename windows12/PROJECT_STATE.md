@@ -4,6 +4,8 @@
 
 Windows12 source restored and local main synchronized to `b192efe31166c908ba10efe6b40d2fe96256a1cf` before this checkpoint. Prior runtime files were removed after archiving. The workspace had about 89 GiB free at restart, the package mirrors responded, and the existing KVM device is accessible. Project-local VM tools were prepared from verified archive inputs. W12-005 tracks the guest preflight and fresh corrected ISO under `clockfix-002`. See [RUNBOOK.md](RUNBOOK.md#rebuild-after-local-removal).
 
+All 97 contained guest checks and deterministic packaging passed. The guest shut down, its disposable disk was reclaimed, and its logs and frozen source remain local. The sole active KVM guest is `clockfix-002`. A successful export triggers the ISO audit and BIOS capture. See the [restart handoff](HANDOFF.md#restart-checkpoint--2026-11-20) for session handles and provenance.
+
 ## Current status — complete local removal requested
 
 The user requested removal of the entire local Windows12 working directory, VM disks, ISO, tools, caches and temporary files, while retaining the global continue skill. This supersedes every older instruction below about retained local disks or resuming `clockfix-001`. Source is preserved on GitHub main; the preview ISO, 614 selected evidence/input files, frozen source snapshots and unapplied drafts are archived in the GitHub draft release `windows12-local-archive-20261106`. See `docs/LOCAL_REMOVAL.md`. After verified upload and cleanup, no local VM continuation is available; rebuild in a new contained environment. Shared parent Git metadata is retained to preserve unrelated repository history.
