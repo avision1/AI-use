@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Persistent build monitor. Auto-clean only reviewed stale sync copies; pause
-only main VM CPUs if cleanup cannot retain6GiB. Never automatically resume.
+"""Persistent build monitor. Auto-clean only reviewed stale sync copies and
+pause the main VM when a storage safeguard triggers. Resume is operator controlled.
 Use a TTY-backed tool session for stdin commands cleanup/status/pause-vm/
 resume-vm/vm-status/stop. stop ends only this monitor, not the guest.
 """
@@ -11,12 +11,23 @@ RUNS=runpy.run_path(str(ROOT/'scripts/build-run-state.py'),run_name='monitor_run
 def safe(path):
  if path.is_symlink() or not path.resolve().is_relative_to(ROOT):raise SystemExit('Monitor path escapes project')
  return path
+def project_allocated_bytes(root,env):
+ # GNU du uses allocated blocks by default and counts each hard link once.
+ result=subprocess.run(['du','-s','-x','-B1','--','.'],cwd=root,env=dict(env,LC_ALL='C'),
+                       stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,errors='replace',timeout=15)
+ if result.returncode:
+  raise ValueError('du exit '+str(result.returncode)+': '+result.stderr.strip()[-512:])
+ match=re.fullmatch(r'([0-9]{1,20})\t\.\n?',result.stdout)
+ if match is None:raise ValueError('Unexpected du allocation summary')
+ return int(match[1])
 def main():
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--interval',type=int,default=60)
  parser.add_argument('--auto-cleanup',action='store_true')
+ parser.add_argument('--project-byte-limit',type=int,help='Pause at this allocated byte count on the project filesystem (sampled once per interval)')
  parser.add_argument('--console-id',help='Optional observed UART serialN already redirected to ringbuf; never redirects automatically')
  args=parser.parse_args()
+ if args.project_byte_limit is not None and args.project_byte_limit<=0:parser.error('--project-byte-limit requires a positive byte count')
  selected,pinned=RUNS['active'](ROOT)
  WORK=selected['work'];OUT=selected['output'];BASE=selected['base']
  def unchanged():RUNS['unchanged'](ROOT,pinned)
@@ -42,20 +53,38 @@ def main():
   result=subprocess.run([sys.executable,'-B',str(ROOT/'scripts/probe-qmp.py'),command,'--reason',reason,'--active-sha',pinned or 'legacy'],env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
   emit({'time':time.time(),'qmp_command':command,'returncode':result.returncode,'response':result.stdout})
   return result.returncode==0
+ def resource_pause(reason):
+  confirmed=qmp('pause',reason)
+  if not confirmed:
+   record={'time':time.time(),'paused':'unconfirmed','reason':reason,'scope':'QMP stop attempted only for main guest; no host changes','requires_explicit_reconciliation':True}
+   try:
+    pending=safe(BASE/'paused-state.pending.json')
+    pending.write_text(json.dumps(record,indent=2)+'\n');pending.replace(safe(BASE/'paused-state.json'))
+   except OSError as error:emit({'pause_marker_error':str(error),'pause_status':'unconfirmed'})
+  return confirmed
  def cleanup():
   unchanged()
   result=subprocess.run([sys.executable,'-B',str(ROOT/'scripts/build-clean-sync.py'),'--apply','--active-sha',pinned or 'legacy'],env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
   emit({'time':time.time(),'cleanup_returncode':result.returncode,'result':result.stdout})
   if free_bytes()<6*1024**3:
    reason='Cleanup failed or free space below6GiB after cleanup: '+str(free_bytes())+' bytes'
-   confirmed=qmp('pause',reason)
-   if not confirmed:
-    record={'time':time.time(),'paused':'unconfirmed','reason':reason,'scope':'QMP stop attempted only for main guest; no host changes','requires_explicit_reconciliation':True}
-    try:
-     pending=safe(BASE/'paused-state.pending.json')
-     pending.write_text(json.dumps(record,indent=2)+'\n');pending.replace(safe(BASE/'paused-state.json'))
-    except OSError as error:emit({'pause_marker_error':str(error),'pause_status':'unconfirmed'})
+   confirmed=resource_pause(reason)
    emit({'time':time.time(),'resource_pause_confirmed':confirmed,'free_bytes':free_bytes(),'requires_explicit_resume':True})
+ def check_project_limit():
+  limit=args.project_byte_limit
+  report={'time':time.time(),'project_byte_limit':limit}
+  reason=None
+  try:
+   allocated=project_allocated_bytes(ROOT,env)
+   report['project_allocated_bytes']=allocated
+   if allocated>=limit:reason=f'Project allocation {allocated} bytes reached the limit of {limit} bytes'
+  except (OSError,subprocess.TimeoutExpired,ValueError) as error:
+   report['project_accounting_error']=str(error)
+   reason='Project allocation accounting failed'
+  emit(report)
+  if reason is not None and not safe(OUT/'build.exit').exists():
+   confirmed=resource_pause(reason)
+   emit({'time':time.time(),'project_guard_reason':reason,'resource_pause_confirmed':confirmed,'requires_explicit_resume':True})
  def read_console():
   unchanged()
   # Cleanup/resource protection executes first; console failures are nonfatal.
@@ -109,9 +138,13 @@ def main():
   emit(status)
   return result.exists()
  stdin_open=True
+ next_project_sample=0
  while True:
   unchanged()
   if args.auto_cleanup and not (OUT/'build.exit').exists():cleanup()
+  if args.project_byte_limit is not None and time.monotonic()>=next_project_sample and not safe(OUT/'build.exit').exists():
+   next_project_sample=time.monotonic()+args.interval
+   check_project_limit()
   if args.console_id is not None:read_console()
   if emit_status():return
   until=time.monotonic()+args.interval

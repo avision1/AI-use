@@ -37,8 +37,11 @@ def main():
  ap.add_argument('--fresh-run',help='NEW isolated full-build slug; never resumes or replaces the legacy candidate')
  ap.add_argument('--accelerator',choices=('tcg','kvm'),default='tcg',help='Explicit acceleration; nondefault hardware requires --fresh-run')
  ap.add_argument('--cpu-profile',choices=('max','host'),default='max',help='Fixed CPU profile; host requires KVM and --fresh-run')
+ ap.add_argument('--vcpus',type=int,choices=(2,4),default=2,help='Guest CPU count; 4 requires a fresh KVM build')
  args=ap.parse_args()
  if args.fresh_run is not None and any((args.prepare,args.probe,args.resume,args.continue_package_stage,args.refresh_package_catalogs,args.package_stage,args.plan_package_downloads,args.inspect_resume,args.continue_after_bootstrap,args.refresh_target_indexes)):ap.error('--fresh-run supports only a NEW full build; no preparation, probe, stage or resume')
+ if args.vcpus != 2 and (args.fresh_run is None or args.accelerator != 'kvm'):
+  ap.error('--vcpus 4 requires --fresh-run and --accelerator kvm')
  try:
   RUNS['require_profile'](args.accelerator,args.cpu_profile,args.fresh_run)
   run_paths=RUNS['require_new'](ROOT,args.fresh_run) if args.fresh_run is not None else RUNS['paths'](ROOT)
@@ -146,7 +149,7 @@ def main():
  qemu=TOOLS/'usr/bin/qemu-system-x86_64';qimg=TOOLS/'usr/bin/qemu-img'
  if not qemu.exists():raise SystemExit('Run python3 scripts/build-tools.py first. No global installation is attempted.')
  firmware=TOOLS/'usr/share/seabios/bios-256k.bin'
- common=[str(qemu),'-machine','pc,accel='+args.accelerator+',smm=off','-cpu',args.cpu_profile,'-smp','2','-m','4096','-bios',str(firmware),'-L',str(TOOLS/'usr/share/qemu'),'-no-user-config','-nodefaults','-display','none','-monitor','none','-no-reboot']
+ common=[str(qemu),'-machine','pc,accel='+args.accelerator+',smm=off','-cpu',args.cpu_profile,'-smp',str(args.vcpus),'-m','4096','-bios',str(firmware),'-L',str(TOOLS/'usr/share/qemu'),'-no-user-config','-nodefaults','-display','none','-monitor','none','-no-reboot']
  if args.probe:
   try:run(common+['-serial','stdio','-net','none'],timeout=10)
   except subprocess.TimeoutExpired:print('QEMU TCG process remained running for 10s; no guest OS verified.')

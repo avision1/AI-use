@@ -125,11 +125,33 @@ class BuilderProfileTests(unittest.TestCase):
         namespace = function.__globals__
         for arguments in [('--fresh-run', 'new', '--resume'), ('--fresh-run', 'new', '--probe'),
                           ('--accelerator', 'kvm', '--cpu-profile', 'host'),
-                          ('--fresh-run', '../old'), ('--cpu-profile', 'max,-smp')]:
+                          ('--fresh-run', '../old'), ('--cpu-profile', 'max,-smp'),
+                          ('--vcpus', '4'), ('--probe', '--vcpus', '4'),
+                          ('--fresh-run', 'new', '--vcpus', '4'),
+                          ('--fresh-run', 'new', '--accelerator', 'kvm', '--vcpus', '3')]:
             with self.subTest(arguments=arguments), patch.dict(namespace, ROOT=self.root, BASE_WORK=self.legacy['base']), patch.object(sys, 'argv', ['build-vm.py', *arguments]), patch.object(Path, 'mkdir', side_effect=AssertionError('Invalid CLI wrote output')), patch.object(module['subprocess'], 'run', side_effect=AssertionError('Invalid CLI accessed dependencies')):
                 with self.assertRaises(SystemExit) as error:
                     function()
                 self.assertEqual(error.exception.code, 2)
+
+    def test_four_vcpus_accepts_fresh_kvm_namespace(self):
+        module = runpy.run_path(str(PROJECT / 'scripts/build-vm.py'), run_name='builder_cli_vcpus')
+        function = module['main']
+        arguments = ['build-vm.py', '--fresh-run', 'new', '--accelerator', 'kvm',
+                     '--cpu-profile', 'host', '--vcpus', '4']
+        profile_guard = Mock()
+        namespace_guard = Mock(side_effect=ValueError('stop at namespace guard'))
+        with (patch.dict(function.__globals__, ROOT=self.root, BASE_WORK=self.legacy['base']),
+              patch.object(sys, 'argv', arguments),
+              patch.dict(module['RUNS'], require_profile=profile_guard, require_new=namespace_guard),
+              patch.object(Path, 'mkdir', side_effect=AssertionError('CLI wrote output before namespace guard')),
+              patch.object(sys, 'stderr', io.StringIO()) as stderr):
+            with self.assertRaises(SystemExit) as error:
+                function()
+        self.assertEqual(error.exception.code, 2)
+        self.assertIn('stop at namespace guard', stderr.getvalue())
+        profile_guard.assert_called_once_with('kvm', 'host', 'new')
+        namespace_guard.assert_called_once_with(self.root, 'new')
 
     def test_busy_shared_runner_prevents_candidate_creation(self):
         module = runpy.run_path(str(PROJECT / 'scripts/build-vm.py'), run_name='builder_busy_test')
