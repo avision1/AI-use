@@ -339,8 +339,6 @@ def prepare_uefi(output, env, source=None, *, profile='uefi'):
     """Authenticate the selected OVMF profile and make a private varstore."""
     try:
         secure = profile == 'uefi-secure'
-        if secure and source:
-            raise ValueError('Secure Boot profile only supports live media')
         selected = UEFI_PROFILES[profile]
         lock, lock_evidence = read_evidence(ROOT / 'build/firmware-tools-lock.json')
         entry = lock.get('ovmf')
@@ -414,8 +412,8 @@ def prepare_uefi(output, env, source=None, *, profile='uefi'):
             raise ValueError('Expected normal non-Secure-Boot OVMF descriptor for q35 without required SMM')
         variable_bytes = verified_bytes['template']
         if source:
-            if source.get('kind') != 'manual-live-disk' or source.get('firmware_profile') != 'uefi':
-                raise ValueError('Only sealed manual UEFI sources may retain NVRAM')
+            if source.get('kind') != 'manual-live-disk' or source.get('firmware_profile') != profile:
+                raise ValueError('Only matching sealed manual UEFI sources may retain NVRAM')
             prior = source['firmware']
             if any(prior.get(key) != current for key, current in
                    (('inputs', inputs), ('lock', lock_evidence),
@@ -619,7 +617,7 @@ class DesktopSession:
 def run(args):
     # Preflight all fixed paths before creating output or launching anything.
     _, (_, video_rom) = diagnostic_profiles(args)
-    if args.installed_result and args.firmware_profile == 'uefi':
+    if args.installed_result and args.firmware_profile in UEFI_PROFILES:
         raise ValueError('UEFI profile is live-ISO-only; installed proof is BIOS-specific')
     require_accelerator(args)
     source = installed_source(args.installed_result) if args.installed_result else None
@@ -673,9 +671,8 @@ def diagnostic_profiles(args):
         raise ValueError('Unsupported CPU, video, firmware or accelerator diagnostic profile')
     if args.cpu_profile == 'host' and args.accelerator != 'kvm':
         raise ValueError('The host CPU profile requires explicitly selected KVM acceleration')
-    if args.firmware_profile == 'uefi-secure' and (
-            args.accelerator != 'kvm' or getattr(args, 'disk_size', None) or getattr(args, 'installed_result', None)):
-        raise ValueError('Secure Boot requires KVM and a live ISO without an installed or disposable disk')
+    if args.firmware_profile == 'uefi-secure' and args.accelerator != 'kvm':
+        raise ValueError('Secure Boot requires explicitly selected KVM acceleration')
     return args.cpu_profile, VIDEO_PROFILES[args.video]
 
 
@@ -693,8 +690,6 @@ def desktop_command(args, iso, qemu, firmware, datadir, output, disk=None, sourc
     uefi = args.firmware_profile in UEFI_PROFILES
     secure = args.firmware_profile == 'uefi-secure'
     require_source_firmware(args, source)
-    if secure and disk:
-        raise ValueError('Secure Boot profile only supports diskless live media')
     allow_reboot = getattr(args, 'allow_reboot', False)
     if type(allow_reboot) is not bool or (allow_reboot and (not source or source.get('kind') != 'manual-live-disk')):
         raise ValueError('Guest reboot opt-in requires a manual installed-disk review')
@@ -738,18 +733,16 @@ def desktop_command(args, iso, qemu, firmware, datadir, output, disk=None, sourc
 def require_source_firmware(args, source):
     if not source:
         return
-    if args.firmware_profile == 'uefi-secure':
-        raise ValueError('Secure Boot profile only supports live media')
     manual = source.get('kind') == 'manual-live-disk'
     profile = source.get('firmware_profile', 'bios') if manual else 'bios'
-    if args.firmware_profile != profile or (profile == 'uefi' and not manual):
+    if args.firmware_profile != profile:
         raise ValueError('UEFI profile is live-ISO-only for D-I proof; manual firmware profile must match its source')
-    if profile == 'uefi' and not all(key in source for key in ('firmware', 'uefi_vars_baseline')):
+    if profile in UEFI_PROFILES and not all(key in source for key in ('firmware', 'uefi_vars_baseline')):
         raise ValueError('Manual UEFI source requires sealed firmware and final NVRAM')
 
 
 def manual_firmware_unchanged(source):
-    if source.get('kind') != 'manual-live-disk' or source.get('firmware_profile') != 'uefi':
+    if source.get('kind') != 'manual-live-disk' or source.get('firmware_profile') not in UEFI_PROFILES:
         return
     firmware_sources_unchanged(source['firmware'])
     prior = source['firmware']
@@ -891,7 +884,7 @@ def main():
     parser.add_argument('--accelerator', choices=ACCELERATORS, default='tcg', help='TCG, or explicitly selected existing KVM access; no host setup or fallback')
     parser.add_argument('--video', choices=tuple(VIDEO_PROFILES), default='standard', help='Standard VGA or 2D virtio-vga; no host GPU access')
     parser.add_argument('--firmware-profile', choices=('bios', *UEFI_PROFILES), default='bios',
-                        help='BIOS, authenticated normal UEFI, or Secure Boot for diskless KVM live ISO')
+                        help='BIOS, authenticated normal UEFI, or authenticated UEFI Secure Boot with KVM')
     parser.add_argument('--disk-size', help='Optional NEW disposable qcow2, 8G–128G; no existing disk accepted')
     parser.add_argument('--network', choices=('none', 'user'), default='none', help='No networking, or optional user NAT without forwards/shares')
     args = parser.parse_args()
@@ -899,7 +892,7 @@ def main():
         parser.error('Supply exactly one ISO or --installed-result')
     if args.installed_result and args.disk_size:
         parser.error('--disk-size is only supported for live ISO sessions')
-    if args.installed_result and args.firmware_profile == 'uefi':
+    if args.installed_result and args.firmware_profile in UEFI_PROFILES:
         parser.error('UEFI profile is live-ISO-only; installed proof is BIOS-specific')
     try:
         diagnostic_profiles(args)

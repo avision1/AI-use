@@ -401,27 +401,32 @@ class InstalledDesktopTests(unittest.TestCase):
             run_process.assert_not_called()
         self.assertFalse(self.output.exists())
 
-    def test_secure_uefi_requires_diskless_live_kvm_and_protects_pflash(self):
+    def test_secure_uefi_requires_kvm_preserves_bios_only_di_and_protects_pflash(self):
         run = self.module['run']
-        self.args.firmware_profile, self.args.iso = 'uefi-secure', self.iso
-        for accelerator, disk_size, installed in (
-                ('tcg', None, None), ('kvm', '8G', None), ('kvm', None, self.result_path)):
-            with self.subTest(accelerator=accelerator, disk_size=disk_size, installed=installed):
-                self.args.accelerator, self.args.disk_size, self.args.installed_result = accelerator, disk_size, installed
-                with self.assertRaisesRegex(ValueError, 'Secure Boot requires KVM and a live ISO'):
-                    run(self.args)
-                self.assertFalse(self.output.exists())
-        self.args.disk_size = self.args.installed_result = None
+        self.args.firmware_profile = 'uefi-secure'
+        self.args.iso, self.args.installed_result = self.iso, None
+        with self.assertRaisesRegex(ValueError, 'Secure Boot requires explicitly selected KVM'):
+            run(self.args)
+        self.args.accelerator, self.args.installed_result = 'kvm', self.result_path
+        with patch.dict(run.__globals__, {'installed_source': Mock()}) as globals_:
+            with self.assertRaisesRegex(ValueError, 'installed proof is BIOS-specific'):
+                run(self.args)
+            globals_['installed_source'].assert_not_called()
+        self.assertFalse(self.output.exists())
+        self.args.installed_result = None
+        disk = self.output / 'disposable-install.qcow2'
         command = self.module['desktop_command'](
-            self.args, self.iso, 'qemu', self.root / 'bios.bin', 'data', self.output)
+            self.args, self.iso, 'qemu', self.root / 'bios.bin', 'data', self.output, disk)
         self.assertIn('q35,accel=kvm,smm=on,pflash0=uefi-code,pflash1=uefi-vars', command)
         self.assertEqual(command[command.index('-global') + 1], 'driver=cfi.pflash01,property=secure,value=on')
         nodes = [json.loads(command[index + 1]) for index, arg in enumerate(command) if arg == '-blockdev']
         self.assertEqual([node['node-name'] for node in nodes],
-                         ['uefi-code-file', 'uefi-code', 'uefi-vars-file', 'uefi-vars', 'iso-file', 'live-iso'])
+                         ['uefi-code-file', 'uefi-code', 'uefi-vars-file', 'uefi-vars', 'iso-file', 'live-iso',
+                          'disk-file', 'install-disk'])
         self.assertTrue(nodes[0]['read-only'] and nodes[4]['read-only'])
         self.assertTrue(nodes[0]['filename'].endswith('OVMF_CODE_4M.secboot.fd'))
         self.assertEqual(nodes[2]['filename'], str(self.output / 'uefi-vars.fd'))
+        self.assertEqual(nodes[6]['filename'], str(disk))
 
     def test_secure_uefi_authenticates_enrolled_template_and_archive_alias(self):
         required = ['requires-smm', 'secure-boot', 'enrolled-keys']
@@ -483,17 +488,25 @@ class InstalledDesktopTests(unittest.TestCase):
             self.assertIs(result[key], False)
 
     def test_manual_uefi_copies_final_nvram_without_changing_originals(self):
-        firmware, contents, archive_bytes, payload, cached = self.uefi_fixture()
+        self.assert_manual_uefi_copies_final_nvram('uefi', 'tcg')
+
+    def test_manual_secure_uefi_copies_final_nvram_without_changing_originals(self):
+        self.assert_manual_uefi_copies_final_nvram('uefi-secure', 'kvm')
+
+    def assert_manual_uefi_copies_final_nvram(self, profile, accelerator):
+        secure = profile == 'uefi-secure'
+        features = ['requires-smm', 'secure-boot', 'enrolled-keys'] if secure else None
+        firmware, contents, _, payload, _ = self.uefi_fixture(features, secure=secure)
         prepare = self.module['prepare_uefi']
         prior = self.root / 'manual-uefi-live'
         prior.mkdir()
         with patch.dict(prepare.__globals__, {'ROOT': self.root, 'FIRMWARE_TOOLS': firmware}), patch('shutil.which', return_value='/usr/bin/dpkg-deb'), patch('subprocess.run', return_value=Mock(stdout=payload)):
-            record = prepare(prior, {})
+            record = prepare(prior, {}, profile=profile)
             variables = prior / 'uefi-vars.fd'
             # Same-size fixture with a distinct boot-variable marker.
             final = b'B' * len(contents['template'])
             variables.write_bytes(final)
-            source = {'kind': 'manual-live-disk', 'firmware_profile': 'uefi', 'firmware': record,
+            source = {'kind': 'manual-live-disk', 'firmware_profile': profile, 'firmware': record,
                       'uefi_vars_baseline': self.module['binary_evidence'](variables, 8 * 1024 ** 2)[1]}
             for key in ('run', 'result'):
                 path = prior / (key + '.json')
@@ -501,14 +514,14 @@ class InstalledDesktopTests(unittest.TestCase):
                 source[key] = self.module['read_evidence'](path)[1]
             source['firmware_verification'] = self.module['read_evidence'](prior / 'firmware-verification.json')[1]
             self.output.mkdir()
-            copied = prepare(self.output, {}, source)
+            copied = prepare(self.output, {}, source, profile=profile)
             self.assertEqual((self.output / 'uefi-vars.fd').read_bytes(), final)
             self.assertNotEqual(final, contents['template'])
             self.assertEqual(variables.read_bytes(), final)
             self.assertEqual(copied['vars_source'], source['uefi_vars_baseline'])
             self.assertEqual(copied['vars_copy_initial']['sha256'], source['uefi_vars_baseline']['sha256'])
             self.assertNotEqual(copied['vars_copy_initial']['identity'], source['uefi_vars_baseline']['identity'])
-            self.args.firmware_profile = 'uefi'
+            self.args.firmware_profile, self.args.accelerator = profile, accelerator
             source['baseline'] = {'path': str(self.disk)}
             command = self.module['desktop_command'](self.args, self.iso, 'qemu', 'bios', 'data', self.output, self.output / 'child.qcow2', source)
             self.assertNotIn('ide-cd,drive=live-iso,id=cdrom', command)
@@ -516,15 +529,18 @@ class InstalledDesktopTests(unittest.TestCase):
             self.assertEqual([node['node-name'] for node in nodes], ['uefi-code-file', 'uefi-code', 'uefi-vars-file', 'uefi-vars', 'baseline-file', 'baseline', 'disk-file', 'install-disk'])
             self.assertTrue(nodes[4]['read-only'])
             self.assertEqual(nodes[-1]['backing'], 'baseline')
+            if secure:
+                self.assertIn('q35,accel=kvm,smm=on,pflash0=uefi-code,pflash1=uefi-vars', command)
+                self.assertIn('driver=cfi.pflash01,property=secure,value=on', command)
             variables.write_bytes(b'X' * len(final))
             with self.assertRaisesRegex(ValueError, 'variable store changed'):
                 self.module['manual_firmware_unchanged'](source)
             failed = self.root / 'tampered-final-vars'
             failed.mkdir()
             with self.assertRaisesRegex(ValueError, 'UEFI firmware verification failed'):
-                prepare(failed, {}, source)
+                prepare(failed, {}, source, profile=profile)
             self.assertFalse((failed / 'uefi-vars.fd').exists())
-        for name, relative in self.module['UEFI_MEMBERS'].items():
+        for name, relative in self.module['UEFI_PROFILES'][profile].items():
             self.assertEqual((firmware / relative).read_bytes(), contents[name])
 
     def test_tampered_uefi_package_or_prepared_bytes_fail_without_vars_or_vm(self):

@@ -100,10 +100,12 @@ class ManualDiskReviewTests(unittest.TestCase):
             spawn.assert_not_called()
         self.assertFalse(self.output.exists())
 
-    def uefi_source_fixture(self):
+    def uefi_source_fixture(self, profile='uefi'):
         fw = self.root / 'firmware'
         paths = {}
-        for name, relative in self.desktop['UEFI_MEMBERS'].items():
+        secure = profile == 'uefi-secure'
+        accelerator = 'kvm' if secure else 'tcg'
+        for name, relative in self.desktop['UEFI_PROFILES'][profile].items():
             path = fw / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(b'T' * 32 if name == 'template' else b'normal-' + name.encode())
@@ -118,17 +120,17 @@ class ManualDiskReviewTests(unittest.TestCase):
         inputs = {name: self.desktop['binary_evidence'](path, 8 * 1024 ** 2)[1] for name, path in paths.items()}
         variables = self.prior / 'uefi-vars.fd'
         variables.write_bytes(b'T' * 32)
-        record = {'profile': 'uefi', 'inputs_verified': True, 'secure_boot_requested': False,
-                  'required_smm': False, 'inputs': inputs, 'lock': self.desktop['read_evidence'](lock)[1],
+        record = {'profile': profile, 'inputs_verified': True, 'secure_boot_requested': secure,
+                  'required_smm': secure, 'inputs': inputs, 'lock': self.desktop['read_evidence'](lock)[1],
                   'package': {'version': 'fixture', **self.desktop['binary_evidence'](archive, 32 * 1024 ** 2)[1]},
                   'vars_copy_initial': self.desktop['binary_evidence'](variables, 8 * 1024 ** 2)[1]}
         variables.write_bytes(b'BOOT_ENTRY_MARKER'.ljust(32, b'!'))
         (self.prior / 'firmware-verification.json').write_text(json.dumps(record))
-        self.run.update(firmware_profile='uefi', firmware=record)
-        self.report.update(firmware_profile='uefi', firmware=record, firmware_inputs_unchanged=True,
+        self.run.update(firmware_profile=profile, firmware=record, accelerator=accelerator)
+        self.report.update(firmware_profile=profile, firmware=record, accelerator=accelerator, firmware_inputs_unchanged=True,
                            uefi_vars_final=self.desktop['binary_evidence'](variables, 8 * 1024 ** 2)[1])
         previous = argparse.Namespace(memory=4096, cpu_profile='max', video='standard',
-                                      firmware_profile='uefi', network='none', accelerator='tcg')
+                                      firmware_profile=profile, network='none', accelerator=accelerator)
         qemu, _, bios, datadir = self.module['tools']('standard')
         with patch.dict(self.desktop['uefi_paths'].__globals__, {'FIRMWARE_TOOLS': fw}):
             self.run['command'] = self.desktop['desktop_command'](previous, self.iso, qemu, bios, datadir, self.prior, self.disk)
@@ -167,6 +169,31 @@ class ManualDiskReviewTests(unittest.TestCase):
             self.save()
             variables.unlink()
             variables.symlink_to(fw / self.desktop['UEFI_MEMBERS']['template'])
+            self.refuse()
+
+    def test_manual_secure_uefi_requires_secure_provenance_and_final_vars(self):
+        profile = 'uefi-secure'
+        fw, variables = self.uefi_source_fixture(profile)
+        self.args.accelerator = 'kvm'
+        with patch.dict(self.desktop['uefi_paths'].__globals__, {'FIRMWARE_TOOLS': fw}), patch.dict(
+                self.module['manual_uefi_source'].__globals__, {'ROOT': self.root}), patch.dict(
+                self.desktop, {'require_accelerator': Mock()}):
+            source = self.module['manual_source'](self.result_path)
+            self.assertEqual(source['firmware_profile'], profile)
+            self.assertEqual(source['uefi_vars_baseline'], self.report['uefi_vars_final'])
+            self.args.firmware_profile = 'uefi'
+            self.refuse()
+            self.args.firmware_profile = profile
+            self.desktop['require_source_firmware'](self.args, source)
+            self.report['firmware']['secure_boot_requested'] = False
+            self.save()
+            with self.assertRaisesRegex(ValueError, 'firmware verification is incomplete'):
+                self.module['manual_source'](self.result_path)
+            self.report['firmware']['secure_boot_requested'] = True
+            self.save()
+            variables.write_bytes(b'X' * 32)
+            with self.assertRaisesRegex(ValueError, 'final variable store seal changed'):
+                self.module['manual_source'](self.result_path)
             self.refuse()
 
     def test_manual_uefi_refuses_changed_original_firmware(self):

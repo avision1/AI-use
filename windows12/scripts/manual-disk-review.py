@@ -69,7 +69,7 @@ def manual_source(value):
     # must still demonstrate TCG. Never infer KVM from a missing field.
     prior_accelerator = report.get('accelerator', 'tcg')
     if (report['mode'] != 'live' or report['installed_source'] is not None
-            or report['firmware_profile'] not in ('bios', 'uefi')
+            or report['firmware_profile'] not in ('bios', *DESKTOP['UEFI_PROFILES'])
             or prior_accelerator not in ('tcg', 'kvm')
             or report['network'] not in ('none', 'user')
             or report['cpu_profile'] not in DESKTOP['CPU_PROFILES']
@@ -120,23 +120,25 @@ def manual_source(value):
 
 
 def manual_uefi_source(report, run, prior):
-    if report['firmware_profile'] == 'bios':
+    profile = report['firmware_profile']
+    if profile == 'bios':
         if report.get('firmware') is not None or run.get('firmware') is not None:
             raise ValueError('BIOS run must not contain UEFI firmware')
         return {'firmware_profile': 'bios'}
     record = report.get('firmware')
+    secure = profile == 'uefi-secure'
     if (not isinstance(record, dict) or record != run.get('firmware')
-            or record.get('profile') != 'uefi' or record.get('inputs_verified') is not True
-            or record.get('secure_boot_requested') is not False or record.get('required_smm') is not False
+            or record.get('profile') != profile or record.get('inputs_verified') is not True
+            or record.get('secure_boot_requested') is not secure or record.get('required_smm') is not secure
             or report.get('firmware_inputs_unchanged') is not True or 'vars_source' in record):
         raise ValueError('Prior live UEFI firmware verification is incomplete')
     verification, verification_seal = read_evidence(prior / 'firmware-verification.json')
     if verification != record:
         raise ValueError('Prior firmware verification record disagrees')
     inputs = record.get('inputs')
-    paths = DESKTOP['uefi_paths']()
+    paths = DESKTOP['uefi_paths'](profile)
     if not isinstance(inputs, dict) or set(inputs) != set(paths):
-        raise ValueError('Prior firmware input set differs from fixed normal OVMF')
+        raise ValueError('Prior firmware input set differs from the fixed OVMF profile')
     for key, path in paths.items():
         if DESKTOP['binary_evidence'](path, 8 * 1024 ** 2)[1] != inputs[key]:
             raise ValueError('Prior original firmware input changed')
@@ -158,7 +160,7 @@ def manual_uefi_source(report, run, prior):
     _, final = DESKTOP['binary_evidence'](variables, 8 * 1024 ** 2)
     if final != report.get('uefi_vars_final') or final['bytes'] != inputs['template']['bytes']:
         raise ValueError('Prior final variable store seal changed or has wrong size')
-    return {'firmware_profile': 'uefi', 'firmware': record,
+    return {'firmware_profile': profile, 'firmware': record,
             'firmware_verification': verification_seal, 'uefi_vars_baseline': final}
 
 
@@ -224,7 +226,7 @@ def main():
     parser.add_argument('--memory', type=int, default=4096)
     parser.add_argument('--cpu-profile', choices=DESKTOP['CPU_PROFILES'], default='max')
     parser.add_argument('--accelerator', choices=('tcg', 'kvm'), default='tcg', help='KVM requires existing access to /dev/kvm')
-    parser.add_argument('--firmware-profile', choices=('bios', 'uefi'), default='bios')
+    parser.add_argument('--firmware-profile', choices=('bios', *DESKTOP['UEFI_PROFILES']), default='bios')
     parser.add_argument('--video', choices=tuple(DESKTOP['VIDEO_PROFILES']), default='standard')
     parser.add_argument('--network', choices=('none', 'user'), default='none',
                         help='No networking, or optional user NAT without forwards/shares')
