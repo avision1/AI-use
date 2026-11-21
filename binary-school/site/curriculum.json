@@ -110,11 +110,11 @@
       "id": 0,
       "course": "foundations",
       "title": "Your first lab environment",
-      "body": "Start here before the assembly flag challenge. The website only needs Python and a browser; practical reverse engineering also needs local tools and a compatible target environment. Pick your route below. Existing C/x86/Linux experience is the syllabus prerequisite: experienced students may verify their setup here, then skip ahead using the course list. New students should follow the assembly course next.",
+      "body": "Start here before the first assembly flag challenge. Python and a browser run the site. A compiler, debugger, and compatible target environment let you do the hands-on labs. Use the table to choose a route, then try the smoke test below. The Foundation path continues with Assembly from Zero. The Syllabus Revision path continues with the source-to-executable walkthrough.",
       "task": "Which file format does a normal Windows MSVC executable use?",
       "answer": "PE",
       "hint": "Linux commonly uses ELF. Windows uses Portable Executable.",
-      "code": "Download lab.c below and follow the smoke-test instructions for your platform. After setup, open the Assembly course from the Learning path.",
+      "code": "Download setup-lab.c below. Save it in a working folder, then open your terminal or Native Tools Command Prompt in that folder.",
       "level": "Guided",
       "video": "d4Pgi5XML8E",
       "teacher": "HACKADAY · HackadayU: Reverse Engineering with Ghidra Class 1",
@@ -135,7 +135,7 @@
             [
               "Windows x86-64",
               "Ghidra can import PE and ELF",
-              "Install Visual Studio C++ Build Tools; use an x64 Native Tools prompt for MSVC and matching x64dbg/Visual Studio. Use an x86 prompt and x32dbg for 32-bit PE. WSL supplies a separate Linux environment for ELF/GDB."
+              "Use WSL on Windows x86-64 for Linux ELF and GDB. Use Visual Studio C++ Build Tools to build Windows PE. Use Visual Studio for source-level debugging, or x64dbg/x32dbg for instruction-level debugging of matching 64-bit/32-bit targets."
             ],
             [
               "Intel Mac",
@@ -145,35 +145,50 @@
             [
               "Apple Silicon / ARM laptop",
               "Ghidra static analysis is available on supported hosts",
-              "Use an x86-64 guest with emulation for the supplied x86 binaries. An ARM Linux VM alone does not provide x86 execution. Native ARM GCC output is a different architecture. Static analysis may be done first while execution is arranged."
+              "Use an emulated x86-64 Linux guest or a remote x86-64 lab for the supplied ELF files. A native ARM build can verify your tools locally, but its instructions differ from the course examples. Use an appropriate Windows environment for Windows PE."
             ]
           ]
         },
         {
-          "title": "Confirm a working environment before the first binary challenge",
-          "text": "Download lab.c below. Compile without optimization; run it once; identify the file architecture and format; stop at main in a debugger; inspect one local value and step a source line. Record compiler version, target bitness and commands in your notebook. A PE text answer alone does not verify the environment. If you cannot execute the binary, record that limitation and begin static analysis rather than treating it as a successful dynamic test."
+          "title": "What to record in your notebook",
+          "text": "Record your compiler version, file format and architecture, printed output, and one value you observed in a debugger. The PE format checkpoint checks terminology separately from setup. If you only have Ghidra, import the supplied lab-gcc from Resources and record what you can see statically. Leave compile, run, and debugger observations pending until you can make them yourself."
+        },
+        {
+          "title": "Worked example: what the first bytes tell you",
+          "text": "Compare these synthetic byte sequences. Which one starts with a recognizable file signature? A starts with 7f followed by the ASCII letters ELF. That makes it a candidate ELF file, and the next byte, 02, declares a 64-bit ELF class. You would need more of the header to check the intended CPU or whether the file is complete. B has no recognizable signature in the bytes shown. Record its format as unknown and leave the CPU and intended use open.",
+          "table": [
+            ["Sequence", "First eight bytes (hex)"],
+            ["A", "7f 45 4c 46 02 01 01 00"],
+            ["B", "42 53 00 10 09 00 2a 00"]
+          ]
         },
         {
           "title": "Linux / WSL smoke test",
-          "code": "gcc --version\ngcc -std=c11 -g -O0 lab.c -o setup-lab\nfile setup-lab\n./setup-lab\ngdb ./setup-lab\n# in GDB: break main, run, next, info locals, continue\n# Expected format: ELF x86-64 on an x86-64 Linux toolchain."
+          "code": "gcc --version\ngcc -std=c11 -g -O0 setup-lab.c -o setup-lab\nfile setup-lab\n./setup-lab\ngdb -q ./setup-lab\n\n# At the GDB prompt, enter one command at a time:\nbreak main\nrun\nnext\nnext\nprint input\nprint result\ncontinue",
+          "text": "Use this route on Linux or inside a compatible WSL distribution. Install GCC, GDB, and the file utility with your distribution package manager if those commands are missing. After running the program, check for result=19. In GDB, stop at main, then step to the printf line before inspecting the variables."
         },
         {
           "title": "Native Windows smoke test",
-          "code": ":: In an x64 Native Tools Command Prompt:\ncl\ncl /nologo /TC /Od /Zi /Fe:setup-lab.exe lab.c\nsetup-lab.exe\ndumpbin /headers setup-lab.exe\n:: Expect PE32+ / x64. Open it with x64dbg or Visual Studio.\n:: Break at main, step past initialization, inspect locals and continue.\n:: Repeat in an x86 Native Tools prompt for PE32 / x86; use x32dbg."
+          "code": "cl\ncl /nologo /TC /Od /Zi /Fe:setup-lab.exe setup-lab.c /link /DEBUG\nsetup-lab.exe\ndumpbin /headers setup-lab.exe",
+          "text": "Build in an x64 Native Tools Command Prompt with the C++ build tools installed. Check for result=19 and PE32+ / x64. For source stepping, open setup-lab.exe as an executable project in the Visual Studio IDE with C++ debugging support. Open setup-lab.c, set a breakpoint on int input = 4;, and start debugging. Step to the printf line and look for input = 4 and result = 19 in Locals. If you only have x64dbg, you can do instruction-level debugging instead. Use an x86 Native Tools prompt and x32dbg for a PE32 / x86 build."
+        },
+        {
+          "title": "Tools needed for the full Syllabus Revision path",
+          "text": "Plan access to both an x86-64 Linux environment with GCC and GDB and a Windows environment with MSVC x86/x64 and a matching debugger. Native Windows with compatible WSL covers both routes. On Linux or macOS, start with the written exercises and use Ghidra for static analysis of ELF and PE. Arrange separate Windows access for the native build and trace work. If you cannot execute a target yet, note the missing runtime evidence in your notebook and return when you have the tools."
         }
       ],
       "downloads": [
         [
           "Environment smoke-test C source",
-          "labs/lab.c"
+          "labs/setup-lab.c"
         ]
       ],
       "walkthrough": [
-        "Choose a route from the platform table; install Python separately from your compiler and debugger.",
-        "Complete the compile/run/debug smoke test and record the actual output, target and observations.",
-        "Open the assembly course for a slower foundation, or use the course list to revisit prerequisite gaps."
+        "Choose the environment that can run the target you want to study.",
+        "Compile, run, and debug setup-lab.c. At the output line, compare your debugger values with the expected input of 4 and result of 19.",
+        "Record any missing tools or unverified steps, then continue to the next activity in your selected path."
       ],
-      "solution": "An x86-64 GCC Linux build is ELF; an x64 MSVC Windows build is PE32+. In both, a breakpoint at main and stepping past initialization should let you inspect the C program state. Exact addresses vary. A static import does not establish that execution works.",
+      "solution": "On Linux x86-64, file should identify an ELF x86-64 executable. For an x64 MSVC build, dumpbin should identify an x64 machine and a PE32+ optional header. Both builds print result=19. Before the output line executes, input is 4 and result is 19.",
       "references": [
         [
           "Microsoft C++ build tools and command prompts",
@@ -188,7 +203,13 @@
           "https://sourceware.org/gdb/documentation/"
         ]
       ],
-      "videoRole": "overview"
+      "videoRole": "overview",
+      "optional_completion": true,
+      "reflection": "Record the output, target, and one observation in your notebook. If you use the static route, record which compile, run, or debugger steps you still need to try. Use Mark this lesson studied to save your self-reported completion.",
+      "review": [
+        "I recorded my host, target architecture, and available tools.",
+        "I recorded the program output and a debugger observation, or identified the steps I still need to verify."
+      ]
     },
     {
       "id": 26,
@@ -365,6 +386,18 @@
       "blanks": [
         "jl"
       ],
+      "sections": [
+        {
+          "title": "Worked example: one bit pattern, two comparisons",
+          "text": "Predict whether 0xffffffff is below 3 in a 32-bit comparison. Try both interpretations before reading the trace. cmp sets the same flags either way. The branch you choose determines how those flags are interpreted.",
+          "code": "mov edx, 0xffffffff\ncmp edx, 3",
+          "table": [
+            ["Interpretation", "Value in edx", "Comparison with 3"],
+            ["Signed 32-bit", "-1", "Less than 3"],
+            ["Unsigned 32-bit", "4,294,967,295", "Greater than 3"]
+          ]
+        }
+      ],
       "level": "Practice",
       "video": "PxiMLtsuGO0",
       "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
@@ -420,6 +453,20 @@
       "blanks": [
         "call",
         "ret"
+      ],
+      "sections": [
+        {
+          "title": "Worked example: follow the saved address",
+          "text": "Suppose rsp is 0x8008 on entry and the caller’s return address is already on the stack. Before reading the trace, predict where the helper returns and what rsp and eax hold when the function reaches its final ret. Addresses are illustrative.",
+          "code": "0x1000  sub rsp, 40\n0x1004  call helper\n0x1009  add rsp, 40\n0x100d  ret\n\nhelper:\n        mov eax, 21\n        ret",
+          "table": [
+            ["Step", "rsp after step", "What changes"],
+            ["Reserve 40 bytes", "0x7fe0", "rsp decreases by 0x28."],
+            ["Call helper", "0x7fd8", "The stack receives 0x1009."],
+            ["Return from helper", "0x7fe0", "Execution resumes at 0x1009. eax holds 21."],
+            ["Release 40 bytes", "0x8008", "The original return address is back on top."]
+          ]
+        }
       ],
       "level": "Practice",
       "video": "PxiMLtsuGO0",
@@ -488,8 +535,8 @@
       "id": 108,
       "course": "assembly",
       "title": "Interactive binary lab · Registers and addition",
-      "body": "Download the guided executable and investigate it using the tools introduced in this course. This is an original local training program with no network access or system changes. It takes one integer from -100 to 100. A successful input reaches a decoder that prints a unique flag. Use the visible arithmetic in gate to compute the expected integer. Start with a wrong input to establish the failure path. The guided build retains symbols; the independent build is optimized and stripped, so names and exact instruction patterns can differ. Both implement the same input contract and print the same flag. Use the independent version only after explaining the guided version. The supplied ELF files run on Linux x86-64, including a compatible WSL installation. Native Windows learners can build the included source using the MSVC script, then analyze that PE in Ghidra and x64dbg. The Linux executable is not presented as an MSVC binary.",
-      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x assembly-guided-linux-x64\ngdb -q ./assembly-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.\nWindows: build the supplied C with MSVC, or use the separate\nnative PE practical where provided. Use a matching Windows debugger.",
+      "body": "Start with the guided build. If this is your first binary investigation, the setup, Ghidra, and GDB lessons linked under references show how to open a binary and stop at a breakpoint. This training program takes one integer from -100 to 100. A successful input reaches a decoder that prints a flag. Use the arithmetic in gate to work out the expected input. Start with a wrong input to observe the failure path. The guided build retains function names. The independent build is optimized and stripped and can use different instruction patterns. Try it after you can explain the guided build. Both accept the same inputs and print the same flag.",
+      "code": "Linux / WSL · binary-only route (no C source needed):\nchmod +x assembly-guided-linux-x64\ngdb -q ./assembly-guided-linux-x64\n\nGDB:\nset disassembly-flavor intel\ndisassemble /r gate\nbreak gate\nrun 0\nx/6i $pc\ninfo registers edi eax eflags rip rsp rbp\nstepi\nnexti\n\nSymbols name functions; they do not include the C source text.\nUse instructions, registers and memory before opening source.",
       "walkthrough": [
         "Download the guided binary, locate gate, and explain the input check in your notebook.",
         "Use the visible arithmetic in gate to compute the expected integer.",
@@ -503,6 +550,18 @@
       "video": "PxiMLtsuGO0",
       "teacher": "Mxy · Learn Assembly For Beginners | Introduction to Assembly | Assembly Tutorial x86-64 Architecture",
       "references": [
+        [
+          "Set up and test your lab environment",
+          "#lesson/0"
+        ],
+        [
+          "Import your first executable in Ghidra",
+          "#lesson/8"
+        ],
+        [
+          "Set your first GDB breakpoint",
+          "#lesson/17"
+        ],
         [
           "Ghidra beginner guide",
           "https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html"
@@ -536,6 +595,15 @@
         "I compared success and failure behavior and recorded the steps."
       ],
       "sections": [
+        {
+          "title": "Pick a route for the guided build",
+          "text": "On Linux x86-64 or compatible WSL, use the GDB commands above. If you have never used GDB, open the breakpoint lesson in the references first. With Ghidra alone, import the guided ELF, run analysis, and find gate under Functions in the Symbol Tree. Record what you predict and confirm the output later in a compatible environment."
+        },
+        {
+          "title": "Build the guided exercise on native Windows",
+          "text": "Download assembly.c into your working folder. Use the command below in an x64 Native Tools Command Prompt. Open the PE in Ghidra or a matching Windows debugger, and keep the PDB next to the executable for symbols. Attempt the binary investigation before reading the C source.",
+          "code": "cl /nologo /TC /Od /Zi /Fe:assembly-guided.exe assembly.c /link /DEBUG"
+        },
         {
           "title": "Choose binary-only or source-level debugging deliberately",
           "text": "The guided ELF retains function names and debug metadata, so GDB can disassemble gate without a .c file. The metadata refers to a source path; it does not embed that source. A missing-source message at a breakpoint does not prevent instruction stepping. Use stepi/nexti (one machine instruction, or step over a call), x/i $pc, registers and explicit memory displays. With the optimized stripped build, gate may have no name: use the stripped-executable lesson to recover the relevant runtime address from static analysis and the module base."

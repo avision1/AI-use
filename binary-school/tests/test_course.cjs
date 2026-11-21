@@ -13,7 +13,7 @@ async function test(){
   els['#answer'].value=flag.toLowerCase();await els['#answerform'].onsubmit({preventDefault(){}});assert(els['#feedback'].textContent.includes('does not match'));
   els['#answer'].value=flag;await els['#answerform'].onsubmit({preventDefault(){}});assert(els['#feedback'].textContent.includes('Flag found!'));assert(vm.runInContext(`done(${l.id})`,ctx));
  }
- assert.equal(JSON.parse(saved['binary-school-v1']).flagsSolved.length,13);assert.equal(vm.runInContext('state.notes[0]',ctx),'retained');assert(vm.runInContext('searchResults("stack arguments")',ctx).includes('Stack arguments without push'));
+ assert.equal(JSON.parse(saved['binary-school-v1']).flagsSolved.length,13);assert.equal(vm.runInContext('state.notes[0]',ctx),'retained');assert(vm.runInContext('searchResults(findCatalogLessons("stack arguments"))',ctx).includes('Stack arguments without push'));
 
  // Regression: note input autosaves, and route/page lifecycle preserve unsaved DOM text.
  vm.runInContext("bind('lesson',0)",ctx);
